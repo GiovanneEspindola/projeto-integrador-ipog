@@ -41,6 +41,11 @@ Thumbs.db
 tmp/
 
 # --- NÃO ignorar (deixado explícito de propósito) --------------------------
+# uv.lock                   -> É O ARQUIVO MAIS IMPORTANTE DA REPRODUTIBILIDADE.
+#                              Trava a árvore inteira de dependências com hash.
+#                              Ignorá-lo destruiria a garantia de ambiente idêntico.
+# pyproject.toml            -> dependências declaradas
+# .python-version           -> versão do interpretador
 # apresentacao/evidencias/  -> evidência para os slides, versionada (regra 3)
 # bench/results/            -> resultados de benchmark, versionados (regra 6)
 # sql/00_northwind_original.sql -> o dump é parte da reprodutibilidade

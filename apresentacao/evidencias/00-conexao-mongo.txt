@@ -1,0 +1,16 @@
+# Teste de conexão — MongoDB
+# Data: 26/08/2026 20:04:57 -03
+# Objetivo: o healthcheck do container só faz ping SEM autenticar. Este
+#           teste vai além: autentica, ESCREVE, LÊ e APAGA um documento.
+
+$ docker compose exec -T mongo mongosh -u pi -p pi --authenticationDatabase admin --quiet --eval "<script abaixo>"
+versao do servidor .......: 7.0.40
+banco atual ..............: northwind
+usuario autenticado ......: pi
+insertOne acknowledged ...: true
+documento lido de volta ..: {"ok":1,"origem":"teste de bootstrap"}
+colecoes antes do drop ...: ["teste_conexao"]
+colecoes depois do drop ..: []
+
+# Escrita, leitura e remoção confirmadas. A coleção de teste foi apagada:
+# o banco northwind fica vazio, pronto para a migração da Entrega 02.

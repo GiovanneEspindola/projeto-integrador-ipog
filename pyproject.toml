@@ -1,0 +1,55 @@
+# ---------------------------------------------------------------------------
+# Projeto Integrador — Área 03: Banco de Dados (IPOG)
+#
+# Gerenciador de pacotes: uv (https://docs.astral.sh/uv/)
+#
+#   uv sync          instala TUDO: o Python 3.12, o .venv e as dependências,
+#                    exatamente nas versões travadas em uv.lock
+#   uv run <cmd>     roda um comando dentro do ambiente, sem precisar de
+#                    "source .venv/bin/activate"
+#   uv add <pacote>  acrescenta uma dependência e atualiza o uv.lock
+#
+# Por que uv e não pip: `uv.lock` trava a árvore inteira de dependências com
+# hash criptográfico de cada arquivo baixado, e o .python-version trava até a
+# versão do interpretador. `uv sync` reconstrói o ambiente bit a bit idêntico
+# em qualquer máquina. Com pip + requirements.txt isso só é aproximado.
+# Reprodutibilidade é critério de nota neste trabalho.
+#
+# Quem não tiver uv instalado ainda consegue rodar: etl/requirements.txt é
+# gerado a partir do uv.lock e funciona com pip. Veja o README.
+# ---------------------------------------------------------------------------
+
+[project]
+name = "projeto-integrador-ipog"
+version = "0.1.0"
+description = "Modelagem e análise de dados de vendas (Northwind): PostgreSQL vs MongoDB"
+requires-python = ">=3.12"
+
+# Quatro dependências diretas, todas drivers ou ferramentas de análise.
+# Nenhum framework que esconda o trabalho de modelagem ou de consulta.
+dependencies = [
+    # Driver oficial do PostgreSQL para Python (versão 3). O extra [binary]
+    # traz o libpq compilado junto, dispensando bibliotecas de sistema.
+    # Usado pelo ETL (public -> nw -> MongoDB) e pelo benchmark.
+    "psycopg[binary]>=3.3.4",
+
+    # Driver oficial do MongoDB. Mesmo papel do psycopg, do outro lado da
+    # comparação que dá título ao projeto.
+    "pymongo>=4.17.0",
+
+    # Formata resultado de consulta como tabela de texto ou Markdown. É o que
+    # transforma uma saída crua em evidência apresentável para os slides.
+    "tabulate>=0.10.0",
+
+    # Gráficos (.png) do benchmark e da análise exploratória.
+    "matplotlib>=3.11.1",
+]
+
+# PDF, PPTX, DOCX e XLSX NÃO entram aqui: a geração dos documentos das
+# entregas é feita fora deste ambiente.
+
+[tool.uv]
+# Este repositório é uma coleção de scripts (etl/, bench/), não uma biblioteca
+# a ser empacotada e instalada. Sem isto o `uv sync` tentaria construir um
+# pacote "projeto-integrador-ipog" e falharia por não achar módulo nenhum.
+package = false

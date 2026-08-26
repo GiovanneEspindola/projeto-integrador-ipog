@@ -1,0 +1,40 @@
+# Teste de conexão — PostgreSQL
+# Data: 26/08/2026 20:04:45 -03
+# Objetivo: provar que dá para AUTENTICAR e CONSULTAR o container,
+#           não apenas que a porta responde.
+
+$ docker compose ps --format "table {{.Name}}	{{.Image}}	{{.Status}}"
+NAME          IMAGE         STATUS
+pi-mongo      mongo:7       Up About a minute (healthy)
+pi-postgres   postgres:16   Up About a minute (healthy)
+
+$ docker compose exec -T postgres psql -U pi -d northwind -c "SELECT version(), current_database(), current_user;"
+                                                       version                                                        | current_database | current_user 
+----------------------------------------------------------------------------------------------------------------------+------------------+--------------
+ PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit | northwind        | pi
+(1 row)
+
+
+$ docker compose exec -T postgres psql -U pi -d northwind -c "\l"
+                                                List of databases
+   Name    | Owner | Encoding | Locale Provider | Collate |  Ctype  | ICU Locale | ICU Rules | Access privileges 
+-----------+-------+----------+-----------------+---------+---------+------------+-----------+-------------------
+ northwind | pi    | UTF8     | libc            | C.UTF-8 | C.UTF-8 |            |           | 
+ postgres  | pi    | UTF8     | libc            | C.UTF-8 | C.UTF-8 |            |           | 
+ template0 | pi    | UTF8     | libc            | C.UTF-8 | C.UTF-8 |            |           | =c/pi            +
+           |       |          |                 |         |         |            |           | pi=CTc/pi
+ template1 | pi    | UTF8     | libc            | C.UTF-8 | C.UTF-8 |            |           | =c/pi            +
+           |       |          |                 |         |         |            |           | pi=CTc/pi
+(4 rows)
+
+
+$ docker compose exec -T postgres psql -U pi -d northwind -c "\dn"
+      List of schemas
+  Name  |       Owner       
+--------+-------------------
+ public | pg_database_owner
+(1 row)
+
+
+# Schemas: apenas public (vazio). O schema nw será criado na etapa de
+# modelagem relacional; a carga do Northwind ainda não foi feita.

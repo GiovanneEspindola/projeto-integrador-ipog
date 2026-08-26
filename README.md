@@ -152,9 +152,37 @@ docker compose --profile gui up -d
 Não é necessário para subir os bancos nem para rodar as consultas — só para os
 scripts de `etl/` e `bench/`.
 
+O projeto usa o [**uv**](https://docs.astral.sh/uv/). Se você não tiver:
+
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Depois, na raiz do repositório, **um comando basta**:
+
+```bash
+uv sync
+```
+
+Isso instala o Python 3.12 (mesmo que você não o tenha), cria o `.venv` e
+instala as dependências exatamente nas versões travadas em `uv.lock`. Para
+rodar qualquer script sem ativar o ambiente à mão:
+
+```bash
+uv run python etl/migrate.py
+```
+
+**Por que uv e não pip:** o `uv.lock` trava a árvore inteira de dependências
+com hash criptográfico de cada arquivo, e o `.python-version` trava até a versão
+do interpretador. `uv sync` reconstrói o ambiente idêntico em qualquer máquina —
+com `pip install -r requirements.txt` isso é só aproximado. Reprodutibilidade é
+critério de avaliação deste trabalho.
+
+**Sem uv, usando pip:** `etl/requirements.txt` é gerado a partir do `uv.lock` e
+funciona normalmente:
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate
 pip install -r etl/requirements.txt
 ```
 
@@ -163,6 +191,9 @@ pip install -r etl/requirements.txt
 ## Estrutura do repositório
 
 ```
+pyproject.toml     dependências Python declaradas (fonte de verdade)
+uv.lock            versões resolvidas e travadas com hash
+.python-version    versão do interpretador (3.12)
 docs/              documentação técnica das entregas (01 a 07)
   estudo/          material didático: o "por quê" de cada decisão
   diagramas/       ER conceitual (.mmd), ER lógico (.dbml/.png)
@@ -170,7 +201,7 @@ sql/               dump original, DDL do schema nw, carga, índices, views
   queries/         consultas de negócio (QNN.sql)
 mongo/             validators e índices
   pipelines/       aggregation pipelines espelhando as consultas (PNN.js)
-etl/               migração PostgreSQL -> MongoDB + requirements.txt
+etl/               migração PostgreSQL -> MongoDB + requirements.txt (gerado)
 bench/             benchmark comparativo + resultados
 apresentacao/      roteiro dos slides
   evidencias/      saídas brutas de consulta e gráficos usados na apresentação

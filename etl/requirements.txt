@@ -1,50 +1,59 @@
 # ---------------------------------------------------------------------------
-# Dependências Python do Projeto Integrador — Área 03 (Banco de Dados)
+# ARQUIVO GERADO AUTOMATICAMENTE — NÃO EDITE À MÃO
 #
-# Instalar:
+# A fonte de verdade das dependências deste projeto é o par
+#   pyproject.toml  (o que se pede)  +  uv.lock  (o que se resolveu, com hash)
+#
+# Este requirements.txt existe só como PLANO B, para quem não tem o uv
+# instalado e quer usar pip:
+#
 #   python3 -m venv .venv
 #   source .venv/bin/activate
 #   pip install -r etl/requirements.txt
 #
-# Versões FIXADAS (==) de propósito: reprodutibilidade é critério de nota.
-# Um avaliador que rodar este arquivo daqui a seis meses instala exatamente
-# os mesmos pacotes que foram usados para gerar os resultados do relatório.
+# O caminho recomendado é `uv sync` na raiz do repositório — ele instala até
+# o interpretador Python na versão certa. Veja o README.
 #
-# São quatro dependências diretas, todas drivers ou ferramentas de análise.
-# Nenhum framework que esconda o trabalho de modelagem ou de consulta:
-#
-#   psycopg[binary] .. driver oficial do PostgreSQL para Python (versão 3).
-#                      O extra [binary] traz o libpq compilado junto, evitando
-#                      ter de instalar bibliotecas de sistema no Ubuntu.
-#                      Usado pelo ETL (public -> nw -> MongoDB) e pelo benchmark.
-#   pymongo ......... driver oficial do MongoDB. Mesmo papel do psycopg, do
-#                      outro lado da comparação.
-#   tabulate ........ formata resultados de consulta como tabela de texto ou
-#                      Markdown. É o que transforma uma saída de consulta em
-#                      evidência apresentável em apresentacao/evidencias/.
-#   matplotlib ...... gráficos (.png) do benchmark e da análise exploratória.
-#
-# PDF, PPTX, DOCX e XLSX NÃO entram aqui: a geração dos documentos das
-# entregas é feita fora deste ambiente.
+# Para regerar este arquivo depois de mudar as dependências:
+#   uv export --no-hashes --no-emit-project --format requirements.txt \
+#     | grep -v '^#' >> (com este cabeçalho por cima)
 # ---------------------------------------------------------------------------
 
-# --- dependências diretas --------------------------------------------------
-matplotlib==3.11.1
-psycopg==3.3.4
-pymongo==4.17.0
-tabulate==0.10.0
-
-# --- transitivas (fixadas para o ambiente ficar idêntico) ------------------
 contourpy==1.3.3
+    # via matplotlib
 cycler==0.12.1
+    # via matplotlib
 dnspython==2.8.0
+    # via pymongo
 fonttools==4.63.0
+    # via matplotlib
 kiwisolver==1.5.0
+    # via matplotlib
+matplotlib==3.11.1
+    # via projeto-integrador-ipog
 numpy==2.5.2
+    # via
+    #   contourpy
+    #   matplotlib
 packaging==26.3
+    # via matplotlib
 pillow==12.3.0
-psycopg-binary==3.3.4
+    # via matplotlib
+psycopg==3.3.4
+    # via projeto-integrador-ipog
+psycopg-binary==3.3.4 ; implementation_name != 'pypy'
+    # via psycopg
+pymongo==4.17.0
+    # via projeto-integrador-ipog
 pyparsing==3.3.2
+    # via matplotlib
 python-dateutil==2.9.0.post0
+    # via matplotlib
 six==1.17.0
-typing_extensions==4.16.0
+    # via python-dateutil
+tabulate==0.10.0
+    # via projeto-integrador-ipog
+typing-extensions==4.16.0 ; python_full_version < '3.13'
+    # via psycopg
+tzdata==2026.3 ; sys_platform == 'win32'
+    # via psycopg

@@ -1,0 +1,12 @@
+# Teste de conexão pelos drivers Python — a partir do host
+# Data: 26/08/2026 20:05:13 -03
+#
+# Os dois testes anteriores rodaram DENTRO do container. Este roda de fora,
+# pelo .venv gerenciado pelo uv, usando as portas publicadas no localhost.
+# É exatamente o caminho que o ETL e o benchmark vão usar.
+
+$ uv run python teste_drivers.py
+| Banco      | Driver   | Versão do driver   | Banco / usuário   | Versão do servidor              |
+|------------|----------|--------------------|-------------------|---------------------------------|
+| PostgreSQL | psycopg  | 3.3.4              | northwind / pi    | 16.15 (Debian 16.15-1.pgdg13+2) |
+| MongoDB    | pymongo  | 4.17.0             | northwind / pi    | 7.0.40                          |
