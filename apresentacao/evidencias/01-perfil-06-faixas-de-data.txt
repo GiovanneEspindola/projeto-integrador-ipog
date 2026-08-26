@@ -1,0 +1,15 @@
+# Perfilamento 6/6 — Faixa de valores em toda coluna temporal
+# Gerado por: uv run python etl/perfilamento.py
+# Fonte: postgresql://pi:***@localhost:5432/northwind · schema public
+
+------------------------------------------------------------------------------
+$ SELECT min(col), max(col), count(col), nulos, count(DISTINCT col) -- por coluna temporal
+------------------------------------------------------------------------------
+| coluna               | tipo   | mínimo     | máximo     |   preenchidos |   nulos |   distintos |
+|----------------------|--------|------------|------------|---------------|---------|-------------|
+| employees.birth_date | date   | 1937-09-19 | 1966-01-27 |             9 |       0 |           9 |
+| employees.hire_date  | date   | 1992-04-01 | 1994-11-15 |             9 |       0 |           8 |
+| orders.order_date    | date   | 1996-07-04 | 1998-05-06 |           830 |       0 |         480 |
+| orders.required_date | date   | 1996-07-24 | 1998-06-11 |           830 |       0 |         454 |
+| orders.shipped_date  | date   | 1996-07-10 | 1998-05-06 |           809 |      21 |         387 |
+

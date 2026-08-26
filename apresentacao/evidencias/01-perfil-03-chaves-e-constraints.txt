@@ -1,0 +1,71 @@
+# Perfilamento 3/6 — Chaves, constraints e índices existentes
+# Gerado por: uv run python etl/perfilamento.py
+# Fonte: postgresql://pi:***@localhost:5432/northwind · schema public
+
+------------------------------------------------------------------------------
+$ SELECT tipo, count(*) FROM pg_constraint ... GROUP BY tipo
+------------------------------------------------------------------------------
+| tipo        |   quantidade |
+|-------------|--------------|
+| PRIMARY KEY |           14 |
+| FOREIGN KEY |           13 |
+
+------------------------------------------------------------------------------
+$ SELECT ... pg_get_constraintdef(con.oid) FROM pg_constraint ...
+------------------------------------------------------------------------------
+| tabela                 | constraint                                      | tipo        | definicao                                                                         |
+|------------------------|-------------------------------------------------|-------------|-----------------------------------------------------------------------------------|
+| categories             | pk_categories                                   | PRIMARY KEY | PRIMARY KEY (category_id)                                                         |
+| customer_customer_demo | pk_customer_customer_demo                       | PRIMARY KEY | PRIMARY KEY (customer_id, customer_type_id)                                       |
+| customer_customer_demo | fk_customer_customer_demo_customer_demographics | FOREIGN KEY | FOREIGN KEY (customer_type_id) REFERENCES customer_demographics(customer_type_id) |
+| customer_customer_demo | fk_customer_customer_demo_customers             | FOREIGN KEY | FOREIGN KEY (customer_id) REFERENCES customers(customer_id)                       |
+| customer_demographics  | pk_customer_demographics                        | PRIMARY KEY | PRIMARY KEY (customer_type_id)                                                    |
+| customers              | pk_customers                                    | PRIMARY KEY | PRIMARY KEY (customer_id)                                                         |
+| employee_territories   | pk_employee_territories                         | PRIMARY KEY | PRIMARY KEY (employee_id, territory_id)                                           |
+| employee_territories   | fk_employee_territories_employees               | FOREIGN KEY | FOREIGN KEY (employee_id) REFERENCES employees(employee_id)                       |
+| employee_territories   | fk_employee_territories_territories             | FOREIGN KEY | FOREIGN KEY (territory_id) REFERENCES territories(territory_id)                   |
+| employees              | pk_employees                                    | PRIMARY KEY | PRIMARY KEY (employee_id)                                                         |
+| employees              | fk_employees_employees                          | FOREIGN KEY | FOREIGN KEY (reports_to) REFERENCES employees(employee_id)                        |
+| order_details          | pk_order_details                                | PRIMARY KEY | PRIMARY KEY (order_id, product_id)                                                |
+| order_details          | fk_order_details_orders                         | FOREIGN KEY | FOREIGN KEY (order_id) REFERENCES orders(order_id)                                |
+| order_details          | fk_order_details_products                       | FOREIGN KEY | FOREIGN KEY (product_id) REFERENCES products(product_id)                          |
+| orders                 | pk_orders                                       | PRIMARY KEY | PRIMARY KEY (order_id)                                                            |
+| orders                 | fk_orders_customers                             | FOREIGN KEY | FOREIGN KEY (customer_id) REFERENCES customers(customer_id)                       |
+| orders                 | fk_orders_employees                             | FOREIGN KEY | FOREIGN KEY (employee_id) REFERENCES employees(employee_id)                       |
+| orders                 | fk_orders_shippers                              | FOREIGN KEY | FOREIGN KEY (ship_via) REFERENCES shippers(shipper_id)                            |
+| products               | pk_products                                     | PRIMARY KEY | PRIMARY KEY (product_id)                                                          |
+| products               | fk_products_categories                          | FOREIGN KEY | FOREIGN KEY (category_id) REFERENCES categories(category_id)                      |
+| products               | fk_products_suppliers                           | FOREIGN KEY | FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id)                       |
+| region                 | pk_region                                       | PRIMARY KEY | PRIMARY KEY (region_id)                                                           |
+| shippers               | pk_shippers                                     | PRIMARY KEY | PRIMARY KEY (shipper_id)                                                          |
+| suppliers              | pk_suppliers                                    | PRIMARY KEY | PRIMARY KEY (supplier_id)                                                         |
+| territories            | pk_territories                                  | PRIMARY KEY | PRIMARY KEY (territory_id)                                                        |
+| territories            | fk_territories_region                           | FOREIGN KEY | FOREIGN KEY (region_id) REFERENCES region(region_id)                              |
+| us_states              | pk_usstates                                     | PRIMARY KEY | PRIMARY KEY (state_id)                                                            |
+
+------------------------------------------------------------------------------
+$ SELECT ... FROM pg_indexes WHERE schemaname='public'
+------------------------------------------------------------------------------
+| tabela                 | indice                    | definicao                                                                                                                  |
+|------------------------|---------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| categories             | pk_categories             | CREATE UNIQUE INDEX pk_categories ON public.categories USING btree (category_id)                                           |
+| customer_customer_demo | pk_customer_customer_demo | CREATE UNIQUE INDEX pk_customer_customer_demo ON public.customer_customer_demo USING btree (customer_id, customer_type_id) |
+| customer_demographics  | pk_customer_demographics  | CREATE UNIQUE INDEX pk_customer_demographics ON public.customer_demographics USING btree (customer_type_id)                |
+| customers              | pk_customers              | CREATE UNIQUE INDEX pk_customers ON public.customers USING btree (customer_id)                                             |
+| employee_territories   | pk_employee_territories   | CREATE UNIQUE INDEX pk_employee_territories ON public.employee_territories USING btree (employee_id, territory_id)         |
+| employees              | pk_employees              | CREATE UNIQUE INDEX pk_employees ON public.employees USING btree (employee_id)                                             |
+| order_details          | pk_order_details          | CREATE UNIQUE INDEX pk_order_details ON public.order_details USING btree (order_id, product_id)                            |
+| orders                 | pk_orders                 | CREATE UNIQUE INDEX pk_orders ON public.orders USING btree (order_id)                                                      |
+| products               | pk_products               | CREATE UNIQUE INDEX pk_products ON public.products USING btree (product_id)                                                |
+| region                 | pk_region                 | CREATE UNIQUE INDEX pk_region ON public.region USING btree (region_id)                                                     |
+| shippers               | pk_shippers               | CREATE UNIQUE INDEX pk_shippers ON public.shippers USING btree (shipper_id)                                                |
+| suppliers              | pk_suppliers              | CREATE UNIQUE INDEX pk_suppliers ON public.suppliers USING btree (supplier_id)                                             |
+| territories            | pk_territories            | CREATE UNIQUE INDEX pk_territories ON public.territories USING btree (territory_id)                                        |
+| us_states              | pk_usstates               | CREATE UNIQUE INDEX pk_usstates ON public.us_states USING btree (state_id)                                                 |
+
+------------------------------------------------------------------------------
+$ -- tabelas SEM PRIMARY KEY
+------------------------------------------------------------------------------
+| tabela_sem_primary_key   |
+|--------------------------|
+

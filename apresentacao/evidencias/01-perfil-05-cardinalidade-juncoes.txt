@@ -1,0 +1,42 @@
+# Perfilamento 5/6 — Cardinalidade das colunas de junção e verificação de órfãos
+# Gerado por: uv run python etl/perfilamento.py
+# Fonte: postgresql://pi:***@localhost:5432/northwind · schema public
+
+------------------------------------------------------------------------------
+$ -- para cada FK: linhas, nulos, valores distintos no filho, linhas no pai
+------------------------------------------------------------------------------
+| coluna de junção                        | aponta para                               |   linhas filho |   nulos |   distintos |   linhas pai |   média filhos/pai | % do pai referenciado   |
+|-----------------------------------------|-------------------------------------------|----------------|---------|-------------|--------------|--------------------|-------------------------|
+| customer_customer_demo.customer_type_id | -> customer_demographics.customer_type_id |              0 |       0 |           0 |            0 |                0   | 0%                      |
+| customer_customer_demo.customer_id      | -> customers.customer_id                  |              0 |       0 |           0 |           91 |                0   | 0%                      |
+| employee_territories.employee_id        | -> employees.employee_id                  |             49 |       0 |           9 |            9 |                5.4 | 100%                    |
+| employee_territories.territory_id       | -> territories.territory_id               |             49 |       0 |          49 |           53 |                1   | 92%                     |
+| employees.reports_to                    | -> employees.employee_id                  |              9 |       1 |           2 |            9 |                4   | 22%                     |
+| order_details.order_id                  | -> orders.order_id                        |           2155 |       0 |         830 |          830 |                2.6 | 100%                    |
+| order_details.product_id                | -> products.product_id                    |           2155 |       0 |          77 |           77 |               28   | 100%                    |
+| orders.customer_id                      | -> customers.customer_id                  |            830 |       0 |          89 |           91 |                9.3 | 98%                     |
+| orders.employee_id                      | -> employees.employee_id                  |            830 |       0 |           9 |            9 |               92.2 | 100%                    |
+| orders.ship_via                         | -> shippers.shipper_id                    |            830 |       0 |           3 |            6 |              276.7 | 50%                     |
+| products.category_id                    | -> categories.category_id                 |             77 |       0 |           8 |            8 |                9.6 | 100%                    |
+| products.supplier_id                    | -> suppliers.supplier_id                  |             77 |       0 |          29 |           29 |                2.7 | 100%                    |
+| territories.region_id                   | -> region.region_id                       |             53 |       0 |           4 |            4 |               13.2 | 100%                    |
+
+------------------------------------------------------------------------------
+$ -- anti-join: filhos apontando para pai inexistente (esperado: 0 em todas)
+------------------------------------------------------------------------------
+| constraint                                      | relação                                                                           |   órfãos |
+|-------------------------------------------------|-----------------------------------------------------------------------------------|----------|
+| fk_customer_customer_demo_customer_demographics | customer_customer_demo.customer_type_id -> customer_demographics.customer_type_id |        0 |
+| fk_customer_customer_demo_customers             | customer_customer_demo.customer_id -> customers.customer_id                       |        0 |
+| fk_employee_territories_employees               | employee_territories.employee_id -> employees.employee_id                         |        0 |
+| fk_employee_territories_territories             | employee_territories.territory_id -> territories.territory_id                     |        0 |
+| fk_employees_employees                          | employees.reports_to -> employees.employee_id                                     |        0 |
+| fk_order_details_orders                         | order_details.order_id -> orders.order_id                                         |        0 |
+| fk_order_details_products                       | order_details.product_id -> products.product_id                                   |        0 |
+| fk_orders_customers                             | orders.customer_id -> customers.customer_id                                       |        0 |
+| fk_orders_employees                             | orders.employee_id -> employees.employee_id                                       |        0 |
+| fk_orders_shippers                              | orders.ship_via -> shippers.shipper_id                                            |        0 |
+| fk_products_categories                          | products.category_id -> categories.category_id                                    |        0 |
+| fk_products_suppliers                           | products.supplier_id -> suppliers.supplier_id                                     |        0 |
+| fk_territories_region                           | territories.region_id -> region.region_id                                         |        0 |
+

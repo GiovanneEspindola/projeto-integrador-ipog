@@ -1,0 +1,102 @@
+# Perfilamento 2/6 — Colunas, tipos declarados e nulabilidade
+# Gerado por: uv run python etl/perfilamento.py
+# Fonte: postgresql://pi:***@localhost:5432/northwind · schema public
+
+------------------------------------------------------------------------------
+$ SELECT ... FROM information_schema.columns WHERE table_schema='public'
+------------------------------------------------------------------------------
+| tabela                 |   pos | coluna                | tipo                   | aceita_nulo   | padrao   |
+|------------------------|-------|-----------------------|------------------------|---------------|----------|
+| categories             |     1 | category_id           | smallint               | NO            |          |
+| categories             |     2 | category_name         | character varying(15)  | NO            |          |
+| categories             |     3 | description           | text                   | YES           |          |
+| categories             |     4 | picture               | bytea                  | YES           |          |
+| customer_customer_demo |     1 | customer_id           | character varying(5)   | NO            |          |
+| customer_customer_demo |     2 | customer_type_id      | character varying(5)   | NO            |          |
+| customer_demographics  |     1 | customer_type_id      | character varying(5)   | NO            |          |
+| customer_demographics  |     2 | customer_desc         | text                   | YES           |          |
+| customers              |     1 | customer_id           | character varying(5)   | NO            |          |
+| customers              |     2 | company_name          | character varying(40)  | NO            |          |
+| customers              |     3 | contact_name          | character varying(30)  | YES           |          |
+| customers              |     4 | contact_title         | character varying(30)  | YES           |          |
+| customers              |     5 | address               | character varying(60)  | YES           |          |
+| customers              |     6 | city                  | character varying(15)  | YES           |          |
+| customers              |     7 | region                | character varying(15)  | YES           |          |
+| customers              |     8 | postal_code           | character varying(10)  | YES           |          |
+| customers              |     9 | country               | character varying(15)  | YES           |          |
+| customers              |    10 | phone                 | character varying(24)  | YES           |          |
+| customers              |    11 | fax                   | character varying(24)  | YES           |          |
+| employee_territories   |     1 | employee_id           | smallint               | NO            |          |
+| employee_territories   |     2 | territory_id          | character varying(20)  | NO            |          |
+| employees              |     1 | employee_id           | smallint               | NO            |          |
+| employees              |     2 | last_name             | character varying(20)  | NO            |          |
+| employees              |     3 | first_name            | character varying(10)  | NO            |          |
+| employees              |     4 | title                 | character varying(30)  | YES           |          |
+| employees              |     5 | title_of_courtesy     | character varying(25)  | YES           |          |
+| employees              |     6 | birth_date            | date                   | YES           |          |
+| employees              |     7 | hire_date             | date                   | YES           |          |
+| employees              |     8 | address               | character varying(60)  | YES           |          |
+| employees              |     9 | city                  | character varying(15)  | YES           |          |
+| employees              |    10 | region                | character varying(15)  | YES           |          |
+| employees              |    11 | postal_code           | character varying(10)  | YES           |          |
+| employees              |    12 | country               | character varying(15)  | YES           |          |
+| employees              |    13 | home_phone            | character varying(24)  | YES           |          |
+| employees              |    14 | extension             | character varying(4)   | YES           |          |
+| employees              |    15 | photo                 | bytea                  | YES           |          |
+| employees              |    16 | notes                 | text                   | YES           |          |
+| employees              |    17 | reports_to            | smallint               | YES           |          |
+| employees              |    18 | photo_path            | character varying(255) | YES           |          |
+| order_details          |     1 | order_id              | smallint               | NO            |          |
+| order_details          |     2 | product_id            | smallint               | NO            |          |
+| order_details          |     3 | unit_price            | real                   | NO            |          |
+| order_details          |     4 | quantity              | smallint               | NO            |          |
+| order_details          |     5 | discount              | real                   | NO            |          |
+| orders                 |     1 | order_id              | smallint               | NO            |          |
+| orders                 |     2 | customer_id           | character varying(5)   | YES           |          |
+| orders                 |     3 | employee_id           | smallint               | YES           |          |
+| orders                 |     4 | order_date            | date                   | YES           |          |
+| orders                 |     5 | required_date         | date                   | YES           |          |
+| orders                 |     6 | shipped_date          | date                   | YES           |          |
+| orders                 |     7 | ship_via              | smallint               | YES           |          |
+| orders                 |     8 | freight               | real                   | YES           |          |
+| orders                 |     9 | ship_name             | character varying(40)  | YES           |          |
+| orders                 |    10 | ship_address          | character varying(60)  | YES           |          |
+| orders                 |    11 | ship_city             | character varying(15)  | YES           |          |
+| orders                 |    12 | ship_region           | character varying(15)  | YES           |          |
+| orders                 |    13 | ship_postal_code      | character varying(10)  | YES           |          |
+| orders                 |    14 | ship_country          | character varying(15)  | YES           |          |
+| products               |     1 | product_id            | smallint               | NO            |          |
+| products               |     2 | product_name          | character varying(40)  | NO            |          |
+| products               |     3 | supplier_id           | smallint               | YES           |          |
+| products               |     4 | category_id           | smallint               | YES           |          |
+| products               |     5 | quantity_per_unit     | character varying(20)  | YES           |          |
+| products               |     6 | unit_price            | real                   | YES           |          |
+| products               |     7 | units_in_stock        | smallint               | YES           |          |
+| products               |     8 | units_on_order        | smallint               | YES           |          |
+| products               |     9 | reorder_level         | smallint               | YES           |          |
+| products               |    10 | discontinued          | integer                | NO            |          |
+| region                 |     1 | region_id             | smallint               | NO            |          |
+| region                 |     2 | region_description    | character varying(60)  | NO            |          |
+| shippers               |     1 | shipper_id            | smallint               | NO            |          |
+| shippers               |     2 | company_name          | character varying(40)  | NO            |          |
+| shippers               |     3 | phone                 | character varying(24)  | YES           |          |
+| suppliers              |     1 | supplier_id           | smallint               | NO            |          |
+| suppliers              |     2 | company_name          | character varying(40)  | NO            |          |
+| suppliers              |     3 | contact_name          | character varying(30)  | YES           |          |
+| suppliers              |     4 | contact_title         | character varying(30)  | YES           |          |
+| suppliers              |     5 | address               | character varying(60)  | YES           |          |
+| suppliers              |     6 | city                  | character varying(15)  | YES           |          |
+| suppliers              |     7 | region                | character varying(15)  | YES           |          |
+| suppliers              |     8 | postal_code           | character varying(10)  | YES           |          |
+| suppliers              |     9 | country               | character varying(15)  | YES           |          |
+| suppliers              |    10 | phone                 | character varying(24)  | YES           |          |
+| suppliers              |    11 | fax                   | character varying(24)  | YES           |          |
+| suppliers              |    12 | homepage              | text                   | YES           |          |
+| territories            |     1 | territory_id          | character varying(20)  | NO            |          |
+| territories            |     2 | territory_description | character varying(60)  | NO            |          |
+| territories            |     3 | region_id             | smallint               | NO            |          |
+| us_states              |     1 | state_id              | smallint               | NO            |          |
+| us_states              |     2 | state_name            | character varying(100) | YES           |          |
+| us_states              |     3 | state_abbr            | character varying(2)   | YES           |          |
+| us_states              |     4 | state_region          | character varying(50)  | YES           |          |
+

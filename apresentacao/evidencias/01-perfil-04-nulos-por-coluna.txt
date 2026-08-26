@@ -1,0 +1,119 @@
+# Perfilamento 4/6 — Nulos por coluna (count(*) - count(coluna), executado em todas as 92 colunas)
+# Gerado por: uv run python etl/perfilamento.py
+# Fonte: postgresql://pi:***@localhost:5432/northwind · schema public
+
+------------------------------------------------------------------------------
+$ -- APENAS as colunas que têm pelo menos um nulo
+------------------------------------------------------------------------------
+| tabela    | coluna           |   linhas |   nulos | % nulo   |
+|-----------|------------------|----------|---------|----------|
+| customers | region           |       91 |      60 | 65.9%    |
+| customers | postal_code      |       91 |       1 | 1.1%     |
+| customers | fax              |       91 |      22 | 24.2%    |
+| employees | region           |        9 |       4 | 44.4%    |
+| employees | reports_to       |        9 |       1 | 11.1%    |
+| orders    | shipped_date     |      830 |      21 | 2.5%     |
+| orders    | ship_region      |      830 |     507 | 61.1%    |
+| orders    | ship_postal_code |      830 |      19 | 2.3%     |
+| suppliers | region           |       29 |      20 | 69.0%    |
+| suppliers | fax              |       29 |      16 | 55.2%    |
+| suppliers | homepage         |       29 |      24 | 82.8%    |
+
+------------------------------------------------------------------------------
+$ -- TODAS as 92 colunas da base
+------------------------------------------------------------------------------
+| tabela                 | coluna                |   linhas |   nulos | % nulo   |
+|------------------------|-----------------------|----------|---------|----------|
+| categories             | category_id           |        8 |       0 | 0.0%     |
+| categories             | category_name         |        8 |       0 | 0.0%     |
+| categories             | description           |        8 |       0 | 0.0%     |
+| categories             | picture               |        8 |       0 | 0.0%     |
+| customer_customer_demo | customer_id           |        0 |       0 | 0.0%     |
+| customer_customer_demo | customer_type_id      |        0 |       0 | 0.0%     |
+| customer_demographics  | customer_type_id      |        0 |       0 | 0.0%     |
+| customer_demographics  | customer_desc         |        0 |       0 | 0.0%     |
+| customers              | customer_id           |       91 |       0 | 0.0%     |
+| customers              | company_name          |       91 |       0 | 0.0%     |
+| customers              | contact_name          |       91 |       0 | 0.0%     |
+| customers              | contact_title         |       91 |       0 | 0.0%     |
+| customers              | address               |       91 |       0 | 0.0%     |
+| customers              | city                  |       91 |       0 | 0.0%     |
+| customers              | region                |       91 |      60 | 65.9%    |
+| customers              | postal_code           |       91 |       1 | 1.1%     |
+| customers              | country               |       91 |       0 | 0.0%     |
+| customers              | phone                 |       91 |       0 | 0.0%     |
+| customers              | fax                   |       91 |      22 | 24.2%    |
+| employee_territories   | employee_id           |       49 |       0 | 0.0%     |
+| employee_territories   | territory_id          |       49 |       0 | 0.0%     |
+| employees              | employee_id           |        9 |       0 | 0.0%     |
+| employees              | last_name             |        9 |       0 | 0.0%     |
+| employees              | first_name            |        9 |       0 | 0.0%     |
+| employees              | title                 |        9 |       0 | 0.0%     |
+| employees              | title_of_courtesy     |        9 |       0 | 0.0%     |
+| employees              | birth_date            |        9 |       0 | 0.0%     |
+| employees              | hire_date             |        9 |       0 | 0.0%     |
+| employees              | address               |        9 |       0 | 0.0%     |
+| employees              | city                  |        9 |       0 | 0.0%     |
+| employees              | region                |        9 |       4 | 44.4%    |
+| employees              | postal_code           |        9 |       0 | 0.0%     |
+| employees              | country               |        9 |       0 | 0.0%     |
+| employees              | home_phone            |        9 |       0 | 0.0%     |
+| employees              | extension             |        9 |       0 | 0.0%     |
+| employees              | photo                 |        9 |       0 | 0.0%     |
+| employees              | notes                 |        9 |       0 | 0.0%     |
+| employees              | reports_to            |        9 |       1 | 11.1%    |
+| employees              | photo_path            |        9 |       0 | 0.0%     |
+| order_details          | order_id              |     2155 |       0 | 0.0%     |
+| order_details          | product_id            |     2155 |       0 | 0.0%     |
+| order_details          | unit_price            |     2155 |       0 | 0.0%     |
+| order_details          | quantity              |     2155 |       0 | 0.0%     |
+| order_details          | discount              |     2155 |       0 | 0.0%     |
+| orders                 | order_id              |      830 |       0 | 0.0%     |
+| orders                 | customer_id           |      830 |       0 | 0.0%     |
+| orders                 | employee_id           |      830 |       0 | 0.0%     |
+| orders                 | order_date            |      830 |       0 | 0.0%     |
+| orders                 | required_date         |      830 |       0 | 0.0%     |
+| orders                 | shipped_date          |      830 |      21 | 2.5%     |
+| orders                 | ship_via              |      830 |       0 | 0.0%     |
+| orders                 | freight               |      830 |       0 | 0.0%     |
+| orders                 | ship_name             |      830 |       0 | 0.0%     |
+| orders                 | ship_address          |      830 |       0 | 0.0%     |
+| orders                 | ship_city             |      830 |       0 | 0.0%     |
+| orders                 | ship_region           |      830 |     507 | 61.1%    |
+| orders                 | ship_postal_code      |      830 |      19 | 2.3%     |
+| orders                 | ship_country          |      830 |       0 | 0.0%     |
+| products               | product_id            |       77 |       0 | 0.0%     |
+| products               | product_name          |       77 |       0 | 0.0%     |
+| products               | supplier_id           |       77 |       0 | 0.0%     |
+| products               | category_id           |       77 |       0 | 0.0%     |
+| products               | quantity_per_unit     |       77 |       0 | 0.0%     |
+| products               | unit_price            |       77 |       0 | 0.0%     |
+| products               | units_in_stock        |       77 |       0 | 0.0%     |
+| products               | units_on_order        |       77 |       0 | 0.0%     |
+| products               | reorder_level         |       77 |       0 | 0.0%     |
+| products               | discontinued          |       77 |       0 | 0.0%     |
+| region                 | region_id             |        4 |       0 | 0.0%     |
+| region                 | region_description    |        4 |       0 | 0.0%     |
+| shippers               | shipper_id            |        6 |       0 | 0.0%     |
+| shippers               | company_name          |        6 |       0 | 0.0%     |
+| shippers               | phone                 |        6 |       0 | 0.0%     |
+| suppliers              | supplier_id           |       29 |       0 | 0.0%     |
+| suppliers              | company_name          |       29 |       0 | 0.0%     |
+| suppliers              | contact_name          |       29 |       0 | 0.0%     |
+| suppliers              | contact_title         |       29 |       0 | 0.0%     |
+| suppliers              | address               |       29 |       0 | 0.0%     |
+| suppliers              | city                  |       29 |       0 | 0.0%     |
+| suppliers              | region                |       29 |      20 | 69.0%    |
+| suppliers              | postal_code           |       29 |       0 | 0.0%     |
+| suppliers              | country               |       29 |       0 | 0.0%     |
+| suppliers              | phone                 |       29 |       0 | 0.0%     |
+| suppliers              | fax                   |       29 |      16 | 55.2%    |
+| suppliers              | homepage              |       29 |      24 | 82.8%    |
+| territories            | territory_id          |       53 |       0 | 0.0%     |
+| territories            | territory_description |       53 |       0 | 0.0%     |
+| territories            | region_id             |       53 |       0 | 0.0%     |
+| us_states              | state_id              |       51 |       0 | 0.0%     |
+| us_states              | state_name            |       51 |       0 | 0.0%     |
+| us_states              | state_abbr            |       51 |       0 | 0.0%     |
+| us_states              | state_region          |       51 |       0 | 0.0%     |
+

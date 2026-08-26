@@ -1,0 +1,25 @@
+# Perfilamento 1/6 — Inventário de tabelas (contagem EXATA, sem estimativa)
+# Gerado por: uv run python etl/perfilamento.py
+# Fonte: postgresql://pi:***@localhost:5432/northwind · schema public
+
+------------------------------------------------------------------------------
+$ SELECT count(*) FROM public.<cada tabela>;  -- 14 execuções
+------------------------------------------------------------------------------
+| tabela                 |   linhas |   colunas | tamanho em disco   |
+|------------------------|----------|-----------|--------------------|
+| categories             |        8 |         4 | 32 kB              |
+| customer_customer_demo |        0 |         2 | 8192 bytes         |
+| customer_demographics  |        0 |         2 | 16 kB              |
+| customers              |       91 |        11 | 56 kB              |
+| employee_territories   |       49 |         2 | 24 kB              |
+| employees              |        9 |        18 | 32 kB              |
+| order_details          |     2155 |         5 | 192 kB             |
+| orders                 |      830 |        14 | 176 kB             |
+| products               |       77 |        10 | 24 kB              |
+| region                 |        4 |         2 | 24 kB              |
+| shippers               |        6 |         3 | 24 kB              |
+| suppliers              |       29 |        12 | 32 kB              |
+| territories            |       53 |         3 | 24 kB              |
+| us_states              |       51 |         4 | 24 kB              |
+| **TOTAL**              |     3362 |           |                    |
+

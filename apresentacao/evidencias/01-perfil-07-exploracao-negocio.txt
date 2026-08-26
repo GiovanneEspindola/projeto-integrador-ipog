@@ -1,0 +1,209 @@
+# Análise exploratória do Northwind — schema public
+# Data: 26/08/2026 20:37:13 -03
+# Script: sql/01_exploracao.sql (versionado no repositório)
+# Comando: docker compose exec -T postgres psql -U pi -d northwind -f /sql/01_exploracao.sql
+
+=== 1. PERÍODO COBERTO E VOLUME DE PEDIDOS ===============================
+ primeiro_pedido | ultimo_pedido | dias_de_operacao | pedidos | clientes_compradores | vendedores_ativos 
+-----------------+---------------+------------------+---------+----------------------+-------------------
+ 1996-07-04      | 1998-05-06    |              671 |     830 |                   89 |                 9
+
+
+=== 2. PEDIDOS POR ANO ===================================================
+ ano  | pedidos | clientes_distintos |  receita  
+------+---------+--------------------+-----------
+ 1996 |     152 |                 67 | 208083.97
+ 1997 |     408 |                 86 | 617085.20
+ 1998 |     270 |                 81 | 440623.87
+
+
+=== 3. O PROBLEMA DO TIPO real: MESMA CONTA, DOIS RESULTADOS =============
+  receita_em_real  | receita_em_numeric |  diferenca  
+-------------------+--------------------+-------------
+ 1265793.038653364 |       1265793.0395 | -0.00084664
+
+
+=== 4. TICKET MÉDIO E DISPERSÃO ==========================================
+ pedidos_com_item | menor | mediana | ticket_medio |   p95   |  maior   | receita_total 
+------------------+-------+---------+--------------+---------+----------+---------------
+              830 | 12.50 |  943.25 |      1525.05 | 4706.62 | 16387.50 |    1265793.04
+
+
+=== 5. ITENS POR PEDIDO ==================================================
+ min_itens | media_itens | max_itens 
+-----------+-------------+-----------
+         1 |        2.60 |        25
+
+
+=== 6. RECEITA POR CATEGORIA (concentração) ==============================
+   categoria    | produtos |  receita  | pct  
+----------------+----------+-----------+------
+ Beverages      |       12 | 267868.18 | 21.2
+ Dairy Products |       10 | 234507.29 | 18.5
+ Confections    |       13 | 167357.23 | 13.2
+ Meat/Poultry   |        6 | 163022.36 | 12.9
+ Seafood        |       12 | 131261.74 | 10.4
+ Condiments     |       12 | 106047.09 |  8.4
+ Produce        |        5 |  99984.58 |  7.9
+ Grains/Cereals |        7 |  95744.59 |  7.6
+
+
+=== 7. RECEITA POR PAÍS DO CLIENTE (top 10) ==============================
+   pais    | pedidos |  receita  
+-----------+---------+-----------
+ USA       |     122 | 245584.61
+ Germany   |     122 | 230284.63
+ Austria   |      40 | 128003.84
+ Brazil    |      83 | 106925.78
+ France    |      77 |  81358.32
+ UK        |      56 |  58971.31
+ Venezuela |      46 |  56810.63
+ Sweden    |      37 |  54495.14
+ Canada    |      30 |  50196.29
+ Ireland   |      19 |  49979.91
+
+
+=== 8. ANTI-JOINS: O QUE EXISTE NO CADASTRO MAS NUNCA APARECEU NA VENDA ==
+              o_que               | quantos 
+----------------------------------+---------
+ produtos nunca vendidos          |       0
+ clientes que nunca compraram     |       2
+ transportadoras nunca usadas     |       3
+ territórios sem funcionário      |       4
+ fornecedores sem produto vendido |       0
+ pedidos sem nenhum item          |       0
+
+
+--- quem são os clientes que nunca compraram ---
+ customer_id |             company_name             | country 
+-------------+--------------------------------------+---------
+ FISSA       | FISSA Fabrica Inter. Salchichas S.A. | Spain
+ PARIS       | Paris spécialités                    | France
+
+
+--- quais transportadoras nunca foram usadas ---
+ shipper_id |   company_name    
+------------+-------------------
+          4 | Alliance Shippers
+          5 | UPS
+          6 | DHL
+
+
+=== 9. O N:N QUE NÃO É N:N: employee_territories =========================
+ vinculos | funcionarios_com_territorio | territorios_vinculados | max_funcionarios_por_territorio 
+----------+-----------------------------+------------------------+---------------------------------
+       49 |                           9 |                     49 |                               1
+
+
+=== 10. HIERARQUIA DE FUNCIONÁRIOS (auto-relacionamento) =================
+ employee_id |   funcionario    |          title           |    reporta_a     | subordinados 
+-------------+------------------+--------------------------+------------------+--------------
+           1 | Nancy Davolio    | Sales Representative     | Andrew Fuller    |            0
+           2 | Andrew Fuller    | Vice President, Sales    | (ninguém — topo) |            5
+           3 | Janet Leverling  | Sales Representative     | Andrew Fuller    |            0
+           4 | Margaret Peacock | Sales Representative     | Andrew Fuller    |            0
+           5 | Steven Buchanan  | Sales Manager            | Andrew Fuller    |            3
+           6 | Michael Suyama   | Sales Representative     | Steven Buchanan  |            0
+           7 | Robert King      | Sales Representative     | Steven Buchanan  |            0
+           8 | Laura Callahan   | Inside Sales Coordinator | Andrew Fuller    |            0
+           9 | Anne Dodsworth   | Sales Representative     | Steven Buchanan  |            0
+
+
+=== 11. DESCONTO: QUAIS VALORES EXISTEM DE FATO ==========================
+ desconto | itens | pct  
+----------+-------+------
+     0.00 |  1317 | 61.1
+     0.01 |     1 |  0.0
+     0.02 |     2 |  0.1
+     0.03 |     3 |  0.1
+     0.04 |     1 |  0.0
+     0.05 |   185 |  8.6
+     0.06 |     1 |  0.0
+     0.10 |   173 |  8.0
+     0.15 |   157 |  7.3
+     0.20 |   161 |  7.5
+     0.25 |   154 |  7.1
+
+
+=== 12. REDUNDÂNCIA INTENCIONAL: preço do catálogo vs preço da venda =====
+ itens_totais | itens_com_preco_diferente | pct_divergente 
+--------------+---------------------------+----------------
+         2155 |                       662 |           30.7
+
+
+--- exemplo concreto da divergência (5 casos) ---
+   produto    | preco_catalogo_hoje | preco_cobrado_na_venda | data_da_venda 
+--------------+---------------------+------------------------+---------------
+ Alice Mutton |                  39 |                   31.2 | 1996-07-25
+ Alice Mutton |                  39 |                   31.2 | 1996-08-13
+ Alice Mutton |                  39 |                   31.2 | 1996-08-30
+ Alice Mutton |                  39 |                   31.2 | 1996-09-10
+ Alice Mutton |                  39 |                   31.2 | 1996-10-02
+
+
+=== 13. QUALIDADE DA ENTREGA =============================================
+ pedidos | nunca_enviados | enviados_com_atraso | dias_medios_ate_envio 
+---------+----------------+---------------------+-----------------------
+     830 |             21 |                  37 |                   8.5
+
+
+=== 14. REDUNDÂNCIA ACIDENTAL: endereço de entrega solto em orders =======
+ pedidos_com_cliente | ship_name_igual_ao_cliente | endereco_identico_ao_cadastro 
+---------------------+----------------------------+-------------------------------
+                 830 |                        796 |                           782
+
+
+=== 15. TABELAS ÓRFÃS E VAZIAS ==========================================
+         tabela         | linhas |                    observacao                     
+------------------------+--------+---------------------------------------------------
+ customer_customer_demo |      0 | associativa vazia (N:N sem dados)
+ customer_demographics  |      0 | sem uso; descreve segmento de cliente
+ us_states              |     51 | preenchida, mas SEM nenhuma FK apontando para ela
+
+
+=== 16. LIMITE DO TIPO smallint EM order_id =============================
+ menor_id | maior_id | teto_do_smallint | folga_ate_estourar 
+----------+----------+------------------+--------------------
+    10248 |    11077 |            32767 |              21690
+
+
+=== 17. FAIXAS DE VALOR (base para os CHECK do schema nw) ===============
+          coluna          | minimo | maximo  | violacoes_se_check_maior_que_zero 
+--------------------------+--------+---------+-----------------------------------
+ order_details.unit_price |      2 |   263.5 |                                 0
+ order_details.quantity   |      1 |     130 |                                 0
+ order_details.discount   |      0 |    0.25 |                                 0
+ orders.freight           |   0.02 | 1007.64 |                                 0
+ products.unit_price      |    2.5 |   263.5 |                                 0
+ products.units_in_stock  |      0 |     125 |                                 0
+ products.discontinued    |      0 |       1 |                                 0
+
+
+--- coerência temporal: alguma data fora de ordem? ---
+ enviado_antes_de_pedido | prazo_anterior_ao_pedido | pedido_sem_data 
+-------------------------+--------------------------+-----------------
+                       0 |                        0 |               0
+
+
+--- descontos fora da escala comercial de 5 em 5 pontos ---
+ desconto | itens 
+----------+-------
+     0.01 |     1
+     0.02 |     2
+     0.03 |     3
+     0.04 |     1
+     0.06 |     1
+
+
+=== 18. NULO POR INAPLICABILIDADE: prova em employees.region ============
+ country | funcionarios | com_region_preenchida | com_region_nula |              cidades               
+---------+--------------+-----------------------+-----------------+------------------------------------
+ UK      |            4 |                     0 |               4 | London
+ USA     |            5 |                     5 |               0 | Kirkland, Redmond, Seattle, Tacoma
+
+
+--- us_states: quantas FKs apontam para ela? (esperado: 0 = tabela ilha) ---
+ fks_apontando_para_us_states 
+------------------------------
+                            0
+
