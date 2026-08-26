@@ -1,0 +1,46 @@
+# ---------------------------------------------------------------------------
+# .gitignore — Projeto Integrador Área 03 (Banco de Dados)
+#
+# Princípio: EVIDÊNCIA fica versionada, AMBIENTE não.
+# Saídas de consulta, gráficos e resultados de benchmark são material da
+# apresentação e entram no repositório. O que é reconstruível a partir de um
+# comando (venv, cache, dados dos containers) fica de fora.
+# ---------------------------------------------------------------------------
+
+# --- Python ----------------------------------------------------------------
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# --- Segredos e configuração local -----------------------------------------
+# .env pode conter POSTGRES_PORT/senhas da máquina de quem clonou.
+# O modelo versionado é o .env.example.
+.env
+.env.local
+
+# --- Docker ----------------------------------------------------------------
+# Os volumes (pgdata, mongodata) são gerenciados pelo Docker, não ficam na
+# pasta do projeto. Esta entrada cobre o caso de alguém mudar o compose para
+# usar bind mount local.
+docker-data/
+*.pid
+
+# --- Sistema operacional e editor ------------------------------------------
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/settings.json
+
+# --- Temporários e logs ----------------------------------------------------
+*.log
+*.tmp
+tmp/
+
+# --- NÃO ignorar (deixado explícito de propósito) --------------------------
+# apresentacao/evidencias/  -> evidência para os slides, versionada (regra 3)
+# bench/results/            -> resultados de benchmark, versionados (regra 6)
+# sql/00_northwind_original.sql -> o dump é parte da reprodutibilidade

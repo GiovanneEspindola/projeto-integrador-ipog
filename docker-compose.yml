@@ -1,0 +1,105 @@
+name: pi-bd
+
+# Projeto Integrador Área 03 - Banco de Dados
+#
+# Subir:        docker compose up -d
+# Com GUIs:     docker compose --profile gui up -d
+# Derrubar:     docker compose down
+# Zerar dados:  docker compose down -v          (apaga os volumes!)
+#
+# ATENÇÃO À PORTA 5432: existe um PostgreSQL 16 nativo instalado no WSL usando
+# essa porta. Ou você desativa o nativo (recomendado, veja o README), ou define
+# POSTGRES_PORT=5433 no arquivo .env. Não dá para os dois ocuparem a mesma porta.
+
+services:
+  postgres:
+    # 16 para ficar alinhado com o PostgreSQL 16.14 nativo do WSL: mesma major
+    # version, mesma sintaxe, mesmos recursos. O cliente psql nativo consegue
+    # conectar no container sem incompatibilidade.
+    image: postgres:16
+    container_name: pi-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pi
+      POSTGRES_PASSWORD: pi
+      POSTGRES_DB: northwind
+      # locale pt_BR para ordenação de texto coerente com o relatório
+      LANG: C.UTF-8
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./sql:/sql:ro           # scripts visíveis dentro do container em /sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pi -d northwind"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  mongo:
+    # 7.x: versão estável com a maior quantidade de documentação e exemplos
+    # disponíveis. Nada no projeto depende de recurso exclusivo do 8.
+    image: mongo:7
+    container_name: pi-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: pi
+      MONGO_INITDB_ROOT_PASSWORD: pi
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    volumes:
+      - mongodata:/data/db
+      - ./mongo:/mongo:ro       # scripts visíveis dentro do container em /mongo
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+    # --- TRANSAÇÕES MULTI-DOCUMENTO -----------------------------------------
+    # MongoDB standalone NÃO suporta transações multi-documento nem change
+    # streams. Se for demonstrar isso na apresentação, é preciso subir um
+    # replica set de nó único — e com autenticação ligada o Mongo passa a exigir
+    # um keyFile, o que muda a configuração inteira deste serviço.
+    # Não descomente nada aqui por conta própria: configurar um replica set
+    # de nó único com keyFile muda o serviço inteiro e exige ajuste conjunto.
+    # ------------------------------------------------------------------------
+
+  # --- Interfaces gráficas opcionais (só sobem com --profile gui) ------------
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pi-pgadmin
+    profiles: ["gui"]
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pi@local.dev
+      PGADMIN_DEFAULT_PASSWORD: pi
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmindata:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  mongo-express:
+    image: mongo-express
+    container_name: pi-mongo-express
+    profiles: ["gui"]
+    restart: unless-stopped
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://pi:pi@mongo:27017/?authSource=admin
+      ME_CONFIG_BASICAUTH: "false"
+    ports:
+      - "8081:8081"
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  mongodata:
+  pgadmindata:
