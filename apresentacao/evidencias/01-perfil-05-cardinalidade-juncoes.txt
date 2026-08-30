@@ -1,5 +1,5 @@
 # Perfilamento 5/6 — Cardinalidade das colunas de junção e verificação de órfãos
-# Gerado por: uv run python etl/perfilamento.py
+# Gerado por: uv run jupyter nbconvert --to notebook --execute --inplace etl/perfilamento.ipynb
 # Fonte: postgresql://pi:***@localhost:5432/northwind · schema public
 
 ------------------------------------------------------------------------------

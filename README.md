@@ -147,10 +147,10 @@ docker compose --profile gui up -d
 | pgAdmin | http://localhost:5050 | `pi@local.dev` / `pi` |
 | mongo-express | http://localhost:8081 | sem senha |
 
-### Ambiente Python (só para ETL, benchmark e gráficos)
+### Ambiente Python (análise exploratória, ETL, benchmark e gráficos)
 
-Não é necessário para subir os bancos nem para rodar as consultas — só para os
-scripts de `etl/` e `bench/`.
+Não é necessário para subir os bancos nem para rodar as consultas SQL — só
+para o notebook de `etl/` e os scripts de `bench/`.
 
 O projeto usa o [**uv**](https://docs.astral.sh/uv/). Se você não tiver:
 
@@ -171,6 +171,23 @@ rodar qualquer script sem ativar o ambiente à mão:
 ```bash
 uv run python etl/migrate.py
 ```
+
+**Análise exploratória.** O perfilamento do Northwind é um notebook Jupyter.
+Para abrir e explorar célula a célula:
+
+```bash
+uv run jupyter lab
+```
+
+Para reexecutar tudo pelo terminal e regravar os arquivos de evidência, sem
+abrir a interface:
+
+```bash
+uv run jupyter nbconvert --to notebook --execute --inplace etl/perfilamento.ipynb
+```
+
+O notebook é idempotente: rodar de novo reescreve
+`apresentacao/evidencias/01-perfil-*.txt` com o mesmo conteúdo.
 
 **Por que uv e não pip:** o `uv.lock` trava a árvore inteira de dependências
 com hash criptográfico de cada arquivo, e o `.python-version` trava até a versão
@@ -196,12 +213,13 @@ uv.lock            versões resolvidas e travadas com hash
 .python-version    versão do interpretador (3.12)
 docs/              documentação técnica das entregas (01 a 07)
   estudo/          material didático: o "por quê" de cada decisão
-  diagramas/       ER conceitual (.mmd), ER lógico (.dbml/.png)
+  diagramas/       ER conceitual (.drawio), ER lógico (.dbml/.png)
 sql/               dump original, DDL do schema nw, carga, índices, views
   queries/         consultas de negócio (QNN.sql)
 mongo/             validators e índices
   pipelines/       aggregation pipelines espelhando as consultas (PNN.js)
-etl/               migração PostgreSQL -> MongoDB + requirements.txt (gerado)
+etl/               perfilamento (notebook), migração PostgreSQL -> MongoDB,
+                   requirements.txt (gerado)
 bench/             benchmark comparativo + resultados
 apresentacao/      roteiro dos slides
   evidencias/      saídas brutas de consulta e gráficos usados na apresentação

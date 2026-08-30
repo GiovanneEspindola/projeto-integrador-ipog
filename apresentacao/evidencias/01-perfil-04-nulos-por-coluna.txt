@@ -1,5 +1,5 @@
 # Perfilamento 4/6 — Nulos por coluna (count(*) - count(coluna), executado em todas as 92 colunas)
-# Gerado por: uv run python etl/perfilamento.py
+# Gerado por: uv run jupyter nbconvert --to notebook --execute --inplace etl/perfilamento.ipynb
 # Fonte: postgresql://pi:***@localhost:5432/northwind · schema public
 
 ------------------------------------------------------------------------------

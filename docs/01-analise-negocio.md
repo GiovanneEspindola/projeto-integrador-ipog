@@ -5,7 +5,8 @@
 >
 > Todo número deste documento foi **executado** contra o banco. As saídas brutas
 > estão em `apresentacao/evidencias/01-perfil-*.txt` e os scripts que as geraram
-> estão versionados em `sql/01_exploracao.sql` e `etl/perfilamento.py`.
+> estão versionados em `sql/01_exploracao.sql` e no notebook
+> `etl/perfilamento.ipynb`.
 
 ---
 
@@ -21,7 +22,7 @@ docker compose exec -T postgres psql -U pi -d northwind \
   -v ON_ERROR_STOP=1 -f /sql/00_northwind_original.sql
 
 # 3. perfilamento estrutural (6 arquivos de evidência)
-uv run python etl/perfilamento.py
+uv run jupyter nbconvert --to notebook --execute --inplace etl/perfilamento.ipynb
 
 # 4. perfilamento de negócio (1 arquivo de evidência)
 docker compose exec -T postgres psql -U pi -d northwind \

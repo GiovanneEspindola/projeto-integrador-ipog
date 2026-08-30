@@ -25,24 +25,31 @@ version = "0.1.0"
 description = "Modelagem e análise de dados de vendas (Northwind): PostgreSQL vs MongoDB"
 requires-python = ">=3.12"
 
-# Quatro dependências diretas, todas drivers ou ferramentas de análise.
-# Nenhum framework que esconda o trabalho de modelagem ou de consulta.
+# Seis dependências diretas: drivers, ferramentas de análise e o ambiente de
+# notebook. Nenhum framework que esconda o trabalho de modelagem ou de consulta.
 dependencies = [
     # Driver oficial do PostgreSQL para Python (versão 3). O extra [binary]
     # traz o libpq compilado junto, dispensando bibliotecas de sistema.
     # Usado pelo ETL (public -> nw -> MongoDB) e pelo benchmark.
     "psycopg[binary]>=3.3.4",
-
     # Driver oficial do MongoDB. Mesmo papel do psycopg, do outro lado da
     # comparação que dá título ao projeto.
     "pymongo>=4.17.0",
-
     # Formata resultado de consulta como tabela de texto ou Markdown. É o que
     # transforma uma saída crua em evidência apresentável para os slides.
     "tabulate>=0.10.0",
-
     # Gráficos (.png) do benchmark e da análise exploratória.
     "matplotlib>=3.11.1",
+    # Ambiente de notebook. A análise exploratória do Northwind vive em
+    # etl/perfilamento.ipynb: código, saída e narrativa no mesmo arquivo,
+    # que é justamente o formato que se mostra numa apresentação.
+    # Traz junto o ipykernel, que é o kernel Python do notebook.
+    "jupyterlab>=4.6.3",
+
+    # Executa o notebook pelo terminal, sem abrir a interface:
+    #   uv run jupyter nbconvert --to notebook --execute --inplace <arquivo>
+    # É o que garante que um avaliador reproduza a análise com um comando só.
+    "nbconvert>=7.17.1",
 ]
 
 # PDF, PPTX, DOCX e XLSX NÃO entram aqui: a geração dos documentos das
