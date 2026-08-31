@@ -119,7 +119,7 @@ Table "nw"."orders" {
   "shipped_date" date [note: 'Data de envio. NULL significa pedido ainda não enviado — é informação de negócio, não falta de dado.']
   "freight" numeric(10,2) [not null, check: `freight >= (0)::numeric`, default: 0, note: 'Valor do frete cobrado no pedido, em numeric. Na origem era real (ponto flutuante), impróprio para dinheiro.']
   "ship_name" varchar(40) [not null, note: 'Destinatário da entrega no momento da venda. Coincide com o nome do cliente em 96% dos pedidos, mas os 4% restantes justificam guardar separado.']
-  "ship_address" varchar(60) [not null, note: 'Endereço usado nesta entrega. Coincide com o cadastro do cliente em 94,2% dos pedidos, mas 48 deles (5,8%) foram para endereço diferente: por isso é atributo do pedido, não do cliente. O modelo ideal teria ENDEREÇO como entidade própria, com o pedido apontando qual foi usado — adiado conscientemente, ver docs/04 §3.']
+  "ship_address" varchar(60) [not null, note: 'Endereço usado nesta entrega. Coincide com o cadastro do cliente em 94,2% dos pedidos olhando só endereço, cidade e país, e em 90,1% olhando as seis colunas ship_*: ou seja, entre 48 e 82 pedidos foram para endereço diferente. Por isso é atributo do pedido, não do cliente. O modelo ideal teria ENDEREÇO como entidade própria, com o pedido apontando qual foi usado — adiado conscientemente, ver docs/04 §3.']
   "ship_city" varchar(15) [not null]
   "ship_region" varchar(15)
   "ship_postal_code" varchar(10)

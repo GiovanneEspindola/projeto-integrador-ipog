@@ -6,18 +6,18 @@
   OK   DBML tem 11 tabelas, banco tem 11
 
 == 2. Colunas e tipos, tabela a tabela ==
-  OK   categories: 3 colunas
-  OK   customers: 11 colunas
-  OK   employee_territories: 2 colunas
-  OK   employees: 16 colunas
-  OK   order_items: 5 colunas
-  OK   orders: 14 colunas
-  OK   products: 10 colunas
-  OK   regions: 2 colunas
-  OK   shippers: 3 colunas
-  OK   suppliers: 12 colunas
-  OK   territories: 3 colunas
-  -> 81 colunas com nome, ordem e tipo idênticos
+  OK   categories: 3 colunas (nome, ordem, tipo e obrigatoriedade)
+  OK   customers: 11 colunas (nome, ordem, tipo e obrigatoriedade)
+  OK   employee_territories: 2 colunas (nome, ordem, tipo e obrigatoriedade)
+  OK   employees: 16 colunas (nome, ordem, tipo e obrigatoriedade)
+  OK   order_items: 5 colunas (nome, ordem, tipo e obrigatoriedade)
+  OK   orders: 14 colunas (nome, ordem, tipo e obrigatoriedade)
+  OK   products: 10 colunas (nome, ordem, tipo e obrigatoriedade)
+  OK   regions: 2 colunas (nome, ordem, tipo e obrigatoriedade)
+  OK   shippers: 3 colunas (nome, ordem, tipo e obrigatoriedade)
+  OK   suppliers: 12 colunas (nome, ordem, tipo e obrigatoriedade)
+  OK   territories: 3 colunas (nome, ordem, tipo e obrigatoriedade)
+  -> 81 colunas com nome, ordem, tipo e obrigatoriedade idênticos
 
 == 3. Chaves estrangeiras ==
   OK   DBML declara 11 FKs, banco tem 11

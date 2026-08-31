@@ -278,6 +278,6 @@ COMMENT ON COLUMN order_items.discount IS
 COMMENT ON COLUMN employees.title_of_courtesy IS
   'Pronome de tratamento (Mr., Mrs., Ms., Dr.). Atributo descritivo real, distinto de title, que é o cargo.';
 COMMENT ON COLUMN orders.ship_address IS
-  'Endereço usado nesta entrega. Coincide com o cadastro do cliente em 94,2% dos pedidos, mas 48 deles (5,8%) foram para endereço diferente: por isso é atributo do pedido, não do cliente. O modelo ideal teria ENDEREÇO como entidade própria, com o pedido apontando qual foi usado — adiado conscientemente, ver docs/04 §3.';
+  'Endereço usado nesta entrega. Coincide com o cadastro do cliente em 94,2% dos pedidos olhando só endereço, cidade e país, e em 90,1% olhando as seis colunas ship_*: ou seja, entre 48 e 82 pedidos foram para endereço diferente. Por isso é atributo do pedido, não do cliente. O modelo ideal teria ENDEREÇO como entidade própria, com o pedido apontando qual foi usado — adiado conscientemente, ver docs/04 §3.';
 COMMENT ON COLUMN products.unit_price IS
   'Preço de catálogo hoje. Aceita zero para amostra e brinde; o preço pelo qual cada venda aconteceu fica em order_items.';

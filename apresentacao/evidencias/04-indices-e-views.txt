@@ -17,7 +17,7 @@
          Index Cond: ((customer_id)::text = 'ALFKI'::text)
          Buffers: shared read=1
  Planning:
-   Buffers: shared hit=190
+   Buffers: shared hit=182
 (9 rows)
 
 

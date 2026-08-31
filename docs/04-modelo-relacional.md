@@ -62,12 +62,15 @@ Ele não foi desenhado à mão: `docs/diagramas/nw-schema.dbml` é **gerado do b
 com `db2dbml`. Mas "gerado" não é garantia — basta o schema mudar depois para o
 diagrama entregue passar a mentir. Por isso a correspondência é **verificada**, e
 não presumida: `etl/valida_dbml.py` confere as 11 tabelas, as **81 colunas** com
-nome, ordem e tipo, e as **11 chaves estrangeiras** contra o `information_schema`,
-saindo com código 1 em qualquer divergência.
+nome, ordem, tipo **e obrigatoriedade**, e as **11 chaves estrangeiras** — cada
+uma com origem e destino — contra o `information_schema`, saindo com código 1 em
+qualquer divergência.
 
-O validador foi testado por mutação em quatro frentes: alterando um tipo,
-removendo uma coluna, removendo uma chave estrangeira e — a mais sutil — deixando
-uma FK com o nome certo apontando para a coluna errada. Acusou as quatro.
+O validador foi testado por mutação em cinco frentes: alterando um tipo,
+removendo uma coluna, removendo uma chave estrangeira, deixando uma FK com o nome
+certo apontando para a coluna errada, e marcando como obrigatória uma coluna que
+não é. Acusou as cinco. As duas últimas entraram depois de uma revisão flagrar
+que o validador não as via.
 
 ```bash
 npx -p @dbml/cli db2dbml postgres \
@@ -227,7 +230,7 @@ Se `orders` guardasse `customer_company_name`, haveria uma cadeia
 3FN. Bastaria o cliente mudar de razão social para os pedidos antigos passarem a
 mentir. Por isso `orders` guarda **só** `customer_id`.
 
-**A pergunta difícil:** e as seis colunas `ship_*` do pedido, que em 94% dos
+**A pergunta difícil:** e as seis colunas `ship_*` do pedido, que em 90% dos
 casos são cópia literal do endereço do cliente?
 
 Não violam a 3FN — e o motivo é preciso. Dependência funcional não é "os valores
@@ -248,7 +251,7 @@ entrega é atributo do pedido, não do cliente.
 O que existe ali é outra coisa, e é honesto declarar: **falta uma entidade**. O
 modelo ideal teria os endereços do cliente como entidade própria, e o pedido
 referenciaria qual foi usado. Não implementei porque exigiria inventar
-identificadores de endereço e decidir o que fazer com os 48 divergentes — e
+identificadores de endereço e decidir o que fazer com os 82 divergentes — e
 porque a decisão não muda nenhuma das 16 perguntas. Fica registrada como dívida
 consciente.
 
@@ -293,30 +296,13 @@ uma trigger mal escrita quebra a carga em lote. **Ficam declaradas como regra de
 aplicação** — e essa é uma pergunta clássica de banca, que agora tem resposta
 pronta em vez de improviso.
 
----
-
-## 4. Os três lugares onde deliberadamente não normalizei
-
-Normalizar até doer é tão errado quanto não normalizar. Os três casos, com o
-critério que decidiu cada um:
-
-1. **`order_items.unit_price` repete `products.unit_price`** — mantido. Não é
-   redundância, é **snapshot histórico**: o preço da venda não pode mudar quando
-   alguém reajusta a tabela de preços, senão o faturamento do ano passado se
-   altera sozinho.
-2. **As seis colunas `ship_*` de `orders`** — mantidas. Não violam 3FN (ver
-   acima) e cobrem um caso real de negócio. A entidade de endereço que faltou
-   está declarada como dívida.
-3. **`products.quantity_per_unit` como texto livre** — mantido, violando 1FN,
-   pelo custo de interpretação contra benefício zero para as perguntas do
-   projeto.
-
-O critério em uma frase: **normalizei tudo que tinha dependência funcional real;
-deixei como está o que só parecia redundante.**
+**O critério que decidiu os três casos acima**, em uma frase: normalizei tudo
+que tinha dependência funcional real; deixei como está o que só parecia
+redundante. Normalizar até doer é tão errado quanto não normalizar.
 
 ---
 
-## 5. Índices: quatro entraram, seis foram recusados
+## 4. Índices: quatro entraram, seis foram recusados
 
 Foram dez candidatos. Nenhum entrou sem `EXPLAIN` provando que o planejador o escolhe.
 
@@ -373,7 +359,7 @@ decisão vale para **este** volume, e está registrada assim de propósito.
 
 ---
 
-## 6. Quatro views, nenhuma decorativa
+## 5. Quatro views, nenhuma decorativa
 
 | View | Responde | Serve às perguntas |
 |---|---|---|
@@ -400,14 +386,18 @@ que não bate com a soma das linhas impressas.
 
 ---
 
-## 7. Reproduzir do zero
+## 6. Reproduzir do zero
 
 ```bash
 docker compose up -d
-for f in 10_ddl 20_load 21_validacao_carga 30_indexes 40_views 50_evidencias; do
+for f in 00_northwind_original 10_ddl 20_load 21_validacao_carga 30_indexes 40_views 50_evidencias; do
   docker compose exec -T postgres psql -U pi -d northwind -v ON_ERROR_STOP=1 -f /sql/$f.sql
 done
 ```
+
+O laço começa pelo dump: num clone novo o `docker compose up -d` já o carrega
+sozinho (está montado em `docker-entrypoint-initdb.d`), mas em quem já tinha o
+volume criado ele precisa rodar, senão a carga do `nw` não encontra o `public`.
 
 O `-v ON_ERROR_STOP=1` não é enfeite: sem ele o `psql` continua depois de um erro
 e ainda sai com código 0 — ou seja, a carga "passaria" com uma constraint

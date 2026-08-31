@@ -303,7 +303,7 @@ colunas soltas: `ship_name`, `ship_address`, `ship_city`, `ship_region`,
   **748 (90,1%)**
 
 Aqui a justificativa de snapshot é **fraca**: endereço de entrega não é um valor
-que precise ser congelado por razão contábil, e 94% do conteúdo é duplicação
+que precise ser congelado por razão contábil, e 90% do conteúdo é duplicação
 pura. Ainda assim, **48 pedidos (5,8%)** têm endereço de entrega diferente do
 cadastro pelo critério das três colunas, e **82 (9,9%)** pelo critério das seis —
 ou seja, a coluna não é inútil, ela cobre o caso de entrega em endereço

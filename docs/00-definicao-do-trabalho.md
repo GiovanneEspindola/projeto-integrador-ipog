@@ -20,16 +20,20 @@ e não por gosto — por cinco recursos que **este trabalho usa de fato**:
 |---|---|
 | **DDL transacional** — `CREATE TABLE` dentro de `BEGIN … ROLLBACK` | testar constraint e índice sem sujar o banco; o MySQL faz *commit* implícito em DDL, e o teste não teria volta |
 | **Tipo `ARRAY`** | `vw_hierarquia_funcionarios` guarda o caminho até o topo da hierarquia num array |
-| **Cláusula `FILTER (WHERE …)`** em agregação | todos os relatórios de validação; no MySQL vira `CASE` aninhado, bem menos legível |
-| **`GROUPING SETS`** | a pergunta 16, de sazonalidade por trimestre; o MySQL só tem `WITH ROLLUP` |
-| **`EXPLAIN (ANALYZE, BUFFERS)`** | foi o que permitiu recusar seis dos dez índices candidatos com medição, e não com opinião |
+| **Cláusula `FILTER (WHERE …)`** em agregação | todos os relatórios de validação; no MySQL vira `SUM(CASE WHEN … END)`, bem menos legível |
+| **`EXPLAIN (… BUFFERS)`** | mostra quantas páginas cada plano lê — é o número que sustentou o argumento das 15 páginas, que decidiu seis dos dez índices |
+| **`COMMENT ON` em índice e schema** | os 4 índices e o próprio schema `nw` carregam a explicação dentro do catálogo; o MySQL só comenta tabela e coluna |
 
-**Sendo justo com o MySQL**, e isso importa numa defesa: as duas coisas que
+Na Entrega 03 entra ainda `GROUPING SETS`, para a pergunta 16 de sazonalidade —
+o MySQL só tem `WITH ROLLUP`.
+
+**Sendo justo com o MySQL**, e isso importa numa defesa: as coisas que
 normalmente se citam contra ele **não valem mais**. Desde a versão 8.0 ele tem
-CTE recursiva e *window functions*, que dão conta das perguntas 07 a 11 e 15. A
-diferença real está nos cinco itens acima, e o mais decisivo para *este* projeto
-é o primeiro — metade das verificações feitas aqui só é possível porque dá para
-testar uma mudança de schema e desfazê-la.
+CTE recursiva e *window functions*, que dão conta das perguntas 07 a 11 e 15, e
+desde a 8.0.18 tem `EXPLAIN ANALYZE` — o que o PostgreSQL acrescenta ali é o
+`BUFFERS`, não a medição em si. A diferença real está nos itens acima, e a mais
+decisiva para *este* projeto é a primeira: metade das verificações feitas aqui só
+é possível porque dá para testar uma mudança de schema e desfazê-la.
 
 ## 2. O domínio
 

@@ -36,7 +36,10 @@ for nome, corpo in re.findall(r'Table "nw"\."(\w+)" \{(.*?)\n\}', texto, re.S):
             continue
         m = re.match(r'\s*"(\w+)" ([\w()\[\], ]+?)(?: \[|$)', linha)
         if m:
-            cols.append((m.group(1), m.group(2).strip()))
+            # a obrigatoriedade tambem entra na comparacao: sem isso, afrouxar
+            # um NOT NULL deixaria o diagrama desatualizado sem ninguem ver
+            obrig = "NOT NULL" if "not null" in linha else "NULL"
+            cols.append((m.group(1), m.group(2).strip(), obrig))
     dbml[nome] = cols
 # Comparar so o NOME da FK deixaria passar um Ref com o nome certo apontando
 # para a coluna errada. Por isso extrai-se tambem origem e destino.
@@ -54,18 +57,20 @@ APELIDO = {"integer": "int4", "smallint": "int2", "boolean": "bool"}
 with psycopg.connect(DSN) as cx, cx.cursor() as cur:
     cur.execute("""
         SELECT c.table_name, c.column_name, c.data_type,
-               c.character_maximum_length, c.numeric_precision, c.numeric_scale
+               c.character_maximum_length, c.numeric_precision, c.numeric_scale,
+               c.is_nullable
           FROM information_schema.columns c
           JOIN information_schema.tables t
             ON t.table_schema = c.table_schema AND t.table_name = c.table_name
          WHERE c.table_schema = 'nw' AND t.table_type = 'BASE TABLE'
          ORDER BY c.table_name, c.ordinal_position""")
     banco = {}
-    for tab, col, tipo, tam, prec, esc in cur.fetchall():
+    for tab, col, tipo, tam, prec, esc, nulavel in cur.fetchall():
         if tipo == "character varying": t = f"varchar({tam})"
         elif tipo == "numeric":         t = f"numeric({prec},{esc})"
         else:                           t = APELIDO.get(tipo, tipo)
-        banco.setdefault(tab, []).append((col, t))
+        banco.setdefault(tab, []).append(
+            (col, t, "NULL" if nulavel == "YES" else "NOT NULL"))
 
     # o DBML escreve o Ref no sentido pai -> filho, entao a tupla e
     # (tabela_pai, coluna_pai, tabela_filho, coluna_filho)
@@ -92,10 +97,10 @@ print("\n== 2. Colunas e tipos, tabela a tabela ==")
 total = 0
 for tab in sorted(banco):
     igual = dbml.get(tab) == banco[tab]
-    ok(igual, f"{tab}: {len(banco[tab])} colunas"
+    ok(igual, f"{tab}: {len(banco[tab])} colunas (nome, ordem, tipo e obrigatoriedade)"
        + ("" if igual else f"\n         DBML : {dbml.get(tab)}\n         banco: {banco[tab]}"))
     if igual: total += len(banco[tab])
-print(f"  -> {total} colunas com nome, ordem e tipo idênticos")
+print(f"  -> {total} colunas com nome, ordem, tipo e obrigatoriedade idênticos")
 
 print("\n== 3. Chaves estrangeiras ==")
 ok(set(refs_dbml) == set(refs_banco),
