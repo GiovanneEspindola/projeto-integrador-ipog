@@ -49,7 +49,7 @@ JOIN customers  cl ON cl.customer_id = o.customer_id
 JOIN employees  e  ON e.employee_id = o.employee_id;
 
 COMMENT ON VIEW vw_venda_item IS
-  'Uma linha por produto vendido, com receita já calculada e as dimensões ao lado. É a base da maioria das análises.';
+  'Uma linha por produto vendido, com receita já calculada e as dimensões ao lado. É a base da maioria das análises. Agrupe sempre por product_id, nunca por produto: a unicidade de nome é por fornecedor, então dois fornecedores podem ter produtos homônimos.';
 
 -- -----------------------------------------------------------------------------
 -- vw_pedido_resumo — o pedido visto de cima
@@ -59,6 +59,12 @@ COMMENT ON VIEW vw_venda_item IS
 -- O QUE O RESULTADO SIGNIFICA: uma linha por pedido com quantos itens tem,
 -- quanto valeu e quantos dias levou para sair. dias_para_envio NULO significa
 -- pedido ainda não enviado — não é dado faltando.
+--
+-- A junção com order_items é LEFT, de propósito. Chave estrangeira não garante
+-- participação mínima (docs/04 §3.1), então um pedido sem nenhum item PODE
+-- existir no banco. Com junção interna ele sumiria da view em silêncio, e o
+-- "uma linha por pedido" do parágrafo acima viraria mentira. Com LEFT ele
+-- aparece com 0 itens e R$ 0,00 — que é exatamente a anomalia que se quer ver.
 CREATE OR REPLACE VIEW vw_pedido_resumo AS
 SELECT
     o.order_id,
@@ -72,8 +78,8 @@ SELECT
     s.company_name                           AS transportadora,
     o.freight                                AS frete,
     count(i.product_id)                      AS itens,
-    sum(i.quantity)                          AS unidades,
-    sum(round(i.unit_price * i.quantity * (1 - i.discount), 2)) AS valor_pedido,
+    coalesce(sum(i.quantity), 0)             AS unidades,
+    coalesce(sum(round(i.unit_price * i.quantity * (1 - i.discount), 2)), 0) AS valor_pedido,
     o.shipped_date,
     o.shipped_date - o.order_date            AS dias_para_envio,
     o.required_date - o.order_date           AS prazo_prometido_dias,
@@ -82,12 +88,12 @@ FROM orders     o
 JOIN customers  cl ON cl.customer_id = o.customer_id
 JOIN employees  e  ON e.employee_id  = o.employee_id
 JOIN shippers   s  ON s.shipper_id   = o.shipper_id
-JOIN order_items i ON i.order_id     = o.order_id
+LEFT JOIN order_items i ON i.order_id = o.order_id
 GROUP BY o.order_id, cl.company_name, cl.country, e.first_name, e.last_name,
          s.company_name;
 
 COMMENT ON VIEW vw_pedido_resumo IS
-  'Uma linha por pedido: valor total, contagem de itens e prazos. dias_para_envio nulo = pedido nunca enviado.';
+  'Uma linha por pedido: valor total, contagem de itens e prazos. dias_para_envio nulo = pedido nunca enviado. A junção com order_items é LEFT, para que um pedido sem itens apareça com zero em vez de desaparecer.';
 
 -- -----------------------------------------------------------------------------
 -- vw_estoque_critico — o que precisa ser reposto

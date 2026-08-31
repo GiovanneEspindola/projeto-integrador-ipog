@@ -2,15 +2,15 @@
 -- 30_indexes.sql — índices do schema nw
 -- =============================================================================
 -- Regra que este arquivo segue: NENHUM índice entra sem EXPLAIN provando que o
--- planejador o escolhe. Nove candidatos foram testados; quatro entraram.
--- Os cinco recusados estão no fim do arquivo, com o motivo medido — porque
+-- planejador o escolhe. DEZ candidatos foram testados; quatro entraram.
+-- Os SEIS recusados estão no fim do arquivo, com o motivo medido — porque
 -- saber quando NÃO criar índice vale tanto quanto saber criar.
 --
 -- O contexto que explica quase tudo: a base é minúscula. A maior tabela,
 -- orders, ocupa 15 páginas de 8 kB. Varrer 15 páginas é barato, então o
 -- planejador só troca a varredura por índice quando o filtro é bem seletivo.
 --
--- Evidência: apresentacao/evidencias/04-indices-explain.txt
+-- Evidência: apresentacao/evidencias/04-indices-e-views.txt
 --   docker compose exec -T postgres psql -U pi -d northwind -f /sql/30_indexes.sql
 -- =============================================================================
 
@@ -41,7 +41,7 @@ CREATE INDEX IF NOT EXISTS orders_date_idx ON orders (order_date);
 -- EXPLAIN: Bitmap Index Scan.
 CREATE INDEX IF NOT EXISTS order_items_product_idx ON order_items (product_id);
 
-ANALYZE;
+ANALYZE orders, order_items;
 
 COMMENT ON INDEX orders_customer_idx     IS 'Pedidos de um cliente. ~9 linhas por valor: seletivo.';
 COMMENT ON INDEX orders_employee_idx     IS 'Pedidos de um vendedor. ~92 linhas por valor: pouco seletivo, mas o planejador usa.';
@@ -49,7 +49,7 @@ COMMENT ON INDEX orders_date_idx         IS 'Pedidos por período. Permite Index
 COMMENT ON INDEX order_items_product_idx IS 'Vendas de um produto. A PK composta não cobre esta busca, porque product_id não é a primeira coluna dela.';
 
 -- =============================================================================
--- Os cinco candidatos recusados, e a medição que os recusou
+-- Os seis candidatos recusados, e a medição que os recusou
 -- =============================================================================
 --
 -- order_items (order_id)

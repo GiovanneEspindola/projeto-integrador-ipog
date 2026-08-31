@@ -71,6 +71,10 @@ SELECT coluna, origem, destino, destino - origem AS divergencia FROM (
     SELECT 'order_items.quantity',
            (SELECT sum(quantity) FROM public.order_details),
            (SELECT sum(quantity) FROM nw.order_items)
+    UNION ALL
+    SELECT 'order_items.discount',
+           (SELECT sum(discount::numeric(4,3)) FROM public.order_details),
+           (SELECT sum(discount)               FROM nw.order_items)
 ) t;
 
 \echo
@@ -166,7 +170,8 @@ SELECT pub.table_name || '.' || pub.column_name AS coluna_da_origem,
                                      WHEN 'region_description'    THEN 'region_name'
                                      WHEN 'territory_description' THEN 'territory_name'
                                      ELSE pub.column_name END)
- ORDER BY 2 DESC, 1;
+ -- ASC coloca '***' antes de 'descartada', entao o alarme aparece PRIMEIRO
+ ORDER BY 2 ASC, 1;
 
 \echo
 \echo === 9. O schema opera? (as chaves sinteticas geram valor) ===

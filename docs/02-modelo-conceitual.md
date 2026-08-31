@@ -22,7 +22,7 @@ Para abrir: <https://app.diagrams.net> → *Open Existing Diagram*, ou a extens�
 
 O diagrama não é só desenho: `etl/valida_conceitual.py` confere cada afirmação
 dele contra o banco — as 11 entidades e seus atributos existem no schema
-`public`, os identificadores batem com as chaves primárias reais, as 11
+`public`, os identificadores batem com as chaves primárias reais, as
 cardinalidades conferem com as junções medidas, e as 14 tabelas da base estão
 todas classificadas (11 modeladas, 3 excluídas com motivo). O script sai com
 código 1 se qualquer verificação falhar, e a saída fica em
@@ -57,6 +57,11 @@ lógico, em `docs/04`.
 ---
 
 ## 3. Justificativa de cada cardinalidade
+
+São **10 relacionamentos**, e a tabela abaixo tem 10 linhas. No desenho eles
+aparecem como **11 linhas**, porque o N:N entre FUNCIONÁRIO e TERRITÓRIO passa
+pela entidade associativa ATUAÇÃO e por isso é traçado em duas pernas. No modelo
+relacional viram **11 chaves estrangeiras**, pelo mesmo motivo.
 
 A notação é pé-de-galinha. `(1,1)` é "exatamente um", `(0,1)` "zero ou um",
 `(1,N)` "um ou muitos", `(0,N)` "zero ou muitos".

@@ -27,7 +27,7 @@ SELECT * FROM orders WHERE employee_id = 4;
 EXPLAIN (ANALYZE, BUFFERS, COSTS OFF, TIMING OFF, SUMMARY OFF)
 SELECT count(*) FROM orders WHERE order_date BETWEEN '1997-01-01' AND '1997-01-31';
 \echo
-\echo '--- order_items_product_idx: vendas de um produto (28 de 2155) ---'
+\echo '--- order_items_product_idx: vendas de um produto (38 de 2155) ---'
 EXPLAIN (ANALYZE, BUFFERS, COSTS OFF, TIMING OFF, SUMMARY OFF)
 SELECT * FROM order_items WHERE product_id = 11;
 

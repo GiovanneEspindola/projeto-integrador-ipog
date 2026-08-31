@@ -11,9 +11,9 @@
 ------------------------------------------------------------------------
  Bitmap Heap Scan on orders (actual rows=6 loops=1)
    Recheck Cond: ((customer_id)::text = 'ALFKI'::text)
-   Heap Blocks: exact=6
-   Buffers: shared hit=7
-   ->  Bitmap Index Scan on orders_customer_idx (actual rows=7 loops=1)
+   Heap Blocks: exact=5
+   Buffers: shared hit=6
+   ->  Bitmap Index Scan on orders_customer_idx (actual rows=6 loops=1)
          Index Cond: ((customer_id)::text = 'ALFKI'::text)
          Buffers: shared hit=1
  Planning:
@@ -50,14 +50,14 @@
 (8 rows)
 
 
---- order_items_product_idx: vendas de um produto (28 de 2155) ---
+--- order_items_product_idx: vendas de um produto (38 de 2155) ---
                                  QUERY PLAN                                  
 -----------------------------------------------------------------------------
  Bitmap Heap Scan on order_items (actual rows=38 loops=1)
    Recheck Cond: (product_id = 11)
    Heap Blocks: exact=14
    Buffers: shared hit=16
-   ->  Bitmap Index Scan on order_items_product_idx (actual rows=39 loops=1)
+   ->  Bitmap Index Scan on order_items_product_idx (actual rows=38 loops=1)
          Index Cond: (product_id = 11)
          Buffers: shared hit=2
  Planning:

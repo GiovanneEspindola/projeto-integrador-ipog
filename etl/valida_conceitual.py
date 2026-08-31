@@ -91,6 +91,8 @@ with psycopg.connect(DSN) as cx, cx.cursor() as cur:
         ok(pks.get(tab)==set(pk), f"{ent}: PK do diagrama {pk} == PK real {sorted(pks.get(tab,[]))}")
 
     print("\n== 2. Cardinalidades ==")
+    print("  (11 ligações para 10 relacionamentos: o N:N de ATUAÇÃO conta duas vezes,")
+    print("   uma de cada lado da entidade associativa)")
     for rot,ct,fk,pt,pk,cmin,pmin in REL:
         cur.execute(f"select count(*), count(*) filter (where {fk} is null) from public.{ct}")
         tot, nulos = cur.fetchone()

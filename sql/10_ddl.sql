@@ -242,7 +242,7 @@ COMMENT ON TABLE territories IS 'Praças de atuação comercial. Nome não é ú
 COMMENT ON TABLE categories  IS 'Classificação do catálogo de produtos.';
 COMMENT ON TABLE suppliers   IS 'Quem fornece os produtos revendidos.';
 COMMENT ON TABLE shippers    IS 'Transportadoras que entregam os pedidos.';
-COMMENT ON TABLE customers   IS 'Empresas compradoras. Identificadas por código natural de 5 letras herdado do sistema de origem.';
+COMMENT ON TABLE customers   IS 'Empresas compradoras. Identificadas por código natural de 5 caracteres alfanuméricos maiúsculos, herdado do sistema de origem.';
 COMMENT ON TABLE employees   IS 'Equipe de vendas, com hierarquia por auto-relacionamento em reports_to.';
 COMMENT ON TABLE employee_territories IS 'Entidade associativa: quais territórios cada funcionário atende.';
 COMMENT ON TABLE products    IS 'Catálogo de produtos revendidos.';
@@ -250,7 +250,7 @@ COMMENT ON TABLE orders      IS 'Cabeçalho da venda: quem comprou, quem vendeu,
 COMMENT ON TABLE order_items IS 'Corpo da venda: uma linha por produto vendido. É onde está o dinheiro.';
 
 COMMENT ON COLUMN customers.customer_id IS
-  'Chave natural de 5 letras maiúsculas derivada do nome da empresa (ALFKI = Alfreds Futterkiste). Mantida por compatibilidade com a origem; o acoplamento entre identificador e nome está discutido em docs/04.';
+  'Chave natural de 5 caracteres alfanuméricos maiúsculos, derivada do nome da empresa (ALFKI = Alfreds Futterkiste). Hoje todos os 91 são só letras, mas o CHECK aceita dígito porque as 5 letras colidem e o desempate usual é sufixar com número. Mantida por compatibilidade com a origem; o acoplamento entre identificador e nome está discutido em docs/04.';
 COMMENT ON COLUMN employees.reports_to IS
   'Superior imediato. NULL identifica o topo da hierarquia, não ausência de dado.';
 COMMENT ON COLUMN products.quantity_per_unit IS

@@ -42,7 +42,7 @@ Table "nw"."shippers" {
 }
 
 Table "nw"."customers" {
-  "customer_id" varchar(5) [pk, not null, check: `(customer_id)::text ~ '^[A-Z0-9]{5}$'::text`, note: 'Chave natural de 5 letras maiúsculas derivada do nome da empresa (ALFKI = Alfreds Futterkiste). Mantida por compatibilidade com a origem; o acoplamento entre identificador e nome está discutido em docs/04.']
+  "customer_id" varchar(5) [pk, not null, check: `(customer_id)::text ~ '^[A-Z0-9]{5}$'::text`, note: 'Chave natural de 5 caracteres alfanuméricos maiúsculos, derivada do nome da empresa (ALFKI = Alfreds Futterkiste). Hoje todos os 91 são só letras, mas o CHECK aceita dígito porque as 5 letras colidem e o desempate usual é sufixar com número. Mantida por compatibilidade com a origem; o acoplamento entre identificador e nome está discutido em docs/04.']
   "company_name" varchar(40) [not null, check: `btrim((company_name)::text) <> ''::text`]
   "contact_name" varchar(30)
   "contact_title" varchar(30)
@@ -53,7 +53,7 @@ Table "nw"."customers" {
   "country" varchar(15)
   "phone" varchar(24)
   "fax" varchar(24)
-  Note: 'Empresas compradoras. Identificadas por código natural de 5 letras herdado do sistema de origem.'
+  Note: 'Empresas compradoras. Identificadas por código natural de 5 caracteres alfanuméricos maiúsculos, herdado do sistema de origem.'
 }
 
 Table "nw"."employees" {

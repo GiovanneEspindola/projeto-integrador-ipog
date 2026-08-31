@@ -54,9 +54,10 @@ Esta é a mudança mais importante, e cabe numa tabela:
 | **CHECK** | **0** | **17** |
 | Colunas obrigatórias que antes aceitavam nulo | — | **21** |
 
-*(Medido em `03-validacao-carga-nw.txt` §6 e §7. As contagens de PK e FK caem de
-14/13 para 11/11 porque três tabelas ficaram fora do modelo — as duas vazias e a
-`us_states`.)*
+*(Medido em `03-validacao-carga-nw.txt` §6 e §7. As PKs caem de 14 para 11 porque
+três tabelas ficaram fora — as duas vazias e a `us_states`. Já as FKs caem de 13
+para 11 por causa de **uma só**: `customer_customer_demo` tinha duas; `us_states`
+e `customer_demographics` não tinham nenhuma.)*
 
 O banco de origem tinha integridade **referencial** perfeita e **nenhuma**
 integridade de domínio: aceitaria quantidade negativa, desconto de 300% e pedido
@@ -80,8 +81,9 @@ Com `ALWAYS` toda instrução da carga precisaria de `OVERRIDING SYSTEM VALUE`.
 
 Como a carga traz os ids prontos, as sequences ficariam paradas em 1 e o próximo
 `INSERT` colidiria. Por isso `20_load.sql` termina com `setval` reposicionando
-cada uma no maior id já usado. Testado: um pedido inserido sem `order_id` recebeu
-**11078**, o seguinte de 11077.
+cada uma no maior id já usado — depois de uma carga limpa, a de `orders` fica em
+**11077**, que é o maior `order_id` da base. Testado numa transação revertida: um
+pedido inserido sem `order_id` recebeu **11078**, o número seguinte.
 
 ### Três colunas ficaram para trás, de propósito
 
@@ -94,6 +96,15 @@ Nenhuma outra coluna se perdeu, e isso é **verificado, não afirmado**: a §8 d
 três e marca qualquer outra ausência como perda silenciosa. Foi assim que
 `employees.title_of_courtesy` (Mr., Mrs., Dr.) voltou para o modelo depois de ter
 sido esquecida na primeira versão.
+
+### Uma regra que precisou afrouxar
+
+O `CHECK` de `customers.customer_id` começou como `^[A-Z]{5}$` — cinco letras
+maiúsculas, que é o formato dos 91 códigos da base. Está errado como regra:
+`ALFKI` vem de *Alfreds Futterkiste*, e quando duas empresas dão as mesmas cinco
+letras o desempate usual é trocar uma por dígito. O `CHECK` fecharia a porta para
+um cadastro legítimo. Ficou `^[A-Z0-9]{5}$`: prende o comprimento, que é regra
+real, e libera o desempate.
 
 ### Uma regra que quase virou invenção
 
@@ -187,10 +198,15 @@ chave candidata.)*
 
 ## 3.1 Duas cardinalidades que a chave estrangeira não consegue expressar
 
-Os 11 relacionamentos de `docs/02` viraram 11 chaves estrangeiras. Mas chave
+Os relacionamentos de `docs/02` viraram 11 chaves estrangeiras. Mas chave
 estrangeira só garante um lado: que **o filho aponta para um pai que existe**.
 Ela não garante o outro, a **participação mínima** — que o pai tenha pelo menos
 um filho.
+
+Antes de continuar, um acerto de contagem que a banca pode cobrar: o conceitual
+tem **10 relacionamentos**, desenhados como **11 linhas** (o N:N de ATUAÇÃO
+aparece como duas, uma de cada lado da entidade associativa) e implementados como
+**11 chaves estrangeiras**, pelo mesmo motivo.
 
 Duas cardinalidades do diagrama caem nesse buraco:
 
@@ -229,9 +245,9 @@ deixei como está o que só parecia redundante.**
 
 ---
 
-## 5. Índices: quatro entraram, cinco foram recusados
+## 5. Índices: quatro entraram, seis foram recusados
 
-Nenhum índice entrou sem `EXPLAIN` provando que o planejador o escolhe.
+Foram dez candidatos. Nenhum entrou sem `EXPLAIN` provando que o planejador o escolhe.
 
 | Índice | Serve às perguntas | Plano medido |
 |---|---|---|
@@ -244,7 +260,7 @@ Nenhum índice entrou sem `EXPLAIN` provando que o planejador o escolhe.
 `orders`, ocupa **15 páginas de 8 kB**. Ler 15 páginas inteiras é barato, então o
 planejador só troca a varredura por índice quando o filtro é bem seletivo.
 
-Os cinco recusados, por motivo:
+Os seis recusados, por motivo:
 
 - **`order_items (order_id)`** — redundante. A PK é `(order_id, product_id)` e
   começa por `order_id`, então ela mesma atende. *Um índice composto só serve
@@ -281,6 +297,12 @@ Elas existem porque o cálculo de receita —
 `preço × quantidade × (1 − desconto)` — apareceria em 11 das 16 consultas, e
 cálculo repetido é cálculo que uma hora sai diferente em algum lugar.
 
+`vw_pedido_resumo` usa **`LEFT JOIN`** com `order_items`, e isso é consequência
+direta da §3.1: como o banco aceita um pedido sem itens, uma junção interna o
+faria desaparecer da view em silêncio — e o "uma linha por pedido" viraria
+mentira justamente no caso anômalo que se quer enxergar. Com `LEFT`, o pedido
+vazio aparece com 0 itens e R$ 0,00.
+
 **Um detalhe que a banca pode cobrar.** A receita total pela view dá
 **1.265.793,29**, e a soma sem arredondar dá **1.265.793,04**. A diferença de
 R$ 0,25 é proposital: a view arredonda **cada item**, como faz uma nota fiscal,
@@ -293,13 +315,14 @@ que não bate com a soma das linhas impressas.
 
 ```bash
 docker compose up -d
-docker compose exec -T postgres psql -U pi -d northwind -f /sql/10_ddl.sql
-docker compose exec -T postgres psql -U pi -d northwind -f /sql/20_load.sql
-docker compose exec -T postgres psql -U pi -d northwind -f /sql/21_validacao_carga.sql
-docker compose exec -T postgres psql -U pi -d northwind -f /sql/30_indexes.sql
-docker compose exec -T postgres psql -U pi -d northwind -f /sql/40_views.sql
-docker compose exec -T postgres psql -U pi -d northwind -f /sql/50_evidencias.sql
+for f in 10_ddl 20_load 21_validacao_carga 30_indexes 40_views 50_evidencias; do
+  docker compose exec -T postgres psql -U pi -d northwind -v ON_ERROR_STOP=1 -f /sql/$f.sql
+done
 ```
+
+O `-v ON_ERROR_STOP=1` não é enfeite: sem ele o `psql` continua depois de um erro
+e ainda sai com código 0 — ou seja, a carga "passaria" com uma constraint
+violada no meio. É essa flag que sustenta a afirmação da §2.
 
 Os scripts são idempotentes: `10_ddl.sql` recria o schema do zero e `20_load.sql`
 trunca antes de inserir. Rodar duas vezes dá o mesmo resultado.

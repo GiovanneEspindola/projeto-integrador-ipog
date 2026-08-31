@@ -67,6 +67,8 @@
   OK   ATUAÇÃO: PK do diagrama ['employee_id', 'territory_id'] == PK real ['employee_id', 'territory_id']
 
 == 2. Cardinalidades ==
+  (11 ligações para 10 relacionamentos: o N:N de ATUAÇÃO conta duas vezes,
+   uma de cada lado da entidade associativa)
   OK   fornece: lado filho 1,1 -> 0 nulos em products.supplier_id (de 77)
   OK   fornece: 0 órfãos (0)
   INFO  fornece: lado pai (0,N) -> 0 de 29 suppliers sem filho   [dados dizem 1..N; (0,N) é escolha de modelo]

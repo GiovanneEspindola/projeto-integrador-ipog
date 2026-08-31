@@ -150,7 +150,7 @@ done
 | `10_ddl.sql` | cria o schema `nw`: 11 tabelas, 17 CHECK, 4 UNIQUE, comentários |
 | `20_load.sql` | migra 3311 linhas de `public` para `nw`, convertendo tipos |
 | `21_validacao_carga.sql` | prova que nada se perdeu: contagens, somas e colunas |
-| `30_indexes.sql` | os 4 índices que o `EXPLAIN` justificou, e os 5 recusados |
+| `30_indexes.sql` | os 4 índices que o `EXPLAIN` justificou, e os 6 recusados |
 | `40_views.sql` | as 4 views analíticas |
 | `50_evidencias.sql` | gera a evidência de índices e views para a apresentação |
 
