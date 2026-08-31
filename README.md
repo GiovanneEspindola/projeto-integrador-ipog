@@ -134,6 +134,26 @@ docker compose exec -T postgres psql -U pi -d northwind -f /sql/ARQUIVO.sql
 Os diretórios `sql/` e `mongo/` do repositório aparecem dentro dos containers
 como `/sql` e `/mongo`, em modo somente leitura.
 
+### Construir o schema `nw` do zero
+
+Os scripts são numerados na ordem em que devem rodar e são idempotentes: podem
+ser executados quantas vezes for preciso, sempre com o mesmo resultado.
+
+```bash
+for f in 10_ddl 20_load 21_validacao_carga 30_indexes 40_views 50_evidencias; do
+  docker compose exec -T postgres psql -U pi -d northwind -v ON_ERROR_STOP=1 -f /sql/$f.sql
+done
+```
+
+| Script | O que faz |
+|---|---|
+| `10_ddl.sql` | cria o schema `nw`: 11 tabelas, 17 CHECK, 4 UNIQUE, comentários |
+| `20_load.sql` | migra 3311 linhas de `public` para `nw`, convertendo tipos |
+| `21_validacao_carga.sql` | prova que nada se perdeu: contagens, somas e colunas |
+| `30_indexes.sql` | os 4 índices que o `EXPLAIN` justificou, e os 5 recusados |
+| `40_views.sql` | as 4 views analíticas |
+| `50_evidencias.sql` | gera a evidência de índices e views para a apresentação |
+
 ### Interfaces gráficas (opcionais)
 
 Não sobem por padrão. Quando quiser:
@@ -214,7 +234,7 @@ uv.lock            versões resolvidas e travadas com hash
 docs/              documentação técnica das entregas (01 a 07)
   estudo/          material didático: o "por quê" de cada decisão
   diagramas/       ER conceitual (.drawio), ER lógico (.dbml/.png)
-sql/               dump original, DDL do schema nw, carga, índices, views
+sql/               dump original, DDL do schema nw, carga, validação, índices, views
   queries/         consultas de negócio (QNN.sql)
 mongo/             validators e índices
   pipelines/       aggregation pipelines espelhando as consultas (PNN.js)
