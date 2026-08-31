@@ -65,6 +65,14 @@ O padrão `(1,1) — (0,N)` domina a tabela, e a leitura é sempre a mesma: **o 
 filho é obrigatório, o lado pai é opcional.** Um pedido tem que ter cliente; um
 cliente não tem que ter pedido.
 
+Um detalhe que a banca pode cobrar: cinco dessas colunas de junção
+(`orders.customer_id`, `orders.employee_id`, `orders.ship_via`,
+`products.supplier_id`, `products.category_id`) são **nuláveis no dump original**,
+embora não tenham nenhum nulo nos dados. O modelo conceitual as trata como
+obrigatórias porque a regra de negócio é obrigatória — o dump é permissivo, o
+negócio não é. É exatamente esse aperto que o schema `nw` vai transformar em
+`NOT NULL`.
+
 ---
 
 ## 4. As três decisões do modelo, e o que foi descartado
@@ -100,7 +108,7 @@ mudança de negócio. Modelar para o caso mais geral, quando o custo é uma tabe
 Isto é material de banca: a pergunta "por que N:N se os dados são 1:N?" tem
 resposta pronta, com o número na mão.
 
-### 4.3 As duas tabelas de segmentação ficaram de fora
+### 4.3 Três tabelas ficaram de fora
 
 `customer_demographics` e `customer_customer_demo` existem na base original e
 estão **vazias — 0 linhas as duas**.
@@ -109,7 +117,15 @@ estão **vazias — 0 linhas as duas**.
 
 **Por quê:** entidade sem nenhuma instância não descreve o domínio, descreve uma
 intenção que nunca virou dado. Modelo conceitual é retrato do negócio que
-existe. A exclusão fica **declarada** no próprio diagrama, numa nota — o
+existe.
+
+A terceira é `us_states`, e o motivo é outro: ela tem **51 linhas**, mas
+**nenhuma chave estrangeira aponta para ela** — as colunas `region` de
+`customers`, `employees` e `suppliers` são texto livre, não referência. É uma
+lista de apoio geográfico que veio junto no dump, não uma entidade do negócio de
+distribuição.
+
+As três exclusões ficam **declaradas** no próprio diagrama, numa nota — o
 avaliador vê que foi decisão, não descuido.
 
 ---
