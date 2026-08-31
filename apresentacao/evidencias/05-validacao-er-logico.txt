@@ -1,0 +1,26 @@
+# Validação do ER lógico contra o banco
+# Gerado por: uv run python etl/valida_dbml.py
+# Fonte: docs/diagramas/nw-schema.dbml  vs  postgresql://pi:***@localhost:5432/northwind (schema nw)
+
+== 1. Conjunto de tabelas ==
+  OK   DBML tem 11 tabelas, banco tem 11
+
+== 2. Colunas e tipos, tabela a tabela ==
+  OK   categories: 3 colunas
+  OK   customers: 11 colunas
+  OK   employee_territories: 2 colunas
+  OK   employees: 16 colunas
+  OK   order_items: 5 colunas
+  OK   orders: 14 colunas
+  OK   products: 10 colunas
+  OK   regions: 2 colunas
+  OK   shippers: 3 colunas
+  OK   suppliers: 12 colunas
+  OK   territories: 3 colunas
+  -> 81 colunas com nome, ordem e tipo idênticos
+
+== 3. Chaves estrangeiras ==
+  OK   DBML declara 11 FKs, banco tem 11
+
+============================================================
+RESULTADO: o ER lógico corresponde ao schema nw

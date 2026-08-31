@@ -3,7 +3,7 @@
 > **Entrega 01** · Projeto Integrador Área 03 — Banco de Dados (IPOG)
 > Autor: Giovanne Espíndola · Data: 31/08/2026
 >
-> Diagrama: `docs/diagramas/arquitetura-hibrida.png`
+> Diagrama: `docs/diagramas/arquitetura-hibrida.drawio` · exportação: `docs/diagramas/arquitetura-hibrida.png`
 
 ---
 
@@ -28,12 +28,21 @@ depende disso, e é isso que o experimento vai medir.
 | **Integridade** | declarativa: o banco recusa o que viola | da aplicação, ou por *validator* opcional |
 | **Pergunta imprevista** | `JOIN` responde o que ninguém antecipou | precisa de `$lookup`, ou de remodelar |
 | **Leitura do agregado** | reconstruir exige junção | uma leitura, sem junção |
-| **Escala** | vertical, e réplicas de leitura | horizontal, por *sharding* |
-| **Transação multi-entidade** | nativa desde sempre | existe, mas é caminho menos trilhado |
+| **Escala** | vertical, réplicas de leitura e particionamento declarativo | horizontal, por *sharding* |
+| **Transação multi-entidade** | nativa desde sempre | ACID multi-documento desde a 4.0, **mas exige replica set** |
 
 A linha que mais importa é a terceira. **Modelo relacional é o que permite fazer
 uma pergunta que não foi prevista na hora de modelar.** Modelo documental é o
 que permite servir rápido a pergunta que *foi* prevista.
+
+A última linha merece precisão, porque é onde é fácil errar nos dois sentidos. O
+MongoDB **tem** transação ACID multi-documento desde a versão 4.0 — dizer que não
+tem está errado. Mas ela exige *replica set*, e o container deste projeto sobe em
+**nó único**, então aqui ela não está disponível: uma tentativa devolve
+`This MongoDB deployment does not support retryable writes`. Na prática do modelo
+documental isso pesa menos do que parece, porque **o agregado costuma ser a
+própria fronteira transacional** — a escrita de um documento é atômica, e o
+pedido com seus itens é um documento só.
 
 ---
 
@@ -50,9 +59,10 @@ que permite servir rápido a pergunta que *foi* prevista.
   └─────────────────┘                 └──────────────────┘
 ```
 
-**O PostgreSQL é a fonte da verdade.** É onde a venda acontece, onde as 17
-constraints impedem o dado inválido de entrar, e onde a transação garante que
-pedido e itens nascem juntos ou não nascem.
+**O PostgreSQL é a fonte da verdade.** É onde a venda acontece, onde as
+**17 CHECK, 4 UNIQUE e 11 chaves estrangeiras** impedem o dado inválido de
+entrar, e onde a transação garante que pedido e itens nascem juntos ou não
+nascem.
 
 **O MongoDB é uma cópia orientada a documento**, alimentada por `etl/migrate.py`.
 Ele não recebe escrita de aplicação neste projeto.
@@ -92,9 +102,16 @@ torna a comparação interessante:
 `order_items` viram **830 documentos**. A junção que o PostgreSQL faz em tempo
 de consulta, o MongoDB faz em tempo de escrita — uma vez só, no ETL.
 
-É exatamente aí que está o *trade-off* do projeto: o documental **paga
-antecipado** o custo da junção e cobra caro quando você quer cruzar de um jeito
-que ele não previu.
+É aí que está o *trade-off* que o experimento vai medir: o documental **paga
+antecipado** o custo da junção. A hipótese é que isso o favoreça na leitura
+prevista e o penalize no cruzamento imprevisto — mas isso é o que a Entrega 04
+tem que mostrar, não algo a afirmar agora.
+
+Uma decisão fica em aberto de propósito e será fechada na Entrega 02: se os itens
+embutidos em `orders` **carregarem também a categoria do produto**, as perguntas
+01 e 07 (faturamento e top-5 por categoria) se resolvem sem `$lookup`; se não
+carregarem, precisarão dele. Os dois caminhos são defensáveis, e a escolha é
+justamente o tipo de coisa que a comparação existe para iluminar.
 
 ---
 
@@ -129,11 +146,17 @@ permitem.
    comporta nesta escala e como cada consulta se escreve.
 2. **Nó único.** O MongoDB roda sem *sharding* e sem *replica set*. A principal
    vantagem estrutural do documental — distribuir por muitas máquinas — **não é
-   exercitada**. Comparar sem isso favorece o relacional, e é honesto dizer.
+   exercitada**. Comparar assim provavelmente favorece o relacional, e é honesto
+   dizer antes de medir. (A ressalva: com 830 pedidos, *sharding* não mudaria o
+   resultado de todo modo.)
 3. **Sem concorrência.** Mede-se latência de consulta isolada, não vazão sob
    carga. São coisas diferentes.
 4. **Sem custo de produto.** A base não tem custo de aquisição, então nenhuma
    pergunta calcula margem — só receita.
+5. **Sem transação multi-documento no MongoDB.** Ela existe no produto desde a
+   4.0, mas exige *replica set*, e o nó único não oferece. Então a comparação de
+   garantias transacionais entre os dois lados não é feita em pé de igualdade —
+   está declarado aqui para não virar surpresa.
 
 ---
 

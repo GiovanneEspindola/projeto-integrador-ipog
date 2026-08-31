@@ -401,7 +401,7 @@ O Northwind acerta em coisas importantes:
 
 ## 6. Perguntas de negócio que a base responde
 
-Lista candidata para as Entregas 03 e 04. Cada pergunta será respondida **duas
+Lista fechada, que orienta as Entregas 03 e 04. Cada pergunta será respondida **duas
 vezes** — uma em SQL (`sql/queries/QNN.sql`) e uma em pipeline de agregação do
 MongoDB (`mongo/pipelines/PNN.js`) — e é essa duplicação que produz a análise
 comparativa e a base do benchmark.

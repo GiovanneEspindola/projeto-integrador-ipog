@@ -50,13 +50,19 @@ existem dois — o conceitual se discute com quem entende do negócio, o lógico
 quem vai construir.
 
 Ele não foi desenhado à mão: `docs/diagramas/nw-schema.dbml` é **gerado do banco**
-com `db2dbml`, então não tem como divergir do que está implementado. Conferido por
-script: as 11 tabelas, as **81 colunas** com seus tipos e as **11 chaves
-estrangeiras** batem uma a uma com o `information_schema`.
+com `db2dbml`. Mas "gerado" não é garantia — basta o schema mudar depois para o
+diagrama entregue passar a mentir. Por isso a correspondência é **verificada**, e
+não presumida: `etl/valida_dbml.py` confere as 11 tabelas, as **81 colunas** com
+nome, ordem e tipo, e as **11 chaves estrangeiras** contra o `information_schema`,
+saindo com código 1 em qualquer divergência.
+
+O validador foi testado por mutação — alterando um tipo, removendo uma coluna e
+removendo uma chave estrangeira do DBML, ele acusou as três.
 
 ```bash
 npx -p @dbml/cli db2dbml postgres \
   'postgresql://pi:pi@localhost:5432/northwind?schemas=nw' -o docs/diagramas/nw-schema.dbml
+uv run python etl/valida_dbml.py     # evidência: 05-validacao-er-logico.txt
 ```
 
 ---

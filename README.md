@@ -250,8 +250,8 @@ sql/               dump original, DDL do schema nw, carga, validação, índices
   queries/         consultas de negócio (QNN.sql)
 mongo/             validators e índices
   pipelines/       aggregation pipelines espelhando as consultas (PNN.js)
-etl/               perfilamento (notebook), migração PostgreSQL -> MongoDB,
-                   requirements.txt (gerado)
+etl/               perfilamento (notebook), validadores dos diagramas,
+                   migração PostgreSQL -> MongoDB, requirements.txt (gerado)
 bench/             benchmark comparativo + resultados
 apresentacao/      roteiro dos slides
   evidencias/      saídas brutas de consulta e gráficos usados na apresentação
@@ -291,7 +291,8 @@ está desativada para a sua distro. Veja a nota na seção de pré-requisitos. D
 de ativar, **abra um terminal novo** — o PATH não é atualizado nos que já estavam
 abertos.
 
-**Transação multi-documento falha no MongoDB.** Mensagem
-`Transaction numbers are only allowed on a replica set`. É esperado: o container
-sobe como nó standalone, e transação multi-documento exige replica set. Está
-documentado como limitação declarada, não como defeito.
+**Transação multi-documento falha no MongoDB.** A mensagem que este deployment
+devolve é `This MongoDB deployment does not support retryable writes`. É
+esperado: o container sobe como **nó standalone**, e transação multi-documento
+exige *replica set*. Está declarado como limitação em `docs/03` §6, não é
+defeito.
