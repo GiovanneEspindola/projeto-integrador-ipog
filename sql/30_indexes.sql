@@ -70,6 +70,13 @@ COMMENT ON INDEX order_items_product_idx IS 'Vendas de um produto. A PK composta
 --   custa dois. O planejador escolheu Seq Scan em todos os testes.
 --   Criá-los seria custo de escrita e de espaço sem nenhum retorno.
 --
+-- Um caso de fronteira, registrado para não parecer descuido:
+--   employee_territories.territory_id tem ON DELETE CASCADE e NÃO tem índice.
+--   Apagar um território faz varredura sequencial para achar os filhos a
+--   cascatear. Em 49 linhas de uma página isso é irrelevante, e vale o mesmo
+--   raciocínio de tamanho acima — mas em tabela grande um CASCADE sem índice
+--   de apoio é problema clássico de desempenho.
+--
 -- Nota honesta para a defesa: em produção, com milhões de pedidos, três desses
 -- cinco provavelmente passariam a valer a pena. A decisão aqui vale para ESTE
 -- volume, e está registrada assim de propósito.

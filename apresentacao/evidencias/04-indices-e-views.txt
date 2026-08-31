@@ -10,14 +10,14 @@
                                QUERY PLAN                               
 ------------------------------------------------------------------------
  Bitmap Heap Scan on orders (actual rows=6 loops=1)
-   Recheck Cond: (customer_id = 'ALFKI'::bpchar)
-   Heap Blocks: exact=5
-   Buffers: shared hit=5 read=1
-   ->  Bitmap Index Scan on orders_customer_idx (actual rows=6 loops=1)
-         Index Cond: (customer_id = 'ALFKI'::bpchar)
-         Buffers: shared read=1
+   Recheck Cond: ((customer_id)::text = 'ALFKI'::text)
+   Heap Blocks: exact=6
+   Buffers: shared hit=7
+   ->  Bitmap Index Scan on orders_customer_idx (actual rows=7 loops=1)
+         Index Cond: ((customer_id)::text = 'ALFKI'::text)
+         Buffers: shared hit=1
  Planning:
-   Buffers: shared hit=174
+   Buffers: shared hit=176
 (9 rows)
 
 
@@ -27,10 +27,10 @@
  Bitmap Heap Scan on orders (actual rows=156 loops=1)
    Recheck Cond: (employee_id = 4)
    Heap Blocks: exact=15
-   Buffers: shared hit=15 read=1
+   Buffers: shared hit=16
    ->  Bitmap Index Scan on orders_employee_idx (actual rows=156 loops=1)
          Index Cond: (employee_id = 4)
-         Buffers: shared read=1
+         Buffers: shared hit=1
  Planning:
    Buffers: shared hit=8
 (9 rows)
@@ -40,11 +40,11 @@
                                            QUERY PLAN                                            
 -------------------------------------------------------------------------------------------------
  Aggregate (actual rows=1 loops=1)
-   Buffers: shared hit=2 read=2
+   Buffers: shared hit=4
    ->  Index Only Scan using orders_date_idx on orders (actual rows=33 loops=1)
          Index Cond: ((order_date >= '1997-01-01'::date) AND (order_date <= '1997-01-31'::date))
          Heap Fetches: 33
-         Buffers: shared hit=2 read=2
+         Buffers: shared hit=4
  Planning:
    Buffers: shared hit=17
 (8 rows)
@@ -56,10 +56,10 @@
  Bitmap Heap Scan on order_items (actual rows=38 loops=1)
    Recheck Cond: (product_id = 11)
    Heap Blocks: exact=14
-   Buffers: shared hit=14 read=2
-   ->  Bitmap Index Scan on order_items_product_idx (actual rows=38 loops=1)
+   Buffers: shared hit=16
+   ->  Bitmap Index Scan on order_items_product_idx (actual rows=39 loops=1)
          Index Cond: (product_id = 11)
-         Buffers: shared read=2
+         Buffers: shared hit=2
  Planning:
    Buffers: shared hit=46
 (9 rows)
@@ -94,14 +94,14 @@
 
 
 --- indice nao ajuda quando a consulta le TUDO: agregacao usa Seq Scan ---
-                              QUERY PLAN                              
-----------------------------------------------------------------------
+                                QUERY PLAN                                 
+---------------------------------------------------------------------------
  HashAggregate
    Group Key: c.category_name
    ->  Hash Join
          Hash Cond: (o.employee_id = e.employee_id)
          ->  Hash Join
-               Hash Cond: (o.customer_id = cl.customer_id)
+               Hash Cond: ((o.customer_id)::text = (cl.customer_id)::text)
                ->  Hash Join
                      Hash Cond: (p.category_id = c.category_id)
                      ->  Hash Join

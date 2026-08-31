@@ -1,0 +1,175 @@
+Table "nw"."regions" {
+  "region_id" int4 [pk, not null, increment]
+  "region_name" varchar(60) [unique, not null, check: `btrim((region_name)::text) <> ''::text`]
+  Note: 'Grandes áreas comerciais que agrupam territórios.'
+}
+
+Table "nw"."territories" {
+  "territory_id" varchar(20) [pk, not null]
+  "territory_name" varchar(60) [not null, check: `btrim((territory_name)::text) <> ''::text`]
+  "region_id" int4 [not null]
+  Note: 'Praças de atuação comercial. Nome não é único: "New York" aparece em dois territórios distintos (10019 e 10038).'
+}
+
+Table "nw"."categories" {
+  "category_id" int4 [pk, not null, increment]
+  "category_name" varchar(15) [unique, not null]
+  "description" text [not null]
+  Note: 'Classificação do catálogo de produtos.'
+}
+
+Table "nw"."suppliers" {
+  "supplier_id" int4 [pk, not null, increment]
+  "company_name" varchar(40) [not null, check: `btrim((company_name)::text) <> ''::text`]
+  "contact_name" varchar(30)
+  "contact_title" varchar(30)
+  "address" varchar(60)
+  "city" varchar(15)
+  "region" varchar(15)
+  "postal_code" varchar(10)
+  "country" varchar(15)
+  "phone" varchar(24)
+  "fax" varchar(24)
+  "homepage" text
+  Note: 'Quem fornece os produtos revendidos.'
+}
+
+Table "nw"."shippers" {
+  "shipper_id" int4 [pk, not null, increment]
+  "company_name" varchar(40) [unique, not null]
+  "phone" varchar(24)
+  Note: 'Transportadoras que entregam os pedidos.'
+}
+
+Table "nw"."customers" {
+  "customer_id" varchar(5) [pk, not null, check: `(customer_id)::text ~ '^[A-Z0-9]{5}$'::text`, note: 'Chave natural de 5 letras maiúsculas derivada do nome da empresa (ALFKI = Alfreds Futterkiste). Mantida por compatibilidade com a origem; o acoplamento entre identificador e nome está discutido em docs/04.']
+  "company_name" varchar(40) [not null, check: `btrim((company_name)::text) <> ''::text`]
+  "contact_name" varchar(30)
+  "contact_title" varchar(30)
+  "address" varchar(60)
+  "city" varchar(15)
+  "region" varchar(15)
+  "postal_code" varchar(10)
+  "country" varchar(15)
+  "phone" varchar(24)
+  "fax" varchar(24)
+  Note: 'Empresas compradoras. Identificadas por código natural de 5 letras herdado do sistema de origem.'
+}
+
+Table "nw"."employees" {
+  "employee_id" int4 [pk, not null, increment]
+  "last_name" varchar(20) [not null]
+  "first_name" varchar(10) [not null]
+  "title" varchar(30) [not null]
+  "title_of_courtesy" varchar(25) [note: 'Pronome de tratamento (Mr., Mrs., Ms., Dr.). Atributo descritivo real, distinto de title, que é o cargo.']
+  "birth_date" date [not null]
+  "hire_date" date [not null]
+  "address" varchar(60)
+  "city" varchar(15)
+  "region" varchar(15)
+  "postal_code" varchar(10)
+  "country" varchar(15)
+  "home_phone" varchar(24)
+  "extension" varchar(4)
+  "notes" text
+  "reports_to" int4 [note: 'Superior imediato. NULL identifica o topo da hierarquia, não ausência de dado.']
+
+  Checks {
+    `reports_to <> employee_id` [name: 'employees_nao_chefia_a_si']
+    `hire_date > birth_date` [name: 'employees_admissao_apos_nascimento']
+  }
+  Note: 'Equipe de vendas, com hierarquia por auto-relacionamento em reports_to.'
+}
+
+Table "nw"."employee_territories" {
+  "employee_id" int4 [not null]
+  "territory_id" varchar(20) [not null]
+
+  Indexes {
+    (employee_id, territory_id) [pk, type: btree, name: "employee_territories_pk"]
+  }
+  Note: 'Entidade associativa: quais territórios cada funcionário atende.'
+}
+
+Table "nw"."products" {
+  "product_id" int4 [pk, not null, increment]
+  "product_name" varchar(40) [not null]
+  "supplier_id" int4 [not null]
+  "category_id" int4 [not null]
+  "quantity_per_unit" varchar(20) [not null, note: 'Descrição livre da embalagem, ex.: "10 boxes x 20 bags". Texto não consultável: mantido como veio, sem tentar interpretar.']
+  "unit_price" numeric(10,2) [not null, check: `unit_price >= (0)::numeric`, note: 'Preço de catálogo hoje. Aceita zero para amostra e brinde; o preço pelo qual cada venda aconteceu fica em order_items.']
+  "units_in_stock" int2 [not null, check: `units_in_stock >= 0`, default: 0]
+  "units_on_order" int2 [not null, check: `units_on_order >= 0`, default: 0]
+  "reorder_level" int2 [not null, check: `reorder_level >= 0`, default: 0, note: 'Estoque mínimo antes de repor. Comparado com units_in_stock responde a pergunta de ruptura de estoque.']
+  "discontinued" bool [not null, default: false, note: 'Produto fora de linha. Era integer 0/1 na origem; aqui é boolean, que é o que o dado sempre significou.']
+
+  Indexes {
+    (supplier_id, product_name) [type: btree, unique, name: "products_name_por_fornecedor_unica"]
+  }
+  Note: 'Catálogo de produtos revendidos.'
+}
+
+Table "nw"."orders" {
+  "order_id" int4 [pk, not null, increment]
+  "customer_id" varchar(5) [not null]
+  "employee_id" int4 [not null]
+  "shipper_id" int4 [not null]
+  "order_date" date [not null]
+  "required_date" date [not null]
+  "shipped_date" date [note: 'Data de envio. NULL significa pedido ainda não enviado — é informação de negócio, não falta de dado.']
+  "freight" numeric(10,2) [not null, check: `freight >= (0)::numeric`, default: 0, note: 'Valor do frete cobrado no pedido, em numeric. Na origem era real (ponto flutuante), impróprio para dinheiro.']
+  "ship_name" varchar(40) [not null, note: 'Destinatário da entrega no momento da venda. Coincide com o nome do cliente em 96% dos pedidos, mas os 4% restantes justificam guardar separado.']
+  "ship_address" varchar(60) [not null, note: 'Endereço usado nesta entrega. Coincide com o cadastro do cliente em 94,2% dos pedidos, mas 48 deles (5,8%) foram para endereço diferente: por isso é atributo do pedido, não do cliente. O modelo ideal teria ENDEREÇO como entidade própria, com o pedido apontando qual foi usado — adiado conscientemente, ver docs/04 §3.']
+  "ship_city" varchar(15) [not null]
+  "ship_region" varchar(15)
+  "ship_postal_code" varchar(10)
+  "ship_country" varchar(15) [not null]
+
+  Checks {
+    `required_date >= order_date` [name: 'orders_prazo_apos_pedido']
+    `(shipped_date IS NULL) OR (shipped_date >= order_date)` [name: 'orders_envio_apos_pedido']
+  }
+
+  Indexes {
+    customer_id [type: btree, name: "orders_customer_idx"]
+    order_date [type: btree, name: "orders_date_idx"]
+    employee_id [type: btree, name: "orders_employee_idx"]
+  }
+  Note: 'Cabeçalho da venda: quem comprou, quem vendeu, quem entrega e para onde.'
+}
+
+Table "nw"."order_items" {
+  "order_id" int4 [not null]
+  "product_id" int4 [not null]
+  "unit_price" numeric(10,2) [not null, check: `unit_price >= (0)::numeric`, note: 'Preço congelado no dia da venda. Difere do preço de catálogo atual em 31% dos itens: por isso é coluna própria e não uma consulta a products.']
+  "quantity" int2 [not null, check: `quantity > 0`]
+  "discount" numeric(4,3) [not null, check: `(discount >= (0)::numeric) AND (discount < (1)::numeric)`, default: 0, note: 'Desconto como fração do preço, de 0 a 1 (0.25 = 25%). Receita do item = unit_price * quantity * (1 - discount).']
+
+  Indexes {
+    (order_id, product_id) [pk, type: btree, name: "order_items_pk"]
+    product_id [type: btree, name: "order_items_product_idx"]
+  }
+  Note: 'Corpo da venda: uma linha por produto vendido. É onde está o dinheiro.'
+}
+
+Ref "employee_territories_employee_fk":"nw"."employees"."employee_id" <? "nw"."employee_territories"."employee_id" [delete: cascade]
+
+Ref "employee_territories_territory_fk":"nw"."territories"."territory_id" <? "nw"."employee_territories"."territory_id" [update: cascade, delete: cascade]
+
+Ref "employees_chefe_fk":"nw"."employees"."employee_id" ?<? "nw"."employees"."reports_to" [delete: restrict]
+
+Ref "order_items_order_fk":"nw"."orders"."order_id" <? "nw"."order_items"."order_id" [delete: cascade]
+
+Ref "order_items_product_fk":"nw"."products"."product_id" <? "nw"."order_items"."product_id" [delete: restrict]
+
+Ref "orders_customer_fk":"nw"."customers"."customer_id" <? "nw"."orders"."customer_id" [update: cascade, delete: restrict]
+
+Ref "orders_employee_fk":"nw"."employees"."employee_id" <? "nw"."orders"."employee_id" [delete: restrict]
+
+Ref "orders_shipper_fk":"nw"."shippers"."shipper_id" <? "nw"."orders"."shipper_id" [delete: restrict]
+
+Ref "products_category_fk":"nw"."categories"."category_id" <? "nw"."products"."category_id" [delete: restrict]
+
+Ref "products_supplier_fk":"nw"."suppliers"."supplier_id" <? "nw"."products"."supplier_id" [delete: restrict]
+
+Ref "territories_region_fk":"nw"."regions"."region_id" <? "nw"."territories"."region_id" [delete: restrict]
