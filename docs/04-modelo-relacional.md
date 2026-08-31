@@ -4,6 +4,7 @@
 > Autor: Giovanne Espíndola · Data: 31/08/2026
 >
 > Scripts: `sql/10_ddl.sql` · `sql/20_load.sql` · `sql/30_indexes.sql` · `sql/40_views.sql`
+> Diagrama: `docs/diagramas/er-logico.png` · fonte: `docs/diagramas/nw-schema.dbml`
 > Evidências: `apresentacao/evidencias/03-validacao-carga-nw.txt` e `04-indices-e-views.txt`
 
 ---
@@ -39,6 +40,24 @@ Duas tabelas mudaram de nome. `order_details` virou `order_items` porque
 "detalhe" não diz o que a linha é, e a entidade conceitual chama-se ITEM DO
 PEDIDO. `region` virou `regions` por consistência com o resto — e porque
 `region` no singular colide com a coluna `region` que existe em quatro tabelas.
+
+### O ER lógico
+
+`docs/diagramas/er-logico.png` mostra o mesmo modelo com o que o conceitual
+deliberadamente omitia: **tipo de dado, tamanho, obrigatoriedade e chave
+estrangeira**. Colocados lado a lado, os dois diagramas explicam sozinhos por que
+existem dois — o conceitual se discute com quem entende do negócio, o lógico com
+quem vai construir.
+
+Ele não foi desenhado à mão: `docs/diagramas/nw-schema.dbml` é **gerado do banco**
+com `db2dbml`, então não tem como divergir do que está implementado. Conferido por
+script: as 11 tabelas, as **81 colunas** com seus tipos e as **11 chaves
+estrangeiras** batem uma a uma com o `information_schema`.
+
+```bash
+npx -p @dbml/cli db2dbml postgres \
+  'postgresql://pi:pi@localhost:5432/northwind?schemas=nw' -o docs/diagramas/nw-schema.dbml
+```
 
 ---
 

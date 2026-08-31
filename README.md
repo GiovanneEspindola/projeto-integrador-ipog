@@ -225,15 +225,27 @@ pip install -r etl/requirements.txt
 
 ---
 
+## Os documentos
+
+| Arquivo | O que responde |
+|---|---|
+| `docs/00-definicao-do-trabalho.md` | qual é a área de foco, o escopo e o que ficou de fora |
+| `docs/01-analise-negocio.md` | o que a base tem, o que ela tem de errado, e as 16 perguntas de negócio |
+| `docs/02-modelo-conceitual.md` | as 11 entidades e a justificativa de cada cardinalidade |
+| `docs/03-plano-hibrido.md` | como PostgreSQL e MongoDB convivem e como serão comparados |
+| `docs/04-modelo-relacional.md` | o schema `nw`: normalização, constraints, índices e views |
+
+---
+
 ## Estrutura do repositório
 
 ```
 pyproject.toml     dependências Python declaradas (fonte de verdade)
 uv.lock            versões resolvidas e travadas com hash
 .python-version    versão do interpretador (3.12)
-docs/              documentação técnica das entregas (01 a 07)
+docs/              documentação técnica das entregas (00 a 07)
   estudo/          material didático: o "por quê" de cada decisão
-  diagramas/       ER conceitual (.drawio), ER lógico (.dbml/.png)
+  diagramas/       ER conceitual e arquitetura (.drawio), ER lógico (.dbml/.png)
 sql/               dump original, DDL do schema nw, carga, validação, índices, views
   queries/         consultas de negócio (QNN.sql)
 mongo/             validators e índices
