@@ -14,7 +14,7 @@ Table "nw"."territories" {
 Table "nw"."categories" {
   "category_id" int4 [pk, not null, increment]
   "category_name" varchar(15) [unique, not null]
-  "description" text [not null]
+  "description" text
   Note: 'Classificação do catálogo de produtos.'
 }
 
@@ -96,7 +96,7 @@ Table "nw"."products" {
   "product_name" varchar(40) [not null]
   "supplier_id" int4 [not null]
   "category_id" int4 [not null]
-  "quantity_per_unit" varchar(20) [not null, note: 'Descrição livre da embalagem, ex.: "10 boxes x 20 bags". Texto não consultável: mantido como veio, sem tentar interpretar.']
+  "quantity_per_unit" varchar(20) [note: 'Descrição livre da embalagem, ex.: "10 boxes x 20 bags". Texto não consultável: mantido como veio, sem tentar interpretar.']
   "unit_price" numeric(10,2) [not null, check: `unit_price >= (0)::numeric`, note: 'Preço de catálogo hoje. Aceita zero para amostra e brinde; o preço pelo qual cada venda aconteceu fica em order_items.']
   "units_in_stock" int2 [not null, check: `units_in_stock >= 0`, default: 0]
   "units_on_order" int2 [not null, check: `units_on_order >= 0`, default: 0]

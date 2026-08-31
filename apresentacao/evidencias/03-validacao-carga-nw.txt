@@ -77,7 +77,7 @@
 === 7. Colunas que deixaram de aceitar nulo ===
  colunas_agora_obrigatorias 
 ----------------------------
-                         21
+                         19
 (1 row)
 
 

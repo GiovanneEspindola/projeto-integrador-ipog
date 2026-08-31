@@ -30,6 +30,10 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./sql:/sql:ro           # scripts visíveis dentro do container em /sql
+      # o dump do Northwind entra sozinho no PRIMEIRO up com volume vazio:
+      # tudo que está em docker-entrypoint-initdb.d roda na inicialização.
+      # Sem isso, um clone novo não tem o schema public e a carga do nw falha.
+      - ./sql/00_northwind_original.sql:/docker-entrypoint-initdb.d/00_northwind.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U pi -d northwind"]
       interval: 5s

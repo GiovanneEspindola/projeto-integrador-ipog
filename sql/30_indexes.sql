@@ -34,10 +34,13 @@ CREATE INDEX IF NOT EXISTS orders_employee_idx ON orders (employee_id);
 CREATE INDEX IF NOT EXISTS orders_date_idx ON orders (order_date);
 
 -- 4. Itens de um produto — perguntas 01, 07, 12 (faturamento por categoria, ranking, cesta)
--- A PK de order_items é (order_id, product_id). Índice composto só serve para
--- busca que começa pela primeira coluna, então a PK atende "itens do pedido X"
--- mas não atende "vendas do produto Y". Daí este índice existir e o de
--- order_id NÃO existir.
+-- A PK de order_items é (order_id, product_id). Um índice composto atende com
+-- eficiência a busca que começa pela PRIMEIRA coluna; pela segunda ele ainda é
+-- usável, mas só varrendo o índice inteiro, e por isso o planejador em geral
+-- prefere o Seq Scan. Verificado: com este índice removido e enable_seqscan
+-- desligado, o PostgreSQL de fato usa a PK com Index Cond em product_id — ou
+-- seja, "não cobre" seria errado; o certo é "cobre mal". Daí este índice
+-- existir e o de order_id, que a PK cobre BEM, não existir.
 -- EXPLAIN: Bitmap Index Scan.
 CREATE INDEX IF NOT EXISTS order_items_product_idx ON order_items (product_id);
 
@@ -46,7 +49,7 @@ ANALYZE orders, order_items;
 COMMENT ON INDEX orders_customer_idx     IS 'Pedidos de um cliente. ~9 linhas por valor: seletivo.';
 COMMENT ON INDEX orders_employee_idx     IS 'Pedidos de um vendedor. ~92 linhas por valor: pouco seletivo, mas o planejador usa.';
 COMMENT ON INDEX orders_date_idx         IS 'Pedidos por período. Permite Index Only Scan em contagens por data.';
-COMMENT ON INDEX order_items_product_idx IS 'Vendas de um produto. A PK composta não cobre esta busca, porque product_id não é a primeira coluna dela.';
+COMMENT ON INDEX order_items_product_idx IS 'Vendas de um produto. A PK composta cobre mal esta busca, porque product_id não é a primeira coluna dela: sem este índice o planejador cai em Seq Scan.';
 
 -- =============================================================================
 -- Os seis candidatos recusados, e a medição que os recusou
@@ -58,10 +61,17 @@ COMMENT ON INDEX order_items_product_idx IS 'Vendas de um produto. A PK composta
 --   EXPLAIN: "Index Scan using order_items_pk".
 --
 -- orders (customer_id, order_date)  -- índice composto
---   Recusado por INUTILIDADE MEDIDA. Foi criado para a consulta "últimos
---   pedidos do cliente X ordenados por data", que é o caso clássico dele.
---   O planejador ignorou e preferiu ler orders_date_idx de trás para frente.
---   O plano ficou idêntico com e sem ele.
+--   Recusado por NÃO SERVIR ÀS CONSULTAS DESTE PROJETO. Foi criado para
+--   "últimos pedidos do cliente X ordenados por data", que é o caso clássico
+--   dele. O que a medição mostrou, e vale ser preciso porque a diferença
+--   aparece no EXPLAIN:
+--     - cliente com muitos pedidos (ERNSH, 30): o planejador prefere ler
+--       orders_date_idx de trás para frente e filtrar. O composto é ignorado.
+--     - cliente com poucos pedidos (ALFKI, 6) + LIMIT 5: usa
+--       orders_customer_idx e ordena depois. O composto é ignorado.
+--     - cliente com poucos pedidos + LIMIT 1: aí sim o composto É escolhido.
+--   Ou seja: ele tem um nicho real, estreito. Nenhuma das 16 perguntas de
+--   negócio tem essa forma, então o custo de manter não se paga aqui.
 --
 -- products (category_id), territories (region_id),
 -- employee_territories (territory_id)
@@ -86,6 +96,10 @@ COMMENT ON INDEX order_items_product_idx IS 'Vendas de um produto. A PK composta
 --   raciocínio de tamanho acima — mas em tabela grande um CASCADE sem índice
 --   de apoio é problema clássico de desempenho.
 --
--- Nota honesta para a defesa: em produção, com milhões de pedidos, três desses
--- cinco provavelmente passariam a valer a pena. A decisão aqui vale para ESTE
--- volume, e está registrada assim de propósito.
+-- Nota honesta para a defesa: em produção, com milhões de pedidos, três destes
+-- seis provavelmente passariam a valer a pena — products(category_id),
+-- territories(region_id) e employee_territories(territory_id), que hoje só
+-- perdem por a tabela caber em uma página. Os outros três continuariam
+-- recusados pelo mesmo motivo de hoje: dois são redundantes com índice que já
+-- existe, e o composto continuaria sem consulta que o use. A decisão vale para
+-- ESTE volume, e está registrada assim de propósito.

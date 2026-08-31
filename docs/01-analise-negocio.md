@@ -238,7 +238,7 @@ Faixas reais medidas, que fundamentam os CHECK do `nw`:
 
 | coluna | mínimo | máximo | CHECK proposto |
 |---|---:|---:|---|
-| `order_details.unit_price` | 2,00 | 263,50 | `> 0` |
+| `order_details.unit_price` | 2,00 | 263,50 | `>= 0` — zero registra brinde e amostra |
 | `order_details.quantity` | 1 | 130 | `> 0` |
 | `order_details.discount` | 0,00 | 0,25 | `>= 0 AND < 1` |
 | `orders.freight` | 0,02 | 1 007,64 | `>= 0` |
@@ -297,12 +297,17 @@ colunas soltas: `ship_name`, `ship_address`, `ship_city`, `ship_region`,
 
 - em **796 dos 830** pedidos (95,9%) o `ship_name` é idêntico ao
   `company_name` do cliente
-- em **782 dos 830** (94,2%) o endereço inteiro é cópia literal do cadastro
+- em **782 dos 830** (94,2%) `ship_address`, `ship_city` e `ship_country` são
+  cópia literal do cadastro. Comparando as **seis** colunas `ship_*` — somando
+  `ship_name`, `ship_region` e `ship_postal_code` — a coincidência cai para
+  **748 (90,1%)**
 
 Aqui a justificativa de snapshot é **fraca**: endereço de entrega não é um valor
 que precise ser congelado por razão contábil, e 94% do conteúdo é duplicação
-pura. Ainda assim, 48 pedidos (5,8%) **têm** endereço diferente do cadastro — ou
-seja, a coluna não é inútil, ela cobre o caso de entrega em endereço alternativo.
+pura. Ainda assim, **48 pedidos (5,8%)** têm endereço de entrega diferente do
+cadastro pelo critério das três colunas, e **82 (9,9%)** pelo critério das seis —
+ou seja, a coluna não é inútil, ela cobre o caso de entrega em endereço
+alternativo.
 
 **A resposta madura não é "normalizar" nem "deixar como está":** é reconhecer
 que faltou uma entidade. O modelo correto teria endereços do cliente como
@@ -351,7 +356,7 @@ o nulo carrega informação de negócio e deve continuar permitido.
 | `products.quantity_per_unit` é texto livre | ex.: "10 boxes x 20 bags" | não é consultável nem calculável |
 | `us_states` (51 linhas) **sem nenhuma FK** | `01-perfil-03` | tabela ilha, não conectada ao modelo |
 | `customer_demographics` e `customer_customer_demo` **vazias** | 0 linhas | estrutura sem dado; N:N morto |
-| `region` com nome genérico | 4 linhas | `region` é palavra reservada em vários contextos |
+| `region` com nome genérico | 4 linhas | colide com a coluna `region`, que existe em quatro tabelas |
 
 ### 4.8 Nulos concentrados em colunas de endereço
 

@@ -11,6 +11,26 @@
 armazenamento — comparando uma solução **relacional** (PostgreSQL 16) com uma
 **orientada a documentos** (MongoDB 7) sobre o mesmo domínio de negócio.
 
+### Por que PostgreSQL, e não MySQL
+
+O enunciado deixa a escolha aberta entre os dois. A escolha foi pelo PostgreSQL,
+e não por gosto — por cinco recursos que **este trabalho usa de fato**:
+
+| Recurso | Onde é usado aqui |
+|---|---|
+| **DDL transacional** — `CREATE TABLE` dentro de `BEGIN … ROLLBACK` | testar constraint e índice sem sujar o banco; o MySQL faz *commit* implícito em DDL, e o teste não teria volta |
+| **Tipo `ARRAY`** | `vw_hierarquia_funcionarios` guarda o caminho até o topo da hierarquia num array |
+| **Cláusula `FILTER (WHERE …)`** em agregação | todos os relatórios de validação; no MySQL vira `CASE` aninhado, bem menos legível |
+| **`GROUPING SETS`** | a pergunta 16, de sazonalidade por trimestre; o MySQL só tem `WITH ROLLUP` |
+| **`EXPLAIN (ANALYZE, BUFFERS)`** | foi o que permitiu recusar seis dos dez índices candidatos com medição, e não com opinião |
+
+**Sendo justo com o MySQL**, e isso importa numa defesa: as duas coisas que
+normalmente se citam contra ele **não valem mais**. Desde a versão 8.0 ele tem
+CTE recursiva e *window functions*, que dão conta das perguntas 07 a 11 e 15. A
+diferença real está nos cinco itens acima, e o mais decisivo para *este* projeto
+é o primeiro — metade das verificações feitas aqui só é possível porque dá para
+testar uma mudança de schema e desfazê-la.
+
 ## 2. O domínio
 
 **Northwind Traders**, uma distribuidora de alimentos importados. É um dataset

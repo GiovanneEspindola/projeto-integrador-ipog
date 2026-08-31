@@ -206,7 +206,7 @@ FROM orders;
 
 \echo ''
 \echo '=== 17. FAIXAS DE VALOR (base para os CHECK do schema nw) ==============='
-SELECT 'order_details.unit_price' AS coluna, min(unit_price)::numeric AS minimo, max(unit_price)::numeric AS maximo, count(*) FILTER (WHERE unit_price <= 0) AS violacoes_se_check_maior_que_zero FROM order_details
+SELECT 'order_details.unit_price' AS coluna, min(unit_price)::numeric AS minimo, max(unit_price)::numeric AS maximo, count(*) FILTER (WHERE unit_price < 0) AS violacoes_da_faixa_proposta FROM order_details
 UNION ALL SELECT 'order_details.quantity', min(quantity), max(quantity), count(*) FILTER (WHERE quantity <= 0) FROM order_details
 UNION ALL SELECT 'order_details.discount', min(discount)::numeric, max(discount)::numeric, count(*) FILTER (WHERE discount < 0 OR discount >= 1) FROM order_details
 UNION ALL SELECT 'orders.freight', min(freight)::numeric, max(freight)::numeric, count(*) FILTER (WHERE freight < 0) FROM orders

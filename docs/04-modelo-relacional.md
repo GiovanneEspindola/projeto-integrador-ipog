@@ -41,6 +41,15 @@ Duas tabelas mudaram de nome. `order_details` virou `order_items` porque
 PEDIDO. `region` virou `regions` por consistência com o resto — e porque
 `region` no singular colide com a coluna `region` que existe em quatro tabelas.
 
+Três colunas também mudaram de nome, sempre pelo mesmo motivo — o nome antigo
+descrevia o mecanismo, não o significado:
+
+| Em `public` | Em `nw` |
+|---|---|
+| `orders.ship_via` | `orders.shipper_id` |
+| `region.region_description` | `regions.region_name` |
+| `territories.territory_description` | `territories.territory_name` |
+
 ### O ER lógico
 
 `docs/diagramas/er-logico.png` mostra o mesmo modelo com o que o conceitual
@@ -56,8 +65,9 @@ não presumida: `etl/valida_dbml.py` confere as 11 tabelas, as **81 colunas** co
 nome, ordem e tipo, e as **11 chaves estrangeiras** contra o `information_schema`,
 saindo com código 1 em qualquer divergência.
 
-O validador foi testado por mutação — alterando um tipo, removendo uma coluna e
-removendo uma chave estrangeira do DBML, ele acusou as três.
+O validador foi testado por mutação em quatro frentes: alterando um tipo,
+removendo uma coluna, removendo uma chave estrangeira e — a mais sutil — deixando
+uma FK com o nome certo apontando para a coluna errada. Acusou as quatro.
 
 ```bash
 npx -p @dbml/cli db2dbml postgres \
@@ -77,7 +87,24 @@ Esta é a mudança mais importante, e cabe numa tabela:
 | FOREIGN KEY | 13 | 11 |
 | **UNIQUE** | **0** | **4** |
 | **CHECK** | **0** | **17** |
-| Colunas obrigatórias que antes aceitavam nulo | — | **21** |
+| Colunas obrigatórias que antes aceitavam nulo | — | **19** |
+
+As 19 obrigatoriedades saem de três grupos, e nenhuma é gosto pessoal:
+**as cinco colunas de junção** (`orders.customer_id`, `employee_id`,
+`shipper_id`, `products.supplier_id`, `category_id`) — pedido sem cliente ou
+produto sem categoria não existe no negócio; **as datas e os valores do pedido**
+(`order_date`, `required_date`, `freight` e o endereço de entrega) — pedido sem
+promessa de entrega não é pedido fechado numa distribuidora; e **os campos de
+identificação e preço** de produtos e funcionários.
+
+Duas ficaram de fora **de propósito, depois de revisão**: `categories.description`
+e `products.quantity_per_unit` estavam obrigatórias só porque os dados de hoje as
+preenchem — que é exatamente o erro que este documento critica duas seções
+adiante. Categoria nova sem descrição e produto vendido a granel, que não tem
+embalagem para descrever, são cadastros legítimos. No caso de
+`quantity_per_unit` havia ainda uma contradição interna: a §3 declara a coluna
+uma violação de 1FN mantida "porque nenhuma das 16 perguntas usa esse campo", e o
+schema a exigia.
 
 *(Medido em `03-validacao-carga-nw.txt` §6 e §7. As PKs caem de 14 para 11 porque
 três tabelas ficaram fora — as duas vazias e a `us_states`. Já as FKs caem de 13
@@ -205,9 +232,18 @@ casos são cópia literal do endereço do cliente?
 
 Não violam a 3FN — e o motivo é preciso. Dependência funcional não é "os valores
 costumam coincidir", é "conhecer A **determina** B". Conhecer o cliente **não**
-determina o endereço de entrega daquele pedido: **48 dos 830 pedidos (5,8%)
-foram entregues em endereço diferente do cadastro.** O endereço de entrega é
-atributo do pedido, não do cliente.
+determina o endereço de entrega daquele pedido, e o número depende de quantas
+colunas se compara:
+
+| Critério | Pedidos iguais ao cadastro | Diferentes |
+|---|---:|---:|
+| só `ship_address`, `ship_city`, `ship_country` | 782 (94,2%) | **48 (5,8%)** |
+| as seis colunas `ship_*` | 748 (90,1%) | **82 (9,9%)** |
+
+Pelo critério estrito — as seis colunas, que é o que "o endereço inteiro"
+significa — são **82 pedidos, quase 10%**, que saíram para lugar diferente do
+cadastro. Em qualquer um dos dois critérios a conclusão é a mesma: o endereço de
+entrega é atributo do pedido, não do cliente.
 
 O que existe ali é outra coisa, e é honesto declarar: **falta uma entidade**. O
 modelo ideal teria os endereços do cliente como entidade própria, e o pedido
@@ -216,8 +252,18 @@ identificadores de endereço e decidir o que fazer com os 48 divergentes — e
 porque a decisão não muda nenhuma das 16 perguntas. Fica registrada como dívida
 consciente.
 
-*(Todas as 11 tabelas estão também em BCNF: em cada uma, todo determinante é
-chave candidata.)*
+**E quanto à BCNF?** As 11 tabelas também estão, mas a afirmação merece a
+análise em vez do parêntese — porque o contraexemplo clássico se sustenta nos
+dados desta base. `postal_code` determina `city` e `country` em **100% das
+linhas**: são 86 CEPs distintos entre os 90 clientes com CEP, e **zero** casos de
+um mesmo CEP em cidades diferentes. Se isso fosse dependência funcional,
+`customers` não estaria em BCNF, porque `postal_code` não é chave candidata.
+
+Mas não é — e o critério é o mesmo que resolveu o caso do endereço de entrega
+logo acima: **dependência funcional é uma regra do domínio, não uma regularidade
+da amostra.** CEP é reorganizado, cidade é desmembrada, e esta base não é
+autoridade de endereçamento postal. Coincidir em 100% de 90 linhas não é
+determinar.
 
 ---
 
@@ -288,12 +334,30 @@ planejador só troca a varredura por índice quando o filtro é bem seletivo.
 Os seis recusados, por motivo:
 
 - **`order_items (order_id)`** — redundante. A PK é `(order_id, product_id)` e
-  começa por `order_id`, então ela mesma atende. *Um índice composto só serve
-  para busca que começa pela primeira coluna* — é por isso que este é
-  desnecessário e o de `product_id` é necessário.
+  começa por `order_id`, então ela mesma atende.
+
+  Aqui cabe uma precisão que vale ponto na banca: **não** é verdade que um índice
+  composto "só serve" para a busca que começa pela primeira coluna. Pela segunda
+  ele continua utilizável — o PostgreSQL varre o índice inteiro. O que acontece é
+  que isso costuma sair mais caro que ler a tabela, e por isso o planejador
+  prefere o Seq Scan. Comprovado: removendo `order_items_product_idx` e
+  desligando `enable_seqscan`, o banco usa a PK com `Index Cond` em `product_id`.
+  A formulação correta é **"a PK cobre mal essa busca"**, não "não cobre" — e é
+  isso que justifica o índice dedicado.
 - **`orders (customer_id, order_date)`** — composto, criado para o caso clássico
-  "últimos pedidos do cliente X". O planejador **ignorou** e preferiu ler o
-  índice de data ao contrário. O plano ficou idêntico com e sem ele.
+  "últimos pedidos do cliente X". Ele **tem** um nicho, mas estreito, e a medição
+  mostra exatamente onde:
+
+  | Consulta | Plano |
+  |---|---|
+  | cliente com 30 pedidos, `LIMIT 5` | lê `orders_date_idx` ao contrário — ignora o composto |
+  | cliente com 6 pedidos, `LIMIT 5` | usa `orders_customer_idx` e ordena depois — ignora o composto |
+  | cliente com 6 pedidos, **`LIMIT 1`** | **usa o composto** |
+
+  Ou seja: ele só ganha quando o filtro é muito seletivo *e* a consulta pede uma
+  linha só. **Nenhuma das 16 perguntas de negócio tem essa forma**, então o custo
+  de manter não se paga. Recusado por não servir a este projeto — não por ser
+  inútil em geral.
 - **`products (category_id)`, `territories (region_id)`,
   `employee_territories (territory_id)`** — essas tabelas ocupam **uma** página.
   Ler a página custa um acesso; ler o índice e depois a tabela custa dois.

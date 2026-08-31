@@ -45,6 +45,38 @@ EXPLAIN (COSTS OFF) SELECT * FROM products WHERE category_id = 1;
 \echo '--- employee_territories(territory_id) NAO foi criado: 1 pagina ---'
 EXPLAIN (COSTS OFF) SELECT * FROM employee_territories WHERE territory_id = '10019';
 \echo
+\echo '--- products(supplier_id) NAO foi criado: a UNIQUE ja cria um indice que'
+\echo '    comeca por supplier_id, e mesmo ele o planejador nao usa (1 pagina) ---'
+EXPLAIN (COSTS OFF) SELECT * FROM products WHERE supplier_id = 1;
+\echo
+\echo '--- territories(region_id) NAO foi criado: 1 pagina ---'
+EXPLAIN (COSTS OFF) SELECT * FROM territories WHERE region_id = 1;
+\echo
+\echo '--- orders(customer_id, order_date) NAO foi criado: tem nicho, mas estreito.'
+\echo '    Os tres planos abaixo sao COM o indice composto criado em transacao. ---'
+BEGIN;
+CREATE INDEX tmp_cust_date ON orders (customer_id, order_date);
+ANALYZE orders;
+\echo '  (a) cliente com 30 pedidos, LIMIT 5 -> ignora o composto:'
+EXPLAIN (COSTS OFF) SELECT order_id, order_date FROM orders
+ WHERE customer_id='ERNSH' ORDER BY order_date DESC LIMIT 5;
+\echo '  (b) cliente com 6 pedidos, LIMIT 5 -> ignora o composto:'
+EXPLAIN (COSTS OFF) SELECT order_id, order_date FROM orders
+ WHERE customer_id='ALFKI' ORDER BY order_date DESC LIMIT 5;
+\echo '  (c) cliente com 6 pedidos, LIMIT 1 -> AQUI ele usa o composto.'
+\echo '      Nenhuma das 16 perguntas tem esta forma, por isso o indice nao entrou:'
+EXPLAIN (COSTS OFF) SELECT order_id, order_date FROM orders
+ WHERE customer_id='ALFKI' ORDER BY order_date DESC LIMIT 1;
+ROLLBACK;
+\echo
+\echo '--- a PK composta COBRE MAL a busca pela segunda coluna: com o indice'
+\echo '    dedicado removido e o Seq Scan desligado, ela e usada mesmo assim ---'
+BEGIN;
+DROP INDEX order_items_product_idx;
+SET enable_seqscan = off;
+EXPLAIN (COSTS OFF) SELECT * FROM order_items WHERE product_id = 11;
+ROLLBACK;
+\echo
 \echo '--- indice nao ajuda quando a consulta le TUDO: agregacao usa Seq Scan ---'
 EXPLAIN (COSTS OFF)
 SELECT categoria, sum(receita) FROM vw_venda_item GROUP BY 1;

@@ -21,6 +21,17 @@
 
 == 3. Chaves estrangeiras ==
   OK   DBML declara 11 FKs, banco tem 11
+  OK   employee_territories_employee_fk: employees.employee_id <- employee_territories.employee_id
+  OK   employee_territories_territory_fk: territories.territory_id <- employee_territories.territory_id
+  OK   employees_chefe_fk: employees.employee_id <- employees.reports_to
+  OK   order_items_order_fk: orders.order_id <- order_items.order_id
+  OK   order_items_product_fk: products.product_id <- order_items.product_id
+  OK   orders_customer_fk: customers.customer_id <- orders.customer_id
+  OK   orders_employee_fk: employees.employee_id <- orders.employee_id
+  OK   orders_shipper_fk: shippers.shipper_id <- orders.shipper_id
+  OK   products_category_fk: categories.category_id <- products.category_id
+  OK   products_supplier_fk: suppliers.supplier_id <- products.supplier_id
+  OK   territories_region_fk: regions.region_id <- territories.region_id
 
 ============================================================
 RESULTADO: o ER lógico corresponde ao schema nw

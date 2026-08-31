@@ -12,12 +12,12 @@
  Bitmap Heap Scan on orders (actual rows=6 loops=1)
    Recheck Cond: ((customer_id)::text = 'ALFKI'::text)
    Heap Blocks: exact=5
-   Buffers: shared hit=6
+   Buffers: shared hit=5 read=1
    ->  Bitmap Index Scan on orders_customer_idx (actual rows=6 loops=1)
          Index Cond: ((customer_id)::text = 'ALFKI'::text)
-         Buffers: shared hit=1
+         Buffers: shared read=1
  Planning:
-   Buffers: shared hit=176
+   Buffers: shared hit=190
 (9 rows)
 
 
@@ -27,10 +27,10 @@
  Bitmap Heap Scan on orders (actual rows=156 loops=1)
    Recheck Cond: (employee_id = 4)
    Heap Blocks: exact=15
-   Buffers: shared hit=16
+   Buffers: shared hit=15 read=1
    ->  Bitmap Index Scan on orders_employee_idx (actual rows=156 loops=1)
          Index Cond: (employee_id = 4)
-         Buffers: shared hit=1
+         Buffers: shared read=1
  Planning:
    Buffers: shared hit=8
 (9 rows)
@@ -56,10 +56,10 @@
  Bitmap Heap Scan on order_items (actual rows=38 loops=1)
    Recheck Cond: (product_id = 11)
    Heap Blocks: exact=14
-   Buffers: shared hit=16
+   Buffers: shared hit=14 read=2
    ->  Bitmap Index Scan on order_items_product_idx (actual rows=38 loops=1)
          Index Cond: (product_id = 11)
-         Buffers: shared hit=2
+         Buffers: shared read=2
  Planning:
    Buffers: shared hit=46
 (9 rows)
@@ -91,6 +91,66 @@
  Seq Scan on employee_territories
    Filter: ((territory_id)::text = '10019'::text)
 (2 rows)
+
+
+--- products(supplier_id) NAO foi criado: a UNIQUE ja cria um indice que
+    comeca por supplier_id, e mesmo ele o planejador nao usa (1 pagina) ---
+         QUERY PLAN          
+-----------------------------
+ Seq Scan on products
+   Filter: (supplier_id = 1)
+(2 rows)
+
+
+--- territories(region_id) NAO foi criado: 1 pagina ---
+        QUERY PLAN         
+---------------------------
+ Seq Scan on territories
+   Filter: (region_id = 1)
+(2 rows)
+
+
+--- orders(customer_id, order_date) NAO foi criado: tem nicho, mas estreito.
+    Os tres planos abaixo sao COM o indice composto criado em transacao. ---
+  (a) cliente com 30 pedidos, LIMIT 5 -> ignora o composto:
+                        QUERY PLAN                         
+-----------------------------------------------------------
+ Limit
+   ->  Index Scan Backward using orders_date_idx on orders
+         Filter: ((customer_id)::text = 'ERNSH'::text)
+(3 rows)
+
+  (b) cliente com 6 pedidos, LIMIT 5 -> ignora o composto:
+                              QUERY PLAN                               
+-----------------------------------------------------------------------
+ Limit
+   ->  Sort
+         Sort Key: order_date DESC
+         ->  Bitmap Heap Scan on orders
+               Recheck Cond: ((customer_id)::text = 'ALFKI'::text)
+               ->  Bitmap Index Scan on orders_customer_idx
+                     Index Cond: ((customer_id)::text = 'ALFKI'::text)
+(7 rows)
+
+  (c) cliente com 6 pedidos, LIMIT 1 -> AQUI ele usa o composto.
+      Nenhuma das 16 perguntas tem esta forma, por isso o indice nao entrou:
+                        QUERY PLAN                         
+-----------------------------------------------------------
+ Limit
+   ->  Index Scan Backward using tmp_cust_date on orders
+         Index Cond: ((customer_id)::text = 'ALFKI'::text)
+(3 rows)
+
+
+--- a PK composta COBRE MAL a busca pela segunda coluna: com o indice
+    dedicado removido e o Seq Scan desligado, ela e usada mesmo assim ---
+                QUERY PLAN                 
+-------------------------------------------
+ Bitmap Heap Scan on order_items
+   Recheck Cond: (product_id = 11)
+   ->  Bitmap Index Scan on order_items_pk
+         Index Cond: (product_id = 11)
+(4 rows)
 
 
 --- indice nao ajuda quando a consulta le TUDO: agregacao usa Seq Scan ---

@@ -38,7 +38,13 @@ for nome, corpo in re.findall(r'Table "nw"\."(\w+)" \{(.*?)\n\}', texto, re.S):
         if m:
             cols.append((m.group(1), m.group(2).strip()))
     dbml[nome] = cols
-refs_dbml = re.findall(r'Ref "(\w+)":', texto)
+# Comparar so o NOME da FK deixaria passar um Ref com o nome certo apontando
+# para a coluna errada. Por isso extrai-se tambem origem e destino.
+refs_dbml = {
+    m[0]: (m[1], m[2], m[3], m[4])
+    for m in re.findall(
+        r'Ref "(\w+)":"nw"\."(\w+)"\."(\w+)" \S+ "nw"\."(\w+)"\."(\w+)"', texto)
+}
 
 # --- lado do banco ----------------------------------------------------------
 # os nomes de tipo do DBML sao os apelidos internos do PostgreSQL (int4, int2,
@@ -61,11 +67,21 @@ with psycopg.connect(DSN) as cx, cx.cursor() as cur:
         else:                           t = APELIDO.get(tipo, tipo)
         banco.setdefault(tab, []).append((col, t))
 
-    cur.execute("""SELECT c.conname FROM pg_constraint c
-                     JOIN pg_class t ON t.oid = c.conrelid
-                     JOIN pg_namespace n ON n.oid = t.relnamespace
-                    WHERE n.nspname = 'nw' AND c.contype = 'f' ORDER BY 1""")
-    refs_banco = [r[0] for r in cur.fetchall()]
+    # o DBML escreve o Ref no sentido pai -> filho, entao a tupla e
+    # (tabela_pai, coluna_pai, tabela_filho, coluna_filho)
+    cur.execute("""
+        SELECT c.conname, pai.relname, ap.attname, filho.relname, af.attname
+          FROM pg_constraint c
+          JOIN pg_class     filho ON filho.oid = c.conrelid
+          JOIN pg_class     pai   ON pai.oid   = c.confrelid
+          JOIN pg_namespace n     ON n.oid     = filho.relnamespace
+          JOIN unnest(c.conkey)  WITH ORDINALITY AS k(att, ord) ON true
+          JOIN unnest(c.confkey) WITH ORDINALITY AS fk(att, ord) ON fk.ord = k.ord
+          JOIN pg_attribute af ON af.attrelid = filho.oid AND af.attnum = k.att
+          JOIN pg_attribute ap ON ap.attrelid = pai.oid   AND ap.attnum = fk.att
+         WHERE n.nspname = 'nw' AND c.contype = 'f'
+         ORDER BY 1""")
+    refs_banco = {r[0]: (r[1], r[2], r[3], r[4]) for r in cur.fetchall()}
 
 print("== 1. Conjunto de tabelas ==")
 ok(set(dbml) == set(banco),
@@ -82,11 +98,16 @@ for tab in sorted(banco):
 print(f"  -> {total} colunas com nome, ordem e tipo idênticos")
 
 print("\n== 3. Chaves estrangeiras ==")
-ok(sorted(refs_dbml) == refs_banco,
+ok(set(refs_dbml) == set(refs_banco),
    f"DBML declara {len(refs_dbml)} FKs, banco tem {len(refs_banco)}"
-   + ("" if sorted(refs_dbml) == refs_banco else
+   + ("" if set(refs_dbml) == set(refs_banco) else
       f"\n         só no DBML : {sorted(set(refs_dbml) - set(refs_banco))}"
       f"\n         só no banco: {sorted(set(refs_banco) - set(refs_dbml))}"))
+
+for nome in sorted(set(refs_dbml) & set(refs_banco)):
+    d, b = refs_dbml[nome], refs_banco[nome]
+    ok(d == b, f"{nome}: {b[0]}.{b[1]} <- {b[2]}.{b[3]}"
+       + ("" if d == b else f"   DBML aponta para {d[0]}.{d[1]} <- {d[2]}.{d[3]}"))
 
 print("\n" + "=" * 60)
 print(f"RESULTADO: {len(falhas)} falha(s)" if falhas else "RESULTADO: o ER lógico corresponde ao schema nw")

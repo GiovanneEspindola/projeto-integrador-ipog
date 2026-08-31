@@ -1,7 +1,6 @@
-# Análise exploratória do Northwind — schema public
-# Data: 26/08/2026 20:37:13 -03
-# Script: sql/01_exploracao.sql (versionado no repositório)
-# Comando: docker compose exec -T postgres psql -U pi -d northwind -f /sql/01_exploracao.sql
+# Perfilamento 7/7 — Exploração de negócio e integridade
+# Gerado por: docker compose exec -T postgres psql -U pi -d northwind -f /sql/01_exploracao.sql
+# Fonte: postgresql://pi:***@localhost:5432/northwind · schema public
 
 === 1. PERÍODO COBERTO E VOLUME DE PEDIDOS ===============================
  primeiro_pedido | ultimo_pedido | dias_de_operacao | pedidos | clientes_compradores | vendedores_ativos 
@@ -168,15 +167,15 @@
 
 
 === 17. FAIXAS DE VALOR (base para os CHECK do schema nw) ===============
-          coluna          | minimo | maximo  | violacoes_se_check_maior_que_zero 
---------------------------+--------+---------+-----------------------------------
- order_details.unit_price |      2 |   263.5 |                                 0
- order_details.quantity   |      1 |     130 |                                 0
- order_details.discount   |      0 |    0.25 |                                 0
- orders.freight           |   0.02 | 1007.64 |                                 0
- products.unit_price      |    2.5 |   263.5 |                                 0
- products.units_in_stock  |      0 |     125 |                                 0
- products.discontinued    |      0 |       1 |                                 0
+          coluna          | minimo | maximo  | violacoes_da_faixa_proposta 
+--------------------------+--------+---------+-----------------------------
+ order_details.unit_price |      2 |   263.5 |                           0
+ order_details.quantity   |      1 |     130 |                           0
+ order_details.discount   |      0 |    0.25 |                           0
+ orders.freight           |   0.02 | 1007.64 |                           0
+ products.unit_price      |    2.5 |   263.5 |                           0
+ products.units_in_stock  |      0 |     125 |                           0
+ products.discontinued    |      0 |       1 |                           0
 
 
 --- coerência temporal: alguma data fora de ordem? ---

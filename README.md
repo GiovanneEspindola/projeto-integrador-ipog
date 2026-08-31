@@ -134,19 +134,29 @@ docker compose exec -T postgres psql -U pi -d northwind -f /sql/ARQUIVO.sql
 Os diretórios `sql/` e `mongo/` do repositório aparecem dentro dos containers
 como `/sql` e `/mongo`, em modo somente leitura.
 
-### Construir o schema `nw` do zero
+### Construir o banco do zero
 
-Os scripts são numerados na ordem em que devem rodar e são idempotentes: podem
-ser executados quantas vezes for preciso, sempre com o mesmo resultado.
+Os scripts são numerados na ordem em que devem rodar e **todos são
+idempotentes**: podem ser executados quantas vezes for preciso, sempre com o
+mesmo resultado.
+
+Num clone novo, o `docker compose up -d` já carrega o Northwind sozinho — o dump
+está montado em `docker-entrypoint-initdb.d`, que o PostgreSQL executa na
+primeira inicialização. Depois disso:
 
 ```bash
-for f in 10_ddl 20_load 21_validacao_carga 30_indexes 40_views 50_evidencias; do
+for f in 00_northwind_original 10_ddl 20_load 21_validacao_carga 30_indexes 40_views 50_evidencias; do
   docker compose exec -T postgres psql -U pi -d northwind -v ON_ERROR_STOP=1 -f /sql/$f.sql
 done
 ```
 
+O `00_northwind_original.sql` aparece no laço de propósito, mesmo já tendo
+rodado na inicialização: assim o comando funciona **também** em quem já tinha o
+volume criado antes, e a sequência fica válida como receita única de reprodução.
+
 | Script | O que faz |
 |---|---|
+| `00_northwind_original.sql` | carrega o Northwind no schema `public` — a fonte, 14 tabelas |
 | `10_ddl.sql` | cria o schema `nw`: 11 tabelas, 17 CHECK, 4 UNIQUE, comentários |
 | `20_load.sql` | migra 3311 linhas de `public` para `nw`, convertendo tipos |
 | `21_validacao_carga.sql` | prova que nada se perdeu: contagens, somas e colunas |

@@ -51,8 +51,17 @@ associativa `ATUAÇÃO`), e territórios se agrupam em `REGIÃO`. É a operaçã
 
 O modelo é conceitual: tem entidades, relacionamentos, cardinalidades e os
 atributos que identificam ou descrevem cada entidade. **Não tem** tipo de dado,
-chave estrangeira, índice nem tabela de junção física — isso é assunto do modelo
-lógico, em `docs/04`.
+tamanho de campo, índice nem constraint — isso é assunto do modelo lógico, em
+`docs/04`.
+
+Duas coisas no diagrama **parecem** exceção e não são. Os identificadores
+aparecem (o `PK` nas caixas) porque **identificar é atributo conceitual**: dizer
+que ITEM DO PEDIDO se identifica pelo par (pedido, produto) é uma regra de
+negócio — o mesmo produto não entra duas vezes no mesmo pedido — e não uma
+decisão de implementação. E ATUAÇÃO aparece como caixa porque **entidade
+associativa é conceito de ER**, não artefato físico: é assim que a notação
+representa um relacionamento N:N. A chave estrangeira, que é o mecanismo que
+implementa tudo isso, essa sim só existe no modelo lógico.
 
 ---
 
