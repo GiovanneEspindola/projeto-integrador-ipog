@@ -5,7 +5,8 @@
 >
 > Diagrama: `docs/diagramas/er-conceitual.drawio` · exportação: `docs/diagramas/er-conceitual.png`
 > Cada cardinalidade abaixo vem acompanhada do número que a sustenta, medido em
-> `apresentacao/evidencias/01-perfil-05-cardinalidade-juncoes.txt`.
+> `apresentacao/evidencias/01-perfil-05-cardinalidade-juncoes.txt` e reconferido
+> por `etl/valida_conceitual.py`.
 
 ---
 
@@ -18,6 +19,18 @@ mostra que uma cardinalidade mudou).
 
 Para abrir: <https://app.diagrams.net> → *Open Existing Diagram*, ou a extensão
 **Draw.io Integration** no VS Code, que abre o arquivo direto no editor.
+
+O diagrama não é só desenho: `etl/valida_conceitual.py` confere cada afirmação
+dele contra o banco — as 11 entidades e seus atributos existem no schema
+`public`, os identificadores batem com as chaves primárias reais, as 11
+cardinalidades conferem com as junções medidas, e as 14 tabelas da base estão
+todas classificadas (11 modeladas, 3 excluídas com motivo). O script sai com
+código 1 se qualquer verificação falhar, e a saída fica em
+`apresentacao/evidencias/02-validacao-er-conceitual.txt`.
+
+```bash
+uv run python etl/valida_conceitual.py
+```
 
 ---
 

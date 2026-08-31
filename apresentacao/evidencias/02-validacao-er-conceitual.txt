@@ -1,0 +1,120 @@
+# Validação do ER conceitual contra o banco
+# Gerado por: uv run python etl/valida_conceitual.py
+# Fonte: postgresql://pi:***@localhost:5432/northwind · schema public
+
+== 1. Entidades, atributos e identificadores ==
+  OK   FORNECEDOR -> tabela public.suppliers existe
+  OK   FORNECEDOR.'código do fornecedor' -> supplier_id
+  OK   FORNECEDOR.'razão social' -> company_name
+  OK   FORNECEDOR.'cidade / país' -> city+country
+  OK   FORNECEDOR: PK do diagrama ['supplier_id'] == PK real ['supplier_id']
+  OK   CATEGORIA -> tabela public.categories existe
+  OK   CATEGORIA.'código da categoria' -> category_id
+  OK   CATEGORIA.'nome' -> category_name
+  OK   CATEGORIA.'descrição' -> description
+  OK   CATEGORIA: PK do diagrama ['category_id'] == PK real ['category_id']
+  OK   PRODUTO -> tabela public.products existe
+  OK   PRODUTO.'código do produto' -> product_id
+  OK   PRODUTO.'nome' -> product_name
+  OK   PRODUTO.'preço de tabela' -> unit_price
+  OK   PRODUTO.'quantidade em estoque' -> units_in_stock
+  OK   PRODUTO.'ponto de reposição' -> reorder_level
+  OK   PRODUTO.'descontinuado' -> discontinued
+  OK   PRODUTO: PK do diagrama ['product_id'] == PK real ['product_id']
+  OK   ITEM DO PEDIDO -> tabela public.order_details existe
+  OK   ITEM DO PEDIDO.'número do pedido' -> order_id
+  OK   ITEM DO PEDIDO.'código do produto' -> product_id
+  OK   ITEM DO PEDIDO.'quantidade' -> quantity
+  OK   ITEM DO PEDIDO.'preço unitário praticado' -> unit_price
+  OK   ITEM DO PEDIDO.'desconto' -> discount
+  OK   ITEM DO PEDIDO: PK do diagrama ['order_id', 'product_id'] == PK real ['order_id', 'product_id']
+  OK   PEDIDO -> tabela public.orders existe
+  OK   PEDIDO.'número do pedido' -> order_id
+  OK   PEDIDO.'data do pedido' -> order_date
+  OK   PEDIDO.'data prometida' -> required_date
+  OK   PEDIDO.'data de envio' -> shipped_date
+  OK   PEDIDO.'valor do frete' -> freight
+  OK   PEDIDO.'endereço de entrega' -> ship_address
+  OK   PEDIDO: PK do diagrama ['order_id'] == PK real ['order_id']
+  OK   CLIENTE -> tabela public.customers existe
+  OK   CLIENTE.'código do cliente' -> customer_id
+  OK   CLIENTE.'empresa' -> company_name
+  OK   CLIENTE.'contato' -> contact_name
+  OK   CLIENTE.'cidade / país' -> city+country
+  OK   CLIENTE: PK do diagrama ['customer_id'] == PK real ['customer_id']
+  OK   FUNCIONÁRIO -> tabela public.employees existe
+  OK   FUNCIONÁRIO.'matrícula' -> employee_id
+  OK   FUNCIONÁRIO.'nome' -> first_name+last_name
+  OK   FUNCIONÁRIO.'cargo' -> title
+  OK   FUNCIONÁRIO.'data de admissão' -> hire_date
+  OK   FUNCIONÁRIO: PK do diagrama ['employee_id'] == PK real ['employee_id']
+  OK   TRANSPORTADORA -> tabela public.shippers existe
+  OK   TRANSPORTADORA.'código da transportadora' -> shipper_id
+  OK   TRANSPORTADORA.'nome' -> company_name
+  OK   TRANSPORTADORA.'telefone' -> phone
+  OK   TRANSPORTADORA: PK do diagrama ['shipper_id'] == PK real ['shipper_id']
+  OK   TERRITÓRIO -> tabela public.territories existe
+  OK   TERRITÓRIO.'código do território' -> territory_id
+  OK   TERRITÓRIO.'descrição' -> territory_description
+  OK   TERRITÓRIO: PK do diagrama ['territory_id'] == PK real ['territory_id']
+  OK   REGIÃO -> tabela public.region existe
+  OK   REGIÃO.'código da região' -> region_id
+  OK   REGIÃO.'nome' -> region_description
+  OK   REGIÃO: PK do diagrama ['region_id'] == PK real ['region_id']
+  OK   ATUAÇÃO -> tabela public.employee_territories existe
+  OK   ATUAÇÃO.'matrícula' -> employee_id
+  OK   ATUAÇÃO.'código do território' -> territory_id
+  OK   ATUAÇÃO: PK do diagrama ['employee_id', 'territory_id'] == PK real ['employee_id', 'territory_id']
+
+== 2. Cardinalidades ==
+  OK   fornece: lado filho 1,1 -> 0 nulos em products.supplier_id (de 77)
+  OK   fornece: 0 órfãos (0)
+  INFO  fornece: lado pai (0,N) -> 0 de 29 suppliers sem filho   [dados dizem 1..N; (0,N) é escolha de modelo]
+  OK   classifica: lado filho 1,1 -> 0 nulos em products.category_id (de 77)
+  OK   classifica: 0 órfãos (0)
+  INFO  classifica: lado pai (0,N) -> 0 de 8 categories sem filho   [dados dizem 1..N; (0,N) é escolha de modelo]
+  OK   é vendido em: lado filho 1,1 -> 0 nulos em order_details.product_id (de 2155)
+  OK   é vendido em: 0 órfãos (0)
+  INFO  é vendido em: lado pai (0,N) -> 0 de 77 products sem filho   [dados dizem 1..N; (0,N) é escolha de modelo]
+  OK   contém: lado filho 1,1 -> 0 nulos em order_details.order_id (de 2155)
+  OK   contém: 0 órfãos (0)
+  OK   contém: lado pai (1,N) -> 0 de 830 orders sem filho (tem de ser 0)
+  OK   faz: lado filho 1,1 -> 0 nulos em orders.customer_id (de 830)
+  OK   faz: 0 órfãos (0)
+  INFO  faz: lado pai (0,N) -> 2 de 91 customers sem filho
+  OK   registra: lado filho 1,1 -> 0 nulos em orders.employee_id (de 830)
+  OK   registra: 0 órfãos (0)
+  INFO  registra: lado pai (0,N) -> 0 de 9 employees sem filho   [dados dizem 1..N; (0,N) é escolha de modelo]
+  OK   entrega: lado filho 1,1 -> 0 nulos em orders.ship_via (de 830)
+  OK   entrega: 0 órfãos (0)
+  INFO  entrega: lado pai (0,N) -> 3 de 6 shippers sem filho
+  OK   agrupa: lado filho 1,1 -> 0 nulos em territories.region_id (de 53)
+  OK   agrupa: 0 órfãos (0)
+  OK   agrupa: lado pai (1,N) -> 0 de 4 region sem filho (tem de ser 0)
+  OK   é coberto por: lado filho 1,1 -> 0 nulos em employee_territories.territory_id (de 49)
+  OK   é coberto por: 0 órfãos (0)
+  INFO  é coberto por: lado pai (0,N) -> 4 de 53 territories sem filho
+  OK   atua em: lado filho 1,1 -> 0 nulos em employee_territories.employee_id (de 49)
+  OK   atua em: 0 órfãos (0)
+  INFO  atua em: lado pai (0,N) -> 0 de 9 employees sem filho   [dados dizem 1..N; (0,N) é escolha de modelo]
+  OK   chefia: lado filho 0,1 -> 1 nulos em employees.reports_to (de 9)
+  OK   chefia: 0 órfãos (0)
+  INFO  chefia: lado pai (0,N) -> 7 de 9 employees sem filho
+
+== 3. Números citados nas notas e em docs/02 ==
+  OK   tabelas de segmentação vazias: 0 e 0 linhas
+  OK   us_states tem 51 linhas: 51
+  OK   nenhuma FK aponta para us_states: 0
+  OK   49 vínculos para 49 territórios distintos: 49 / 49
+  OK   4 dos 53 territórios sem funcionário: 4 de 53
+  OK   média 2,6 itens por pedido: 2.6
+  OK   média 92,2 pedidos por funcionário: 92.2
+  OK   89 dos 91 clientes com pedido: 89 de 91
+  OK   3 das 6 transportadoras usadas: 3 de 6
+  OK   1 sem chefe e 2 chefes distintos: 1 / 2
+
+== 4. Cobertura: toda tabela da base está classificada ==
+  OK   14 tabelas = 11 modeladas + 3 declaradas fora  | não classificadas: []
+
+============================================================
+RESULTADO: todas as verificações passaram
