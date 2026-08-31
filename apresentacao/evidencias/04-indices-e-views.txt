@@ -1,0 +1,199 @@
+# Índices e views do schema nw: EXPLAIN e números de controle
+# Gerado por: docker compose exec -T postgres psql -U pi -d northwind -f /sql/50_evidencias.sql
+# Fonte: postgresql://pi:***@localhost:5432/northwind · schema nw
+
+###############################################################
+# PARTE 1 — os quatro indices que entraram, e a prova de uso   #
+###############################################################
+
+--- orders_customer_idx: pedidos de um cliente (6 linhas de 830) ---
+                               QUERY PLAN                               
+------------------------------------------------------------------------
+ Bitmap Heap Scan on orders (actual rows=6 loops=1)
+   Recheck Cond: (customer_id = 'ALFKI'::bpchar)
+   Heap Blocks: exact=5
+   Buffers: shared hit=5 read=1
+   ->  Bitmap Index Scan on orders_customer_idx (actual rows=6 loops=1)
+         Index Cond: (customer_id = 'ALFKI'::bpchar)
+         Buffers: shared read=1
+ Planning:
+   Buffers: shared hit=174
+(9 rows)
+
+
+--- orders_employee_idx: pedidos de um vendedor (156 de 830) ---
+                                QUERY PLAN                                
+--------------------------------------------------------------------------
+ Bitmap Heap Scan on orders (actual rows=156 loops=1)
+   Recheck Cond: (employee_id = 4)
+   Heap Blocks: exact=15
+   Buffers: shared hit=15 read=1
+   ->  Bitmap Index Scan on orders_employee_idx (actual rows=156 loops=1)
+         Index Cond: (employee_id = 4)
+         Buffers: shared read=1
+ Planning:
+   Buffers: shared hit=8
+(9 rows)
+
+
+--- orders_date_idx: pedidos de um mes (33 de 830) — Index Only Scan ---
+                                           QUERY PLAN                                            
+-------------------------------------------------------------------------------------------------
+ Aggregate (actual rows=1 loops=1)
+   Buffers: shared hit=2 read=2
+   ->  Index Only Scan using orders_date_idx on orders (actual rows=33 loops=1)
+         Index Cond: ((order_date >= '1997-01-01'::date) AND (order_date <= '1997-01-31'::date))
+         Heap Fetches: 33
+         Buffers: shared hit=2 read=2
+ Planning:
+   Buffers: shared hit=17
+(8 rows)
+
+
+--- order_items_product_idx: vendas de um produto (28 de 2155) ---
+                                 QUERY PLAN                                  
+-----------------------------------------------------------------------------
+ Bitmap Heap Scan on order_items (actual rows=38 loops=1)
+   Recheck Cond: (product_id = 11)
+   Heap Blocks: exact=14
+   Buffers: shared hit=14 read=2
+   ->  Bitmap Index Scan on order_items_product_idx (actual rows=38 loops=1)
+         Index Cond: (product_id = 11)
+         Buffers: shared read=2
+ Planning:
+   Buffers: shared hit=46
+(9 rows)
+
+
+###############################################################
+# PARTE 2 — os candidatos recusados, e a medicao que recusou   #
+###############################################################
+
+--- order_items(order_id) NAO foi criado: a PK composta ja atende ---
+                   QUERY PLAN                   
+------------------------------------------------
+ Index Scan using order_items_pk on order_items
+   Index Cond: (order_id = 10248)
+(2 rows)
+
+
+--- products(category_id) NAO foi criado: a tabela tem 1 pagina ---
+         QUERY PLAN          
+-----------------------------
+ Seq Scan on products
+   Filter: (category_id = 1)
+(2 rows)
+
+
+--- employee_territories(territory_id) NAO foi criado: 1 pagina ---
+                    QUERY PLAN                    
+--------------------------------------------------
+ Seq Scan on employee_territories
+   Filter: ((territory_id)::text = '10019'::text)
+(2 rows)
+
+
+--- indice nao ajuda quando a consulta le TUDO: agregacao usa Seq Scan ---
+                              QUERY PLAN                              
+----------------------------------------------------------------------
+ HashAggregate
+   Group Key: c.category_name
+   ->  Hash Join
+         Hash Cond: (o.employee_id = e.employee_id)
+         ->  Hash Join
+               Hash Cond: (o.customer_id = cl.customer_id)
+               ->  Hash Join
+                     Hash Cond: (p.category_id = c.category_id)
+                     ->  Hash Join
+                           Hash Cond: (i.product_id = p.product_id)
+                           ->  Hash Join
+                                 Hash Cond: (i.order_id = o.order_id)
+                                 ->  Seq Scan on order_items i
+                                 ->  Hash
+                                       ->  Seq Scan on orders o
+                           ->  Hash
+                                 ->  Seq Scan on products p
+                     ->  Hash
+                           ->  Seq Scan on categories c
+               ->  Hash
+                     ->  Seq Scan on customers cl
+         ->  Hash
+               ->  Seq Scan on employees e
+(23 rows)
+
+
+--- tamanho real das tabelas, que explica quase todas as recusas ---
+        tabela        | linhas | paginas_8kb 
+----------------------+--------+-------------
+ orders               |    830 |          15
+ order_items          |   2155 |          14
+ customers            |     91 |           2
+ categories           |      8 |           1
+ employee_territories |     49 |           1
+ employees            |      9 |           1
+ products             |     77 |           1
+ regions              |      4 |           1
+ shippers             |      6 |           1
+ suppliers            |     29 |           1
+ territories          |     53 |           1
+(11 rows)
+
+
+###############################################################
+# PARTE 3 — as quatro views e seus numeros de controle         #
+###############################################################
+
+--- vw_venda_item: 2155 linhas e a receita total ---
+(a view arredonda cada item, como faz uma nota fiscal; por isso o total
+ fica 0,25 acima da soma sem arredondar — e diferenca esperada, nao erro)
+ linhas | receita_arredondada_por_item | receita_sem_arredondar | desconto_total 
+--------+------------------------------+------------------------+----------------
+   2155 |                   1265793.29 |          1265793.03950 |       88665.83
+(1 row)
+
+
+--- vw_pedido_resumo: os 830 pedidos ---
+ pedidos | itens |   valor    | nunca_enviados | entregues_com_atraso | media_dias_para_envio 
+---------+-------+------------+----------------+----------------------+-----------------------
+     830 |  2155 | 1265793.29 |             21 |                   37 |                   8.5
+(1 row)
+
+
+--- vw_estoque_critico: produtos abaixo do ponto de reposicao ---
+          produto          |   categoria    | estoque | encomendado | ponto_de_reposicao |       cobertura        
+---------------------------+----------------+---------+-------------+--------------------+------------------------
+ Nord-Ost Matjeshering     | Seafood        |      10 |           0 |                 15 | reposição insuficiente
+ Outback Lager             | Beverages      |      15 |          10 |                 30 | reposição insuficiente
+ Gnocchi di nonna Alice    | Grains/Cereals |      21 |          10 |                 30 | reposição a caminho
+ Scottish Longbreads       | Confections    |       6 |          10 |                 15 | reposição a caminho
+ Ipoh Coffee               | Beverages      |      17 |          10 |                 25 | reposição a caminho
+ Longlife Tofu             | Produce        |       4 |          20 |                  5 | reposição a caminho
+ Queso Cabrales            | Dairy Products |      22 |          30 |                 30 | reposição a caminho
+ Mascarpone Fabioli        | Dairy Products |       9 |          40 |                 25 | reposição a caminho
+ Chang                     | Beverages      |      17 |          40 |                 25 | reposição a caminho
+ Gravad lax                | Seafood        |      11 |          50 |                 25 | reposição a caminho
+ Sir Rodney's Scones       | Confections    |       3 |          40 |                  5 | reposição a caminho
+ Gorgonzola Telino         | Dairy Products |       0 |          70 |                 20 | reposição a caminho
+ Maxilaku                  | Confections    |      10 |          60 |                 15 | reposição a caminho
+ Aniseed Syrup             | Condiments     |      13 |          70 |                 25 | reposição a caminho
+ Chocolade                 | Confections    |      15 |          70 |                 25 | reposição a caminho
+ Rogede sild               | Seafood        |       5 |          70 |                 15 | reposição a caminho
+ Wimmers gute Semmelknödel | Grains/Cereals |      22 |          80 |                 30 | reposição a caminho
+ Louisiana Hot Spiced Okra | Condiments     |       4 |         100 |                 20 | reposição a caminho
+(18 rows)
+
+
+--- vw_hierarquia_funcionarios: a CTE recursiva resolveu a arvore ---
+ employee_id |   funcionario    |          cargo           | nivel |      chefe      
+-------------+------------------+--------------------------+-------+-----------------
+           2 | Andrew Fuller    | Vice President, Sales    |     1 | 
+           1 | Nancy Davolio    | Sales Representative     |     2 | Andrew Fuller
+           3 | Janet Leverling  | Sales Representative     |     2 | Andrew Fuller
+           4 | Margaret Peacock | Sales Representative     |     2 | Andrew Fuller
+           5 | Steven Buchanan  | Sales Manager            |     2 | Andrew Fuller
+           8 | Laura Callahan   | Inside Sales Coordinator |     2 | Andrew Fuller
+           6 | Michael Suyama   | Sales Representative     |     3 | Steven Buchanan
+           7 | Robert King      | Sales Representative     |     3 | Steven Buchanan
+           9 | Anne Dodsworth   | Sales Representative     |     3 | Steven Buchanan
+(9 rows)
+

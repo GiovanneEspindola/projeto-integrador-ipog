@@ -1,0 +1,78 @@
+# Validação da carga public -> nw
+# Gerado por: docker compose exec -T postgres psql -U pi -d northwind -f /sql/21_validacao_carga.sql
+# Fonte: postgresql://pi:***@localhost:5432/northwind
+
+
+=== 1. Contagem de linhas: origem vs destino ===
+(o total e 3311, nao os 3362 do docs/01: a diferenca sao as 51 linhas de
+ us_states, tabela que ficou fora do modelo por decisao declarada)
+        tabela        | origem | destino | divergencia 
+----------------------+--------+---------+-------------
+ regions              |      4 |       4 |           0
+ territories          |     53 |      53 |           0
+ categories           |      8 |       8 |           0
+ suppliers            |     29 |      29 |           0
+ shippers             |      6 |       6 |           0
+ customers            |     91 |      91 |           0
+ employees            |      9 |       9 |           0
+ employee_territories |     49 |      49 |           0
+ products             |     77 |      77 |           0
+ orders               |    830 |     830 |           0
+ order_items          |   2155 |    2155 |           0
+ TOTAL                |   3311 |    3311 |           0
+(12 rows)
+
+
+=== 2. O dinheiro: receita total nos dois schemas ===
+(a diferenca NAO e erro de carga: e o erro de arredondamento do real, que o numeric elimina)
+ receita_origem_real | receita_destino_numeric | origem_convertida_numeric 
+---------------------+-------------------------+---------------------------
+   1265793.038653364 |           1265793.03950 |             1265793.03950
+(1 row)
+
+
+=== 3. Somas de controle por coluna monetaria ===
+         coluna         |  origem  | destino  | divergencia 
+------------------------+----------+----------+-------------
+ orders.freight         | 64942.69 | 64942.69 |        0.00
+ products.unit_price    |  2220.21 |  2220.21 |        0.00
+ order_items.unit_price | 56500.91 | 56500.91 |        0.00
+ order_items.quantity   |    51317 |    51317 |           0
+(4 rows)
+
+
+=== 4. As conversoes de tipo preservaram o significado? ===
+                       verificacao                       | origem | destino 
+---------------------------------------------------------+--------+---------
+ discontinued: 1 na origem = true no destino             |     10 |      10
+ shipped_date nulo (pedidos nao enviados)                |     21 |      21
+ reports_to nulo (topo da hierarquia)                    |      1 |       1
+ faixa de datas identica (dias entre 1o e ultimo pedido) |    671 |     671
+(4 rows)
+
+
+=== 5. Nenhuma chave se perdeu no caminho (anti-join nos dois sentidos) ===
+                 verificacao                 | linhas 
+---------------------------------------------+--------
+ pedidos na origem sem correspondente no nw  |      0
+ itens na origem sem correspondente no nw    |      0
+ clientes na origem sem correspondente no nw |      0
+(3 rows)
+
+
+=== 6. O que o schema nw ganhou em regras de negocio ===
+    tipo     | public_origem | nw_projeto 
+-------------+---------------+------------
+ CHECK       |             0 |         17
+ FOREIGN KEY |            13 |         11
+ PRIMARY KEY |            14 |         11
+ UNIQUE      |             0 |          4
+(4 rows)
+
+
+=== 7. Colunas que deixaram de aceitar nulo ===
+ colunas_agora_obrigatorias 
+----------------------------
+                         21
+(1 row)
+
