@@ -63,12 +63,21 @@ COMMENT ON INDEX order_items_product_idx IS 'Vendas de um produto. A PK composta
 --   O planejador ignorou e preferiu ler orders_date_idx de trás para frente.
 --   O plano ficou idêntico com e sem ele.
 --
--- products (category_id), products (supplier_id), territories (region_id),
+-- products (category_id), territories (region_id),
 -- employee_territories (territory_id)
 --   Recusados por TAMANHO. Essas tabelas ocupam UMA página de 8 kB. Ler a
 --   página inteira custa um acesso; ler o índice e depois buscar na tabela
 --   custa dois. O planejador escolheu Seq Scan em todos os testes.
 --   Criá-los seria custo de escrita e de espaço sem nenhum retorno.
+--
+-- products (supplier_id)
+--   Recusado por DOIS motivos somados, e o primeiro é o interessante:
+--   a constraint UNIQUE (supplier_id, product_name) de 10_ddl.sql JÁ CRIA um
+--   índice, e supplier_id é a primeira coluna dele — criar outro seria
+--   duplicata. Toda UNIQUE vem com índice embutido, e vale conferir o que já
+--   se tem antes de criar mais um.
+--   O segundo motivo é o de sempre: com a tabela em uma página, o planejador
+--   nem esse índice de brinde usa. EXPLAIN devolve Seq Scan.
 --
 -- Um caso de fronteira, registrado para não parecer descuido:
 --   employee_territories.territory_id tem ON DELETE CASCADE e NÃO tem índice.

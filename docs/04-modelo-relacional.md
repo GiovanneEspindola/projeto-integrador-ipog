@@ -253,9 +253,15 @@ Os cinco recusados, por motivo:
 - **`orders (customer_id, order_date)`** — composto, criado para o caso clássico
   "últimos pedidos do cliente X". O planejador **ignorou** e preferiu ler o
   índice de data ao contrário. O plano ficou idêntico com e sem ele.
-- **`products (category_id)`, `products (supplier_id)`, `territories (region_id)`,
+- **`products (category_id)`, `territories (region_id)`,
   `employee_territories (territory_id)`** — essas tabelas ocupam **uma** página.
   Ler a página custa um acesso; ler o índice e depois a tabela custa dois.
+- **`products (supplier_id)`** — dois motivos, e o primeiro é o interessante:
+  a constraint `UNIQUE (supplier_id, product_name)` **já cria um índice**, e
+  `supplier_id` é a primeira coluna dele, então outro índice seria duplicata.
+  *Toda constraint UNIQUE vem com um índice embutido* — vale conferir o que já
+  se tem antes de criar mais um. O segundo motivo é o de sempre: com a tabela em
+  uma página, o planejador nem esse índice de brinde usa.
 
 Em produção, com milhões de pedidos, vários desses passariam a valer a pena. A
 decisão vale para **este** volume, e está registrada assim de propósito.
