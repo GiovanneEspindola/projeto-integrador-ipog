@@ -182,11 +182,29 @@ FROM orders;
 \echo '=== 14. REDUNDÂNCIA ACIDENTAL: endereço de entrega solto em orders ======='
 -- orders guarda ship_name/address/city/region/postal_code/country em colunas
 -- soltas. Quanto disso é simples cópia do cadastro do cliente?
+-- O numero depende de quantas colunas se compara, e a diferenca importa: o
+-- criterio de tres colunas mede "o endereco postal"; o de seis mede "o
+-- endereco inteiro", incluindo destinatario, regiao e CEP.
 SELECT count(*)                                                       AS pedidos_com_cliente,
        count(*) FILTER (WHERE o.ship_name = c.company_name)           AS ship_name_igual_ao_cliente,
        count(*) FILTER (WHERE o.ship_address = c.address
                           AND o.ship_city = c.city
-                          AND o.ship_country = c.country)             AS endereco_identico_ao_cadastro
+                          AND o.ship_country = c.country)             AS iguais_por_3_colunas,
+       count(*) FILTER (WHERE o.ship_address = c.address
+                          AND o.ship_city = c.city
+                          AND o.ship_country = c.country
+                          AND o.ship_region      IS NOT DISTINCT FROM c.region
+                          AND o.ship_postal_code IS NOT DISTINCT FROM c.postal_code
+                          AND o.ship_name        = c.company_name)    AS iguais_por_6_colunas,
+       count(*) - count(*) FILTER (WHERE o.ship_address = c.address
+                          AND o.ship_city = c.city
+                          AND o.ship_country = c.country)             AS diferentes_por_3_colunas,
+       count(*) - count(*) FILTER (WHERE o.ship_address = c.address
+                          AND o.ship_city = c.city
+                          AND o.ship_country = c.country
+                          AND o.ship_region      IS NOT DISTINCT FROM c.region
+                          AND o.ship_postal_code IS NOT DISTINCT FROM c.postal_code
+                          AND o.ship_name        = c.company_name)    AS diferentes_por_6_colunas
 FROM orders o JOIN customers c ON c.customer_id = o.customer_id;
 
 \echo ''

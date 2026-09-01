@@ -19,8 +19,9 @@ A separação não é capricho: sem ela, "implementar um modelo relacional" vira
 defender. Com ela, cada diferença entre os dois schemas é uma decisão registrada
 — e o original continua ali do lado para comparação.
 
-O `nw` implementa as 11 entidades de `docs/02` e corrige, uma a uma, as
-fraquezas medidas em `docs/01` §4.
+O `nw` implementa as 11 entidades de `docs/02` e enfrenta, uma a uma, as
+fraquezas medidas em `docs/01` §4 — corrigindo a maioria e **declarando** as que
+decidiu não corrigir.
 
 | Conceitual (`docs/02`) | Tabela em `nw` | Origem em `public` |
 |---|---|---|
@@ -171,8 +172,9 @@ fornecedor não cadastra o mesmo produto duas vezes.*
 
 O caso oposto está a duas tabelas de distância e serve de contraprova: em
 `territories` **não** existe unique no nome, porque a base tem dois territórios
-chamados "New York" (10019 e 10038), cada um com um vendedor diferente. Mesmo
-critério, resultados opostos — é o dado que decide, não o hábito.
+chamados "New York" (10019 e 10038) — os dois atendidos pelo **mesmo** vendedor,
+Steven Buchanan. O nome se repete; o território, não. Mesmo critério, resultados
+opostos — é o dado que decide, não o hábito.
 
 ### As correções de tipo
 
@@ -216,8 +218,8 @@ dependeria apenas de `product_id` — metade da chave — e seria violação de 
 Mas ela significa **o preço praticado naquela venda**, que depende do pedido
 *e* do produto. Depende da chave inteira. Está correto.
 
-A prova de que os dois preços são coisas diferentes está nos dados: **662 dos
-2155 itens (30,7%) têm preço de venda diferente do preço de catálogo atual.**
+A prova de que os dois preços são coisas diferentes são os mesmos **662 itens
+(30,7%)** de `docs/01` §4.4: o preço da venda difere do catálogo atual.
 
 O contra-exemplo ajuda a fixar: se eu tivesse guardado `product_name` dentro de
 `order_items`, aí sim seria violação — o nome do produto depende só de
@@ -277,12 +279,9 @@ estrangeira só garante um lado: que **o filho aponta para um pai que existe**.
 Ela não garante o outro, a **participação mínima** — que o pai tenha pelo menos
 um filho.
 
-Antes de continuar, um acerto de contagem que a banca pode cobrar: o conceitual
-tem **10 relacionamentos**, desenhados como **11 linhas** (o N:N de ATUAÇÃO
-aparece como duas, uma de cada lado da entidade associativa) e implementados como
-**11 chaves estrangeiras**, pelo mesmo motivo.
-
-Duas cardinalidades do diagrama caem nesse buraco:
+São **11 chaves estrangeiras** para os 10 relacionamentos de `docs/02`, pelo
+motivo já explicado lá: o N:N de ATUAÇÃO conta duas vezes. E duas cardinalidades
+do diagrama caem no buraco da participação mínima:
 
 - `PEDIDO contém ITEM DO PEDIDO (1,N)` — "pedido sem item não é venda, é
   formulário em branco". O `nw` aceitaria um `INSERT` em `orders` sem nenhum

@@ -21,7 +21,7 @@ e não por gosto — por cinco recursos que **este trabalho usa de fato**:
 | **DDL transacional** — `CREATE TABLE` dentro de `BEGIN … ROLLBACK` | testar constraint e índice sem sujar o banco; o MySQL faz *commit* implícito em DDL, e o teste não teria volta |
 | **Tipo `ARRAY`** | `vw_hierarquia_funcionarios` guarda o caminho até o topo da hierarquia num array |
 | **Cláusula `FILTER (WHERE …)`** em agregação | todos os relatórios de validação; no MySQL vira `SUM(CASE WHEN … END)`, bem menos legível |
-| **`EXPLAIN (… BUFFERS)`** | mostra quantas páginas cada plano lê — é o número que sustentou o argumento das 15 páginas, que decidiu seis dos dez índices |
+| **`EXPLAIN (… BUFFERS)`** | mostra quantas páginas cada plano toca, e foi com ele que metade das recusas de índice foi decidida em vez de opinada |
 | **`COMMENT ON` em índice e schema** | os 4 índices e o próprio schema `nw` carregam a explicação dentro do catálogo; o MySQL só comenta tabela e coluna |
 
 Na Entrega 03 entra ainda `GROUPING SETS`, para a pergunta 16 de sazonalidade —
@@ -34,6 +34,27 @@ desde a 8.0.18 tem `EXPLAIN ANALYZE` — o que o PostgreSQL acrescenta ali é o
 `BUFFERS`, não a medição em si. A diferença real está nos itens acima, e a mais
 decisiva para *este* projeto é a primeira: metade das verificações feitas aqui só
 é possível porque dá para testar uma mudança de schema e desfazê-la.
+
+### E o MongoDB, foi escolha?
+
+Não da mesma forma. O enunciado deixa o relacional em aberto ("PostgreSQL ou
+MySQL") e **define** o MongoDB como o lado documental. Mas cabe justificar por
+que o modelo de documentos é o contraponto certo para *este* domínio — porque é
+disso que a comparação depende:
+
+- **Chave-valor** (Redis) guarda e devolve, não agrega. Não responderia nenhuma
+  das 16 perguntas.
+- **Família de colunas** (Cassandra) é forte em escrita massiva e série temporal,
+  não em ler um pedido inteiro nem em cruzar entidades.
+- **Grafo** (Neo4j) resolveria bem a hierarquia de funcionários e a malha de
+  territórios, mas essas são a periferia do domínio — o núcleo é transacional.
+- **Documento** é o único que espelha o agregado que o Northwind tem de mais
+  característico: **o pedido com seus itens**, lido inteiro, imutável depois de
+  fechado.
+
+E entre os documentais, o MongoDB tem *aggregation pipeline* com expressividade
+comparável à do SQL — sem isso, comparar as 16 perguntas nas duas tecnologias não
+seria uma comparação, seria uma demonstração de que uma delas não dá conta.
 
 ## 2. O domínio
 
@@ -93,7 +114,7 @@ negócio são respondidas nas duas tecnologias, e a comparação sai da diferen�
 | 03 | 16 consultas SQL e 16 pipelines equivalentes | 27/09/2026 |
 | 04 | Benchmark, relatório final e apresentação | 08/10/2026 |
 
-Os documentos seguem a mesma numeração: `docs/01` a `docs/07`.
+Os documentos seguem a mesma numeração. Esta entrega traz `docs/00` a `docs/04`.
 
 ## 6. Duas regras que o trabalho seguiu
 

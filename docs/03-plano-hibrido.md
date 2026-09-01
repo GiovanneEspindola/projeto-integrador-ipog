@@ -14,9 +14,9 @@ Este plano define como os dois bancos vão conviver e, principalmente, **como a
 comparação entre eles vai ser feita de um jeito que o resultado signifique
 alguma coisa**.
 
-A resposta não é "o relacional é melhor" nem "o documental é mais moderno". É
-uma pergunta anterior: **qual é a forma dominante de acesso ao dado?** Tudo
-depende disso, e é isso que o experimento vai medir.
+Como `docs/00` §1 já enquadra, a pergunta útil não é qual banco é melhor, e sim
+**qual é a forma dominante de acesso ao dado**. Este documento define o arranjo
+que permite medir isso.
 
 ---
 
@@ -48,24 +48,15 @@ pedido com seus itens é um documento só.
 
 ## 3. A arquitetura escolhida
 
-```
-  aplicação / carga                consultas analíticas
-         │                                  │
-         ▼                                  ▼
-  ┌─────────────────┐   ETL em lote   ┌──────────────────┐
-  │  PostgreSQL nw  │ ──────────────▶ │     MongoDB      │
-  │ fonte da verdade│  idempotente,   │ cópia documental │
-  │ constraints, FK │  unidirecional  │  agregados       │
-  └─────────────────┘                 └──────────────────┘
-```
-
 **O PostgreSQL é a fonte da verdade.** É onde a venda acontece, onde as
 **17 CHECK, 4 UNIQUE e 11 chaves estrangeiras** impedem o dado inválido de
 entrar, e onde a transação garante que pedido e itens nascem juntos ou não
 nascem.
 
-**O MongoDB é uma cópia orientada a documento**, alimentada por `etl/migrate.py`.
-Ele não recebe escrita de aplicação neste projeto.
+**O MongoDB será uma cópia orientada a documento**, alimentada pelo
+`etl/migrate.py` que a Entrega 02 constrói. Ele não recebe escrita de aplicação
+neste projeto. Nesta entrega o container está no ar e vazio: o que existe aqui é
+o plano, e é ele que a Entrega 02 executa.
 
 ### Por que o fluxo é de mão única
 
@@ -118,9 +109,9 @@ justamente o tipo de coisa que a comparação existe para iluminar.
 ## 5. Como a comparação vai ser feita
 
 **Um conjunto único de perguntas, respondido duas vezes.** As 16 perguntas de
-negócio de `docs/01` §6 viram 16 consultas SQL (`sql/queries/QNN.sql`) e 16
-pipelines de agregação (`mongo/pipelines/PNN.js`). `Q07` e `P07` respondem
-exatamente à mesma pergunta.
+negócio de `docs/01` §6 **vão virar**, na Entrega 03, 16 consultas SQL
+(`sql/queries/QNN.sql`) e 16 pipelines de agregação (`mongo/pipelines/PNN.js`).
+`Q07` e `P07` responderão exatamente à mesma pergunta.
 
 Isso produz três entregáveis de uma vez: as consultas da Entrega 03, a análise
 comparativa de sintaxe, e a base do benchmark da Entrega 04.

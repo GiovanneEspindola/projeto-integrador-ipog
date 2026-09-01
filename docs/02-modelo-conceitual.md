@@ -49,19 +49,9 @@ produto pertence a uma `CATEGORIA`. É o catálogo.
 `TRANSPORTADORA` entrega. Funcionários atuam em `TERRITÓRIO` (pela entidade
 associativa `ATUAÇÃO`), e territórios se agrupam em `REGIÃO`. É a operação.
 
-O modelo é conceitual: tem entidades, relacionamentos, cardinalidades e os
-atributos que identificam ou descrevem cada entidade. **Não tem** tipo de dado,
-tamanho de campo, índice nem constraint — isso é assunto do modelo lógico, em
-`docs/04`.
-
-Duas coisas no diagrama **parecem** exceção e não são. Os identificadores
-aparecem (o `PK` nas caixas) porque **identificar é atributo conceitual**: dizer
-que ITEM DO PEDIDO se identifica pelo par (pedido, produto) é uma regra de
-negócio — o mesmo produto não entra duas vezes no mesmo pedido — e não uma
-decisão de implementação. E ATUAÇÃO aparece como caixa porque **entidade
-associativa é conceito de ER**, não artefato físico: é assim que a notação
-representa um relacionamento N:N. A chave estrangeira, que é o mecanismo que
-implementa tudo isso, essa sim só existe no modelo lógico.
+O modelo tem entidades, relacionamentos, cardinalidades e os atributos que
+identificam ou descrevem cada entidade — e nada além disso. O que ele
+deliberadamente não mostra está na §5.
 
 ---
 
@@ -159,13 +149,20 @@ avaliador vê que foi decisão, não descuido.
 
 ## 5. O que este modelo deliberadamente não mostra
 
-Tipo de dado, tamanho de campo, chave estrangeira, índice, constraint, tabela
-física de junção. Tudo isso é modelo lógico e físico, e entra em `docs/04` junto
-com o schema `nw`.
+Tipo de dado, tamanho de campo, índice e constraint. Tudo isso é modelo lógico e
+físico, e entra em `docs/04` junto com o schema `nw`.
 
 A separação não é formalismo: o modelo conceitual é o documento que se discute
 com quem entende do negócio e não entende de banco. No momento em que aparece
 `VARCHAR(40)` no diagrama, essa conversa acaba.
+
+**Duas coisas no diagrama parecem exceção e não são.** Os identificadores
+aparecem — o `PK` nas caixas — porque **identificar é atributo conceitual**:
+dizer que ITEM DO PEDIDO se identifica pelo par (pedido, produto) é uma regra de
+negócio, o mesmo produto não entra duas vezes no mesmo pedido. E ATUAÇÃO aparece
+como caixa porque **entidade associativa é conceito de ER**, não artefato
+físico: é assim que a notação representa um N:N. A chave estrangeira, que é o
+mecanismo que implementa as duas coisas, essa sim só existe no modelo lógico.
 
 ---
 

@@ -400,7 +400,7 @@ O Northwind acerta em coisas importantes:
   `employee_territories(employee_id, territory_id)` estão corretas.
 - **O auto-relacionamento funciona.** A hierarquia de `reports_to` é consistente:
   Andrew Fuller (VP de Vendas) no topo com 5 subordinados diretos, Steven
-  Buchanan (Gerente) com 3 — dois níveis, sem ciclo.
+  Buchanan (Gerente) com 3 — **três níveis**, sem ciclo.
 
 ---
 
@@ -460,6 +460,5 @@ inadimplência, e a segmentação de cliente (`customer_demographics`) está vaz
 
 Com a base perfilada, a Entrega 01 segue para: diagrama ER conceitual
 (`docs/02-*`), Plano Híbrido (`docs/03-*`) e o schema `nw` (`docs/04-*`) — que
-corrigirá, um a um e com justificativa, os sete grupos de fraqueza da seção 4.
+enfrentará, um a um e com justificativa, os oito grupos de fraqueza da seção 4.
 
-> **Material didático correspondente:** `docs/estudo/01-entendendo-o-northwind.md`

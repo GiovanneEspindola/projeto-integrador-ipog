@@ -147,9 +147,9 @@
 
 
 === 14. REDUNDÂNCIA ACIDENTAL: endereço de entrega solto em orders =======
- pedidos_com_cliente | ship_name_igual_ao_cliente | endereco_identico_ao_cadastro 
----------------------+----------------------------+-------------------------------
-                 830 |                        796 |                           782
+ pedidos_com_cliente | ship_name_igual_ao_cliente | iguais_por_3_colunas | iguais_por_6_colunas | diferentes_por_3_colunas | diferentes_por_6_colunas 
+---------------------+----------------------------+----------------------+----------------------+--------------------------+--------------------------
+                 830 |                        796 |                  782 |                  748 |                       48 |                       82
 
 
 === 15. TABELAS ÓRFÃS E VAZIAS ==========================================
