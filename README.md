@@ -164,6 +164,16 @@ volume criado antes, e a sequência fica válida como receita única de reprodu�
 | `40_views.sql` | as 4 views analíticas |
 | `50_evidencias.sql` | gera a evidência de índices e views para a apresentação |
 
+### Montar o PDF da entrega
+
+```bash
+uv run --with reportlab --with pillow python entregas/gerar_pdf.py
+```
+
+Junta capa, sumário, os cinco documentos de `docs/`, as três figuras de
+`docs/diagramas/` e um apêndice com a validação da carga. `reportlab` e `pillow`
+entram só na execução, sem virar dependência do projeto.
+
 ### Interfaces gráficas (opcionais)
 
 Não sobem por padrão. Quando quiser:
@@ -265,7 +275,7 @@ etl/               perfilamento (notebook), validadores dos diagramas,
 bench/             benchmark comparativo + resultados
 apresentacao/      roteiro dos slides
   evidencias/      saídas brutas de consulta e gráficos usados na apresentação
-entregas/          pacotes fechados por data (entrega-01 .. entrega-04)
+entregas/          gerar_pdf.py + pacotes fechados por data (entrega-01 .. 04)
 ```
 
 ### Duas decisões de arquitetura que explicam a organização
