@@ -1,0 +1,11 @@
+{
+  "name": "entregas",
+  "private": true,
+  "description": "Montagem do documento Word das entregas, a partir dos Markdown de docs/",
+  "scripts": {
+    "docx": "node gerar_docx.js"
+  },
+  "dependencies": {
+    "docx": "^9.5.1"
+  }
+}

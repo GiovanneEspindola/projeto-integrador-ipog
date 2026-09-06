@@ -35,6 +35,11 @@ Thumbs.db
 *.swp
 .vscode/settings.json
 
+# --- Node --------------------------------------------------------------------
+# Só o montador do .docx usa Node. O entregas/package.json declara a versão
+# exata da biblioteca, então "npm install" reconstrói isto identicamente.
+node_modules/
+
 # --- Temporários e logs ----------------------------------------------------
 *.log
 *.tmp

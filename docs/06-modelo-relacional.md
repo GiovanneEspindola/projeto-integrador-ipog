@@ -1,6 +1,6 @@
-# 04 — Modelo Relacional: o schema `nw`
+# 06 — Modelo Relacional: o schema `nw`
 
-> **Entrega 01** · Projeto Integrador Área 03 — Banco de Dados (IPOG)
+> **Entrega 02** · Fases 3 e 4 do CRISP-DM
 > Autor: Giovanne Espíndola · Data: 31/08/2026
 >
 > Scripts: `sql/10_ddl.sql` · `sql/20_load.sql` · `sql/30_indexes.sql` · `sql/40_views.sql`
@@ -19,11 +19,11 @@ A separação não é capricho: sem ela, "implementar um modelo relacional" vira
 defender. Com ela, cada diferença entre os dois schemas é uma decisão registrada
 — e o original continua ali do lado para comparação.
 
-O `nw` implementa as 11 entidades de `docs/02` e enfrenta, uma a uma, as
-fraquezas medidas em `docs/01` §4 — corrigindo a maioria e **declarando** as que
+O `nw` implementa as 11 entidades de `docs/03` e enfrenta, uma a uma, as
+fraquezas medidas em `docs/04` §3 — corrigindo a maioria e **declarando** as que
 decidiu não corrigir.
 
-| Conceitual (`docs/02`) | Tabela em `nw` | Origem em `public` |
+| Conceitual (`docs/03`) | Tabela em `nw` | Origem em `public` |
 |---|---|---|
 | FORNECEDOR | `suppliers` | `suppliers` |
 | CATEGORIA | `categories` | `categories` |
@@ -219,7 +219,7 @@ Mas ela significa **o preço praticado naquela venda**, que depende do pedido
 *e* do produto. Depende da chave inteira. Está correto.
 
 A prova de que os dois preços são coisas diferentes são os mesmos **662 itens
-(30,7%)** de `docs/01` §4.4: o preço da venda difere do catálogo atual.
+(30,7%)** de `docs/04` §3.4: o preço da venda difere do catálogo atual.
 
 O contra-exemplo ajuda a fixar: se eu tivesse guardado `product_name` dentro de
 `order_items`, aí sim seria violação — o nome do produto depende só de
@@ -274,12 +274,12 @@ determinar.
 
 ## 3.1 Duas cardinalidades que a chave estrangeira não consegue expressar
 
-Os relacionamentos de `docs/02` viraram 11 chaves estrangeiras. Mas chave
+Os relacionamentos de `docs/03` viraram 11 chaves estrangeiras. Mas chave
 estrangeira só garante um lado: que **o filho aponta para um pai que existe**.
 Ela não garante o outro, a **participação mínima** — que o pai tenha pelo menos
 um filho.
 
-São **11 chaves estrangeiras** para os 10 relacionamentos de `docs/02`, pelo
+São **11 chaves estrangeiras** para os 10 relacionamentos de `docs/03`, pelo
 motivo já explicado lá: o N:N de ATUAÇÃO conta duas vezes. E duas cardinalidades
 do diagrama caem no buraco da participação mínima:
 

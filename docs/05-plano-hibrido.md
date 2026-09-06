@@ -1,6 +1,6 @@
-# 03 — Plano Híbrido: PostgreSQL e MongoDB no mesmo projeto
+# 05 — Plano Híbrido: PostgreSQL e MongoDB no mesmo projeto
 
-> **Entrega 01** · Projeto Integrador Área 03 — Banco de Dados (IPOG)
+> **Entrega 02** · Fases 3 e 4 do CRISP-DM
 > Autor: Giovanne Espíndola · Data: 31/08/2026
 >
 > Diagrama: `docs/diagramas/arquitetura-hibrida.drawio` · exportação: `docs/diagramas/arquitetura-hibrida.png`
@@ -14,7 +14,7 @@ Este plano define como os dois bancos vão conviver e, principalmente, **como a
 comparação entre eles vai ser feita de um jeito que o resultado signifique
 alguma coisa**.
 
-Como `docs/00` §1 já enquadra, a pergunta útil não é qual banco é melhor, e sim
+Como `docs/01` §1 já enquadra, a pergunta útil não é qual banco é melhor, e sim
 **qual é a forma dominante de acesso ao dado**. Este documento define o arranjo
 que permite medir isso.
 
@@ -109,7 +109,7 @@ justamente o tipo de coisa que a comparação existe para iluminar.
 ## 5. Como a comparação vai ser feita
 
 **Um conjunto único de perguntas, respondido duas vezes.** As 16 perguntas de
-negócio de `docs/01` §6 **vão virar**, na Entrega 03, 16 consultas SQL
+negócio de `docs/02` §3 **vão virar**, na Entrega 03, 16 consultas SQL
 (`sql/queries/QNN.sql`) e 16 pipelines de agregação (`mongo/pipelines/PNN.js`).
 `Q07` e `P07` responderão exatamente à mesma pergunta.
 

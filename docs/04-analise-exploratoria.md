@@ -1,16 +1,26 @@
-# 01 — Análise de Negócio e Perfilamento do Northwind
+# 04 — Análise Exploratória e Qualidade dos Dados
 
-> **Entrega 01** · Projeto Integrador Área 03 — Banco de Dados (IPOG)
-> Autor: Giovanne Espíndola · Data: 26/08/2026
+> **Entrega 01** · Fase 2 do CRISP-DM
+> Autor: Giovanne Espíndola · Data: 05/09/2026
 >
 > Todo número deste documento foi **executado** contra o banco. As saídas brutas
-> estão em `apresentacao/evidencias/01-perfil-*.txt` e os scripts que as geraram
-> estão versionados em `sql/01_exploracao.sql` e no notebook
+> estão versionadas em `apresentacao/evidencias/01-perfil-*.txt`, e os scripts
+> que as geraram estão em `sql/01_exploracao.sql` e no notebook
 > `etl/perfilamento.ipynb`.
 
 ---
 
-## 1. O que foi feito, e como reproduzir
+Esta é a fase de **entendimento dos dados** do CRISP-DM. Ela tem duas metades,
+e as duas estão aqui: primeiro **descrever** a base — o que ela contém, em que
+volume, com que valores; depois **avaliar a qualidade** dela — o que está certo,
+o que está errado, e o que é armadilha.
+
+O resultado desta fase é o que justifica cada decisão de modelagem da Entrega 02.
+Nenhuma correção feita lá é arbitrária: cada uma responde a um achado daqui.
+
+---
+
+## 1. Como a análise foi feita, e como reproduzi-la
 
 ```bash
 # 1. baixar o dump original
@@ -38,51 +48,13 @@ por isso que ele foi preferido a outras versões do Northwind que circulam.
 de `count(*)` das 14 tabelas depois da carga dá exatamente **3362**. Nada se
 perdeu no caminho.
 
----
-
-## 2. O processo de negócio, em prosa
-
-A Northwind Traders é uma **importadora e distribuidora de alimentos
-especializados**. Ela não fabrica nada: compra de fornecedores no mundo inteiro
-e revende para clientes corporativos — restaurantes, mercados, delicatessens.
-
-O ciclo que a base registra é o clássico **order-to-cash**, e ele acontece assim:
-
-Um **fornecedor** (`suppliers`, 29 deles) vende à Northwind um conjunto de
-**produtos** (`products`, 77). Cada produto pertence a exatamente uma
-**categoria** (`categories`, 8 — bebidas, laticínios, frutos do mar…) e a
-exatamente um fornecedor. O produto tem preço de tabela, saldo em estoque,
-quantidade já encomendada ao fornecedor, um ponto de reposição e uma marca de
-descontinuado.
-
-Do outro lado está o **cliente** (`customers`, 91), uma empresa identificada por
-um código de cinco letras — `ALFKI`, `BERGS`, `FISSA`. Quando ele compra, nasce
-um **pedido** (`orders`, 830). O pedido não guarda o que foi comprado: guarda o
-cabeçalho da venda — quem comprou, qual **funcionário** (`employees`, 9) fechou
-a venda, quando foi feito, para quando foi prometido, quando de fato saiu, por
-qual **transportadora** (`shippers`, 6) foi, quanto custou o frete e para onde
-foi entregue.
-
-O que foi comprado está em **`order_details`** (2155 linhas): uma linha por
-produto dentro do pedido. Cada linha guarda quantidade, preço unitário **daquela
-venda** e desconto aplicado. É aqui que mora o dinheiro — a receita da empresa é
-`quantidade × preço unitário × (1 − desconto)`, somada sobre estas 2155 linhas.
-
-Existe ainda uma estrutura comercial de território: o país é dividido em
-**regiões** (`region`, 4) que se subdividem em **territórios** (`territories`,
-53), e cada funcionário responde por um conjunto deles
-(`employee_territories`, 49 vínculos). E os funcionários se organizam em
-hierarquia: a coluna `reports_to` aponta para outro funcionário da mesma tabela.
-
-Em uma frase: **a Northwind compra de fornecedores, cataloga em produtos,
-vende através de funcionários para clientes empresariais, e entrega via
-transportadoras.**
 
 ---
 
-## 3. A base em números
 
-### 3.1 Inventário
+## 2. A base em números
+
+### 2.1 Inventário
 
 Evidência: `apresentacao/evidencias/01-perfil-01-inventario.txt`
 
@@ -110,7 +82,7 @@ seção de limitações do benchmark: **não dá para medir escalabilidade aqui.
 O que se pode medir é sobrecarga por consulta e diferença de modelo, não
 comportamento sob volume.
 
-### 3.2 Período e volume
+### 2.2 Período e volume
 
 Evidência: seções 1 e 2 de `01-perfil-07-exploracao-negocio.txt`
 
@@ -134,7 +106,7 @@ maio de 1998). Comparar o total de 1996 com o de 1997 como se fosse queda ou
 crescimento seria erro de leitura — é a janela que é diferente. Só 1997 é ano
 cheio.
 
-### 3.3 Dinheiro
+### 2.3 Dinheiro
 
 Evidência: seções 3, 4, 5, 6 e 7 de `01-perfil-07-exploracao-negocio.txt`
 
@@ -176,12 +148,16 @@ somam **37,6%** — a Northwind é uma operação concentrada em dois mercados.
 
 ---
 
-## 4. Fraquezas de modelagem encontradas
+
+---
+
+
+## 3. Avaliação da qualidade — o que está errado
 
 Esta seção é o coração da justificativa para o schema `nw`. Cada item traz a
 evidência que o comprova.
 
-### 4.1 Dinheiro em ponto flutuante — o erro mais grave
+### 3.1 Dinheiro em ponto flutuante — o erro mais grave
 
 `order_details.unit_price`, `order_details.discount`, `orders.freight` e
 `products.unit_price` são do tipo **`real`** (ponto flutuante de 4 bytes).
@@ -206,7 +182,7 @@ que as linhas foram somadas. Num sistema financeiro real isso é inaceitável, e
 **Decisão para o `nw`:** `numeric(10,2)` para valores monetários e
 `numeric(4,3)` para desconto.
 
-### 4.2 Nenhuma regra de negócio no banco
+### 3.2 Nenhuma regra de negócio no banco
 
 Evidência: `01-perfil-03-chaves-e-constraints.txt`
 
@@ -245,7 +221,7 @@ Faixas reais medidas, que fundamentam os CHECK do `nw`:
 | `products.units_in_stock` | 0 | 125 | `>= 0` |
 | `products.discontinued` | 0 | 1 | vira `boolean` |
 
-### 4.3 Ausência de índice em toda coluna de junção
+### 3.3 Ausência de índice em toda coluna de junção
 
 Os únicos 14 índices da base são os criados automaticamente pelas PKs. Nenhuma
 FK tem índice. Consequência prática: `order_details.order_id` — a coluna mais
@@ -270,7 +246,7 @@ planejador, porque ler o índice e depois buscar 276 linhas na tabela é mais ca
 que varrer as 830 direto. Essa distinção é exatamente o que o `nw` precisa
 justificar índice a índice.
 
-### 4.4 Redundância intencional vs. redundância acidental
+### 3.4 Redundância intencional vs. redundância acidental
 
 Esta é a distinção que mais rende em banca, e a base tem um exemplo perfeito de
 cada lado.
@@ -313,7 +289,7 @@ alternativo.
 que faltou uma entidade. O modelo correto teria endereços do cliente como
 entidade própria, com o pedido referenciando qual endereço foi usado.
 
-### 4.5 Um N:N que os dados desmentem
+### 3.5 Um N:N que os dados desmentem
 
 `employee_territories` tem PK composta `(employee_id, territory_id)` — a
 estrutura clássica de um relacionamento muitos-para-muitos. Os dados dizem
@@ -334,7 +310,7 @@ de permitir N:N para o futuro. Mas é uma pergunta que a banca pode fazer, e a
 resposta precisa vir com o número na mão. Além disso, **4 dos 53 territórios não
 têm nenhum funcionário** — buraco de cobertura comercial.
 
-### 4.6 Colunas de chave estrangeira que aceitam nulo
+### 3.6 Colunas de chave estrangeira que aceitam nulo
 
 `orders.customer_id`, `orders.employee_id`, `orders.ship_via` e
 `orders.order_date` são todas **nullable**. Ou seja, o schema atual permite um
@@ -346,7 +322,7 @@ atual, não uma garantia.
 21 pedidos com `shipped_date IS NULL` são pedidos que nunca foram enviados. Aqui
 o nulo carrega informação de negócio e deve continuar permitido.
 
-### 4.7 Tipos frouxos e outros achados
+### 3.7 Tipos frouxos e outros achados
 
 | achado | evidência | impacto |
 |---|---|---|
@@ -358,7 +334,7 @@ o nulo carrega informação de negócio e deve continuar permitido.
 | `customer_demographics` e `customer_customer_demo` **vazias** | 0 linhas | estrutura sem dado; N:N morto |
 | `region` com nome genérico | 4 linhas | colide com a coluna `region`, que existe em quatro tabelas |
 
-### 4.8 Nulos concentrados em colunas de endereço
+### 3.8 Nulos concentrados em colunas de endereço
 
 Evidência: `01-perfil-04-nulos-por-coluna.txt` — de 92 colunas, **11 têm nulo**.
 
@@ -383,7 +359,11 @@ aplica a um endereço na Alemanha.
 
 ---
 
-## 5. O que a base tem de bom
+
+---
+
+
+## 4. Avaliação da qualidade — o que está certo
 
 Um relatório que só aponta defeito é tão desequilibrado quanto um que só elogia.
 O Northwind acerta em coisas importantes:
@@ -404,43 +384,11 @@ O Northwind acerta em coisas importantes:
 
 ---
 
-## 6. Perguntas de negócio que a base responde
-
-Lista fechada, que orienta as Entregas 03 e 04. Cada pergunta será respondida **duas
-vezes** — uma em SQL (`sql/queries/QNN.sql`) e uma em pipeline de agregação do
-MongoDB (`mongo/pipelines/PNN.js`) — e é essa duplicação que produz a análise
-comparativa e a base do benchmark.
-
-| # | Pergunta de negócio | Recurso técnico exercitado |
-|---|---|---|
-| 01 | Qual o faturamento por categoria de produto? | JOIN + agregação |
-| 02 | Qual o ticket médio mês a mês? | agregação temporal |
-| 03 | Que produtos nunca foram vendidos? | anti-join (`LEFT JOIN … IS NULL`) |
-| 04 | Quanto cada vendedor faturou? | JOIN + `GROUP BY` |
-| 05 | Que produtos estão com estoque abaixo do ponto de reposição? | filtro + comparação entre colunas |
-| 06 | Que clientes não compram há mais de 6 meses? | data + anti-join |
-| 07 | Quais os 5 produtos mais vendidos **dentro de cada** categoria? | *window function* (`RANK`) |
-| 08 | Como evolui o faturamento acumulado mês a mês? | *running total* (`SUM OVER`) |
-| 09 | Qual a variação percentual de receita de um mês para o outro? | `LAG` |
-| 10 | Quais clientes formam a curva ABC (20% que fazem 80%)? | `NTILE` / percentil |
-| 11 | Como segmentar clientes por Recência, Frequência e Valor (RFM)? | CTEs encadeadas |
-| 12 | Que produtos são comprados juntos no mesmo pedido? | self-join / `$unwind` duplo |
-| 13 | Qual o prazo médio de entrega por transportadora? | diferença de datas |
-| 14 | Qual o impacto do desconto sobre a receita? | cálculo derivado |
-| 15 | Quanto vende a equipe de cada gerente, somando os subordinados? | **CTE recursiva** vs `$graphLookup` |
-| 16 | Existe sazonalidade por trimestre? | `$facet` / `GROUPING SETS` |
-
-As perguntas 07 a 16 são as que demonstram domínio além de `GROUP BY` — e são
-justamente as que expõem as diferenças reais entre os dois modelos de banco.
-
-**Perguntas que a base NÃO responde**, e que é melhor declarar do que descobrir
-na frente da banca: não há custo de aquisição do produto (logo, **não se calcula
-margem, só receita**), não há cancelamento nem devolução, não há pagamento nem
-inadimplência, e a segmentação de cliente (`customer_demographics`) está vazia.
 
 ---
 
-## 7. Limitações declaradas
+
+## 5. Limitações declaradas
 
 1. **Volume.** 830 pedidos e 2155 itens. Qualquer consulta roda em milissegundos
    nos dois bancos. O benchmark da Entrega 04 mede **sobrecarga por consulta e
@@ -456,9 +404,25 @@ inadimplência, e a segmentação de cliente (`customer_demographics`) está vaz
 
 ---
 
-## 8. Próximo passo
+---
 
-Com a base perfilada, a Entrega 01 segue para: diagrama ER conceitual
-(`docs/02-*`), Plano Híbrido (`docs/03-*`) e o schema `nw` (`docs/04-*`) — que
-enfrentará, um a um e com justificativa, os oito grupos de fraqueza da seção 4.
+## 6. O que esta fase entrega para a próxima
 
+A análise exploratória fecha com um diagnóstico em uma frase: **o Northwind tem
+integridade referencial impecável e integridade de domínio inexistente.** As
+chaves estrangeiras estão todas corretas e sem órfãos; as regras de negócio não
+existem no banco — nada impede quantidade negativa, desconto de 300% ou pedido
+enviado antes de ser feito.
+
+Isso define a agenda da **fase 3 do CRISP-DM (preparação dos dados)**, na
+Entrega 02, que enfrentará um a um os achados da seção 3:
+
+| Achado desta fase | O que a preparação vai fazer |
+|---|---|
+| dinheiro em ponto flutuante (3.1) | converter para tipo decimal exato |
+| nenhuma regra de negócio no banco (3.2) | declarar as restrições de domínio, com as faixas medidas aqui |
+| nenhum índice nas colunas de junção (3.3) | criar índice onde a cardinalidade medida justifica — e **só** onde justifica |
+| redundância acidental de endereço (3.4) | decidir entre normalizar e preservar, com o número na mão |
+| N:N que os dados desmentem (3.5) | manter a estrutura, documentando o que os dados dizem |
+| chaves estrangeiras que aceitam nulo (3.6) | tornar obrigatório o que é obrigatório — preservando o nulo que é informação |
+| tipos frouxos (3.7) | tipos que expressam a intenção; descartar as tabelas mortas |

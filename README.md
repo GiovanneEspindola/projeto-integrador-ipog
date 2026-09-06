@@ -164,15 +164,34 @@ volume criado antes, e a sequência fica válida como receita única de reprodu�
 | `40_views.sql` | as 4 views analíticas |
 | `50_evidencias.sql` | gera a evidência de índices e views para a apresentação |
 
-### Montar o PDF da entrega
+### Montar o documento da entrega
+
+A entrega é **um único documento Word**, que cresce a cada etapa: cada nova
+entrega acrescenta capítulos ao mesmo arquivo. Ele é montado a partir dos
+Markdown de `docs/`, e não editado à mão — assim o texto tem uma fonte de
+verdade só.
 
 ```bash
-uv run --with reportlab --with pillow python entregas/gerar_pdf.py
+# 1. prints do notebook (código e saída de cada célula)
+uv run --with markdown --with pygments --with pillow python apresentacao/gerar_prints.py
+
+# 2. o documento
+cd entregas && npm install && npm run docx && cd ..
+
+# 3. o sumário, com os números de página conferidos
+uv run --with pypdfium2 python entregas/preencher_sumario.py
 ```
 
-Junta capa, sumário, os cinco documentos de `docs/`, as três figuras de
-`docs/diagramas/` e um apêndice com a validação da carga. `reportlab` e `pillow`
-entram só na execução, sem virar dependência do projeto.
+O passo 3 existe porque o sumário do Word é um **campo**: o Word o calcula ao
+abrir, mas qualquer outro leitor mostraria a página em branco. O script mede em
+que página cada título caiu e grava o resultado dentro do campo, que continua
+vivo e se recalcula sozinho no Word.
+
+Para conferir o resultado sem abrir o Word, converta em PDF:
+
+```bash
+soffice --headless --convert-to pdf entregas/entrega-01/*.docx
+```
 
 ### Interfaces gráficas (opcionais)
 
@@ -249,11 +268,16 @@ pip install -r etl/requirements.txt
 
 | Arquivo | O que responde |
 |---|---|
-| `docs/00-definicao-do-trabalho.md` | qual é a área de foco, o escopo e o que ficou de fora |
-| `docs/01-analise-negocio.md` | o que a base tem, o que ela tem de errado, e as 16 perguntas de negócio |
-| `docs/02-modelo-conceitual.md` | as 11 entidades e a justificativa de cada cardinalidade |
-| `docs/03-plano-hibrido.md` | como PostgreSQL e MongoDB convivem e como serão comparados |
-| `docs/04-modelo-relacional.md` | o schema `nw`: normalização, constraints, índices e views |
+| `docs/01-introducao-e-objetivo.md` | o objetivo, a metodologia (CRISP-DM), o escopo e o que ficou de fora |
+| `docs/02-compreensao-do-negocio.md` | o processo da Northwind, o que os dados representam e as 16 perguntas |
+| `docs/03-modelo-conceitual.md` | as 11 entidades e a justificativa de cada cardinalidade |
+| `docs/04-analise-exploratoria.md` | o que a base tem, e a avaliação da qualidade dos dados |
+| `docs/05-plano-hibrido.md` | como PostgreSQL e MongoDB convivem e como serão comparados |
+| `docs/06-modelo-relacional.md` | o schema `nw`: normalização, constraints, índices e views |
+
+A numeração segue as fases do **CRISP-DM**, não a ordem em que os arquivos
+foram escritos: `01` a `04` são as fases 1 e 2 (entender o negócio e os dados),
+`05` e `06` são as fases 3 e 4 (preparar e modelar).
 
 ---
 
@@ -263,7 +287,7 @@ pip install -r etl/requirements.txt
 pyproject.toml     dependências Python declaradas (fonte de verdade)
 uv.lock            versões resolvidas e travadas com hash
 .python-version    versão do interpretador (3.12)
-docs/              documentação técnica das entregas (00 a 07)
+docs/              documentação técnica, numerada pelas fases do CRISP-DM
   estudo/          material didático: o "por quê" de cada decisão
   diagramas/       ER conceitual e arquitetura (.drawio), ER lógico (.dbml/.png)
 sql/               dump original, DDL do schema nw, carga, validação, índices, views
@@ -273,9 +297,10 @@ mongo/             validators e índices
 etl/               perfilamento (notebook), validadores dos diagramas,
                    migração PostgreSQL -> MongoDB, requirements.txt (gerado)
 bench/             benchmark comparativo + resultados
-apresentacao/      roteiro dos slides
+apresentacao/      roteiro dos slides + gerar_prints.py
   evidencias/      saídas brutas de consulta e gráficos usados na apresentação
-entregas/          gerar_pdf.py + pacotes fechados por data (entrega-01 .. 04)
+    prints/        células do notebook fotografadas (código e saída)
+entregas/          gerar_docx.js + preencher_sumario.py + o documento por entrega
 ```
 
 ### Duas decisões de arquitetura que explicam a organização
@@ -314,5 +339,5 @@ abertos.
 **Transação multi-documento falha no MongoDB.** A mensagem que este deployment
 devolve é `This MongoDB deployment does not support retryable writes`. É
 esperado: o container sobe como **nó standalone**, e transação multi-documento
-exige *replica set*. Está declarado como limitação em `docs/03` §6, não é
+exige *replica set*. Está declarado como limitação em `docs/05` §6, não é
 defeito.

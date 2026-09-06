@@ -1,6 +1,6 @@
-# 02 — Modelo Conceitual (ER) do Northwind
+# 03 — Modelo Conceitual (ER) do Northwind
 
-> **Entrega 01** · Projeto Integrador Área 03 — Banco de Dados (IPOG)
+> **Entrega 01** · Fase 2 do CRISP-DM
 > Autor: Giovanne Espíndola · Data: 30/08/2026
 >
 > Diagrama: `docs/diagramas/er-conceitual.drawio` · exportação: `docs/diagramas/er-conceitual.png`
@@ -150,7 +150,7 @@ avaliador vê que foi decisão, não descuido.
 ## 5. O que este modelo deliberadamente não mostra
 
 Tipo de dado, tamanho de campo, índice e constraint. Tudo isso é modelo lógico e
-físico, e entra em `docs/04` junto com o schema `nw`.
+físico, e entra em `docs/06` junto com o schema `nw`.
 
 A separação não é formalismo: o modelo conceitual é o documento que se discute
 com quem entende do negócio e não entende de banco. No momento em que aparece
@@ -168,6 +168,9 @@ mecanismo que implementa as duas coisas, essa sim só existe no modelo lógico.
 
 ## 6. Próximo passo
 
-Plano Híbrido (`docs/03`) e schema `nw` (`docs/04`), onde cada cardinalidade
-desta tabela vira uma chave estrangeira e cada regra de negócio citada aqui vira
-uma constraint verificável.
+Este modelo fecha a fase 2 do CRISP-DM junto com a análise exploratória
+(`docs/04`). Na Entrega 02 ele avança para o **modelo lógico e físico**
+(`docs/06`), onde cada cardinalidade desta tabela vira uma chave estrangeira e
+cada regra de negócio citada aqui vira uma constraint verificável — e para o
+**modelo de documentos** do MongoDB (`docs/05`), onde as mesmas entidades são
+reagrupadas por outro critério.
