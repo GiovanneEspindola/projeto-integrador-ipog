@@ -8,9 +8,21 @@ relacional em **PostgreSQL 16** e uma orientada a documentos em **MongoDB 7** �
 e as mesmas perguntas de negócio são respondidas nas duas tecnologias, com
 comparação de sintaxe, de plano de execução e de desempenho medido.
 
-Autor: Giovanne Espíndola · Trabalho individual · Semestre final.
+Autor: Giovanne Espindola · Trabalho individual · Semestre final.
 
 ---
+
+## Estudar e conferir a Entrega 1
+
+- [Arquivo SQL da prática](sql/estudo/entrega01-dbeaver.sql): 31 consultas de leitura e exportações.
+- [Recálculo em Python a partir dos CSVs](etl/recalcular_csv_entrega01.py): calcula os indicadores sem agregações SQL.
+
+Os guias e o tutorial detalhado em `docs/estudo/` são materiais pessoais
+mantidos apenas na cópia local e não fazem parte deste repositório.
+
+As consultas foram testadas numa instância PostgreSQL temporária reconstruída
+do dump local; os indicadores também foram recalculados em Python. Evidências
+em `apresentacao/evidencias/tutorial-entrega01/`. Os blocos 26 a 30 do arquivo SQL fornecem as exportações para a conferência em Python.
 
 ## Do zero ao ambiente rodando
 
@@ -166,32 +178,38 @@ volume criado antes, e a sequência fica válida como receita única de reprodu�
 
 ### Montar o documento da entrega
 
-A entrega é **um único documento Word**, que cresce a cada etapa: cada nova
-entrega acrescenta capítulos ao mesmo arquivo. Ele é montado a partir dos
-Markdown de `docs/`, e não editado à mão — assim o texto tem uma fonte de
-verdade só.
+A versão revisada da Entrega 1 está em
+`entregas/entrega-01/Projeto-Integrador-Banco-de-Dados-Revisado.docx`.
+São 13 páginas na renderização conferida, incluindo capa e referências.
+Esta é a única versão Word mantida nesta entrega.
+
+O texto é mantido em `docs/01` a `docs/05`, `docs/07` e `docs/08`. O documento
+será complementado nas próximas entregas, acrescentando capítulos ao gerador.
+O material de estudo fica separado em `docs/estudo/guia-entrega01.md`.
 
 ```bash
-# 1. prints do notebook (código e saída de cada célula)
-uv run --with markdown --with pygments --with pillow python apresentacao/gerar_prints.py
+# 1. Conferir os dados locais e salvar consultas e resultados reais.
+.venv/bin/python etl/revisar_entrega01.py
 
-# 2. o documento
-cd entregas && npm install && npm run docx && cd ..
+# 2. Gerar a figura conceitual a partir de sua fonte vetorial.
+.venv/bin/python docs/diagramas/gerar_conceitual.py
 
-# 3. o sumário, com os números de página conferidos
-uv run --with pypdfium2 python entregas/preencher_sumario.py
+# 3. Montar o Word (na primeira execução, instalar com npm ci).
+npm --prefix entregas ci
+npm --prefix entregas run docx
+
+# 4. Renderizar uma cópia para inspeção com LibreOffice.
+python3 entregas/renderizar_docx.py entregas/entrega-01/Projeto-Integrador-Banco-de-Dados-Revisado.docx /tmp/pi-preview
 ```
 
-O passo 3 existe porque o sumário do Word é um **campo**: o Word o calcula ao
-abrir, mas qualquer outro leitor mostraria a página em branco. O script mede em
-que página cada título caiu e grava o resultado dentro do campo, que continua
-vivo e se recalcula sozinho no Word.
+O Word traz oito consultas selecionadas com suas saídas. O inventário completo,
+nulos, chaves e comparação da migração ficam em
+`apresentacao/evidencias/revisao-entrega01/`. O gerador insere os resultados
+executados e exige nova conferência se uma consulta selecionada mudar.
 
-Para conferir o resultado sem abrir o Word, converta em PDF:
-
-```bash
-soffice --headless --convert-to pdf entregas/entrega-01/*.docx
-```
+A análise do relatório usa `public` e arredonda o valor apenas depois da soma.
+As views atuais de `nw` arredondam por item. A diferença de 0,25 está explicada
+no relatório; a comparação futura deve padronizar a regra nos dois bancos.
 
 ### Interfaces gráficas (opcionais)
 
@@ -269,15 +287,15 @@ pip install -r etl/requirements.txt
 | Arquivo | O que responde |
 |---|---|
 | `docs/01-introducao-e-objetivo.md` | o objetivo, a metodologia (CRISP-DM), o escopo e o que ficou de fora |
-| `docs/02-compreensao-do-negocio.md` | o processo da Northwind, o que os dados representam e as 16 perguntas |
+| `docs/02-compreensao-do-negocio.md` | o processo, as perguntas prioritárias e as definições dos indicadores |
 | `docs/03-modelo-conceitual.md` | as 11 entidades e a justificativa de cada cardinalidade |
 | `docs/04-analise-exploratoria.md` | o que a base tem, e a avaliação da qualidade dos dados |
-| `docs/05-plano-hibrido.md` | como PostgreSQL e MongoDB convivem e como serão comparados |
+| `docs/05-plano-hibrido.md` | planejamento de nove coleções, carga e comparação |
 | `docs/06-modelo-relacional.md` | o schema `nw`: normalização, constraints, índices e views |
 
 A numeração segue as fases do **CRISP-DM**, não a ordem em que os arquivos
 foram escritos: `01` a `04` são as fases 1 e 2 (entender o negócio e os dados),
-`05` e `06` são as fases 3 e 4 (preparar e modelar).
+`05` apresenta o plano híbrido, e `06` guarda o detalhamento relacional para a próxima entrega. Os arquivos `07` e `08` fecham a Entrega 1 com conclusões e referências.
 
 ---
 
@@ -311,7 +329,7 @@ trabalho: tipos corrigidos, constraints explícitas, normalização justificada,
 índices pensados e views analíticas. Carregar um dump pronto não é modelar;
 a separação existe para que haja decisão de modelagem a defender.
 
-**Consultas espelhadas.** Cada `sql/queries/QNN.sql` tem um par
+**Consultas espelhadas.** Nas próximas entregas, cada `sql/queries/QNN.sql` terá um par
 `mongo/pipelines/PNN.js` respondendo exatamente à mesma pergunta de negócio.
 É o que torna a comparação entre as duas tecnologias uma medição, e não uma
 opinião.
@@ -339,5 +357,5 @@ abertos.
 **Transação multi-documento falha no MongoDB.** A mensagem que este deployment
 devolve é `This MongoDB deployment does not support retryable writes`. É
 esperado: o container sobe como **nó standalone**, e transação multi-documento
-exige *replica set*. Está declarado como limitação em `docs/05` §6, não é
+exige *replica set*. Está declarado como limitação em `docs/05` §5.3, não é
 defeito.

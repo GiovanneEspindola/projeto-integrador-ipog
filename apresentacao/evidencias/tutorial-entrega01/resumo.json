@@ -1,0 +1,24 @@
+{
+  "ambiente": "PostgreSQL temporário, apenas socket Unix; não conectado aos bancos do Docker",
+  "binarios": "/usr/lib/postgresql/16/bin",
+  "contexto": [
+    [
+      "northwind",
+      "pi",
+      "public",
+      "16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
+      "on"
+    ]
+  ],
+  "sha256_entradas": {
+    "sql/00_northwind_original.sql": "0ee30c01ba282f7194f38bf7f99cd6be0470b7ee5f67d0f7ca41fb058d735e0c",
+    "sql/10_ddl.sql": "5196c0bb7c51dc85da44606de0ad790e980256fc1baf9d980d3351b0308b333e",
+    "sql/20_load.sql": "f790d7d89409c1883d116426bf8fe36311e8226ae8f9529ac0f3e61fc9b7aaae",
+    "sql/30_indexes.sql": "e0e4f02ac877040b876717521451f872ec56a5835ccc78207402f1660f193a6c",
+    "sql/40_views.sql": "9d4c9b988a4aab8bc97e842040cc781e1f8d65409751225a33bd65c624649547"
+  },
+  "diferencas_resultados_anteriores": {},
+  "diferencas_python_relatorio": {},
+  "consultas_executadas": 31,
+  "limite": "Reconstrução da cópia local do dump; não certifica sua procedência externa nem compara toda a instância Docker indisponível."
+}

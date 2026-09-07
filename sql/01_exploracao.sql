@@ -2,7 +2,7 @@
 -- sql/01_exploracao.sql — Análise exploratória do Northwind original (public)
 --
 -- O que faz: mede o negócio contido na base — volume financeiro, período,
--- concentração, buracos e anomalias — para embasar docs/01-analise-negocio.md.
+-- concentração, buracos e anomalias — para embasar docs/04-analise-exploratoria.md.
 --
 -- Como rodar:
 --   docker compose exec -T postgres psql -U pi -d northwind -f /sql/01_exploracao.sql
@@ -11,6 +11,8 @@
 -- ===========================================================================
 
 \pset footer off
+BEGIN READ ONLY;
+SET LOCAL search_path TO public;
 
 \echo '=== 1. PERÍODO COBERTO E VOLUME DE PEDIDOS ==============================='
 SELECT min(order_date)                                   AS primeiro_pedido,
@@ -123,9 +125,9 @@ WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.ship_via = s.shipper_id)
 ORDER BY 1;
 
 \echo ''
-\echo '=== 9. O N:N QUE NÃO É N:N: employee_territories ========================='
+\echo '=== 9. COBERTURA OBSERVADA: employee_territories ========================='
 -- A tabela associativa sugere N:N (um território atendido por vários
--- funcionários). Os dados dizem outra coisa.
+-- funcionários). Nesta amostra, cada território vinculado tem um responsável.
 SELECT count(*)                        AS vinculos,
        count(DISTINCT employee_id)     AS funcionarios_com_territorio,
        count(DISTINCT territory_id)    AS territorios_vinculados,
@@ -152,7 +154,7 @@ FROM order_details GROUP BY 1 ORDER BY 1;
 \echo ''
 \echo '=== 12. REDUNDÂNCIA INTENCIONAL: preço do catálogo vs preço da venda ====='
 -- order_details.unit_price repete products.unit_price. NÃO é erro: é snapshot
--- histórico. A prova é que os dois divergem — o catálogo mudou depois da venda.
+-- histórico. A divergência exige preservar o preço praticado, sem inferir a causa da diferença.
 SELECT count(*)                                                   AS itens_totais,
        count(*) FILTER (WHERE od.unit_price <> p.unit_price)      AS itens_com_preco_diferente,
        round(100.0 * count(*) FILTER (WHERE od.unit_price <> p.unit_price) / count(*), 1) AS pct_divergente
@@ -161,7 +163,7 @@ FROM order_details od JOIN products p ON p.product_id = od.product_id;
 \echo ''
 \echo '--- exemplo concreto da divergência (5 casos) ---'
 SELECT p.product_name AS produto,
-       p.unit_price   AS preco_catalogo_hoje,
+       p.unit_price   AS preco_catalogo,
        od.unit_price  AS preco_cobrado_na_venda,
        o.order_date   AS data_da_venda
 FROM order_details od
@@ -171,15 +173,15 @@ WHERE od.unit_price <> p.unit_price
 ORDER BY p.product_name, o.order_date LIMIT 5;
 
 \echo ''
-\echo '=== 13. QUALIDADE DA ENTREGA ============================================='
+\echo '=== 13. INFORMAÇÕES DE ENVIO ============================================='
 SELECT count(*)                                                      AS pedidos,
-       count(*) FILTER (WHERE shipped_date IS NULL)                  AS nunca_enviados,
+       count(*) FILTER (WHERE shipped_date IS NULL)                  AS sem_data_envio,
        count(*) FILTER (WHERE shipped_date > required_date)          AS enviados_com_atraso,
        round(avg(shipped_date - order_date) FILTER (WHERE shipped_date IS NOT NULL), 1) AS dias_medios_ate_envio
 FROM orders;
 
 \echo ''
-\echo '=== 14. REDUNDÂNCIA ACIDENTAL: endereço de entrega solto em orders ======='
+\echo '=== 14. ENDEREÇO DO PEDIDO: comparação com o cadastro do cliente ======='
 -- orders guarda ship_name/address/city/region/postal_code/country em colunas
 -- soltas. Quanto disso é simples cópia do cadastro do cliente?
 -- O numero depende de quantas colunas se compara, e a diferenca importa: o
@@ -247,10 +249,9 @@ WHERE discount > 0 AND (discount::numeric * 100)::int % 5 <> 0
 GROUP BY 1 ORDER BY 1;
 
 \echo ''
-\echo '=== 18. NULO POR INAPLICABILIDADE: prova em employees.region ============'
--- 4 dos 9 funcionarios tem region NULL. Nao e dado faltando: sao os 4 do
--- escritorio de Londres, e "region/estado" nao se aplica a um endereco no
--- Reino Unido. Distinguir isso de dado ausente muda a decisao de modelagem.
+\echo '=== 18. REGION NULO: distribuição observada em employees ============'
+-- Quatro funcionários têm region NULL e cidade Londres. Essa associação
+-- não comprova a causa dos nulos; o preenchimento depende do contexto do endereço.
 SELECT country,
        count(*)                                AS funcionarios,
        count(region)                           AS com_region_preenchida,
@@ -262,3 +263,5 @@ FROM employees GROUP BY country ORDER BY country;
 \echo '--- us_states: quantas FKs apontam para ela? (esperado: 0 = tabela ilha) ---'
 SELECT count(*) AS fks_apontando_para_us_states
 FROM pg_constraint WHERE contype='f' AND confrelid='public.us_states'::regclass;
+
+ROLLBACK;

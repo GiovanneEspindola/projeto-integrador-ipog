@@ -1,7 +1,5 @@
-# Perfilamento 7/7 — Exploração de negócio e integridade
-# Gerado por: docker compose exec -T postgres psql -U pi -d northwind -f /sql/01_exploracao.sql
-# Fonte: postgresql://pi:***@localhost:5432/northwind · schema public
-
+BEGIN
+SET
 === 1. PERÍODO COBERTO E VOLUME DE PEDIDOS ===============================
  primeiro_pedido | ultimo_pedido | dias_de_operacao | pedidos | clientes_compradores | vendedores_ativos 
 -----------------+---------------+------------------+---------+----------------------+-------------------
@@ -88,7 +86,7 @@
           6 | DHL
 
 
-=== 9. O N:N QUE NÃO É N:N: employee_territories =========================
+=== 9. COBERTURA OBSERVADA: employee_territories =========================
  vinculos | funcionarios_com_territorio | territorios_vinculados | max_funcionarios_por_territorio 
 ----------+-----------------------------+------------------------+---------------------------------
        49 |                           9 |                     49 |                               1
@@ -131,22 +129,22 @@
 
 
 --- exemplo concreto da divergência (5 casos) ---
-   produto    | preco_catalogo_hoje | preco_cobrado_na_venda | data_da_venda 
---------------+---------------------+------------------------+---------------
- Alice Mutton |                  39 |                   31.2 | 1996-07-25
- Alice Mutton |                  39 |                   31.2 | 1996-08-13
- Alice Mutton |                  39 |                   31.2 | 1996-08-30
- Alice Mutton |                  39 |                   31.2 | 1996-09-10
- Alice Mutton |                  39 |                   31.2 | 1996-10-02
+   produto    | preco_catalogo | preco_cobrado_na_venda | data_da_venda 
+--------------+----------------+------------------------+---------------
+ Alice Mutton |             39 |                   31.2 | 1996-07-25
+ Alice Mutton |             39 |                   31.2 | 1996-08-13
+ Alice Mutton |             39 |                   31.2 | 1996-08-30
+ Alice Mutton |             39 |                   31.2 | 1996-09-10
+ Alice Mutton |             39 |                   31.2 | 1996-10-02
 
 
-=== 13. QUALIDADE DA ENTREGA =============================================
- pedidos | nunca_enviados | enviados_com_atraso | dias_medios_ate_envio 
+=== 13. INFORMAÇÕES DE ENVIO =============================================
+ pedidos | sem_data_envio | enviados_com_atraso | dias_medios_ate_envio 
 ---------+----------------+---------------------+-----------------------
      830 |             21 |                  37 |                   8.5
 
 
-=== 14. REDUNDÂNCIA ACIDENTAL: endereço de entrega solto em orders =======
+=== 14. ENDEREÇO DO PEDIDO: comparação com o cadastro do cliente =======
  pedidos_com_cliente | ship_name_igual_ao_cliente | iguais_por_3_colunas | iguais_por_6_colunas | diferentes_por_3_colunas | diferentes_por_6_colunas 
 ---------------------+----------------------------+----------------------+----------------------+--------------------------+--------------------------
                  830 |                        796 |                  782 |                  748 |                       48 |                       82
@@ -194,7 +192,7 @@
      0.06 |     1
 
 
-=== 18. NULO POR INAPLICABILIDADE: prova em employees.region ============
+=== 18. REGION NULO: distribuição observada em employees ============
  country | funcionarios | com_region_preenchida | com_region_nula |              cidades               
 ---------+--------------+-----------------------+-----------------+------------------------------------
  UK      |            4 |                     0 |               4 | London
@@ -206,3 +204,4 @@
 ------------------------------
                             0
 
+ROLLBACK

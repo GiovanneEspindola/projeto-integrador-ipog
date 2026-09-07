@@ -1,0 +1,78 @@
+product_id,product_name,category_id,unit_price
+1,Chai,1,18
+2,Chang,1,19
+3,Aniseed Syrup,2,10
+4,Chef Anton's Cajun Seasoning,2,22
+5,Chef Anton's Gumbo Mix,2,21.35
+6,Grandma's Boysenberry Spread,2,25
+7,Uncle Bob's Organic Dried Pears,7,30
+8,Northwoods Cranberry Sauce,2,40
+9,Mishi Kobe Niku,6,97
+10,Ikura,8,31
+11,Queso Cabrales,4,21
+12,Queso Manchego La Pastora,4,38
+13,Konbu,8,6
+14,Tofu,7,23.25
+15,Genen Shouyu,2,13
+16,Pavlova,3,17.45
+17,Alice Mutton,6,39
+18,Carnarvon Tigers,8,62.5
+19,Teatime Chocolate Biscuits,3,9.2
+20,Sir Rodney's Marmalade,3,81
+21,Sir Rodney's Scones,3,10
+22,Gustaf's Knäckebröd,5,21
+23,Tunnbröd,5,9
+24,Guaraná Fantástica,1,4.5
+25,NuNuCa Nuß-Nougat-Creme,3,14
+26,Gumbär Gummibärchen,3,31.23
+27,Schoggi Schokolade,3,43.9
+28,Rössle Sauerkraut,7,45.6
+29,Thüringer Rostbratwurst,6,123.79
+30,Nord-Ost Matjeshering,8,25.89
+31,Gorgonzola Telino,4,12.5
+32,Mascarpone Fabioli,4,32
+33,Geitost,4,2.5
+34,Sasquatch Ale,1,14
+35,Steeleye Stout,1,18
+36,Inlagd Sill,8,19
+37,Gravad lax,8,26
+38,Côte de Blaye,1,263.5
+39,Chartreuse verte,1,18
+40,Boston Crab Meat,8,18.4
+41,Jack's New England Clam Chowder,8,9.65
+42,Singaporean Hokkien Fried Mee,5,14
+43,Ipoh Coffee,1,46
+44,Gula Malacca,2,19.45
+45,Rogede sild,8,9.5
+46,Spegesild,8,12
+47,Zaanse koeken,3,9.5
+48,Chocolade,3,12.75
+49,Maxilaku,3,20
+50,Valkoinen suklaa,3,16.25
+51,Manjimup Dried Apples,7,53
+52,Filo Mix,5,7
+53,Perth Pasties,6,32.8
+54,Tourtière,6,7.45
+55,Pâté chinois,6,24
+56,Gnocchi di nonna Alice,5,38
+57,Ravioli Angelo,5,19.5
+58,Escargots de Bourgogne,8,13.25
+59,Raclette Courdavault,4,55
+60,Camembert Pierrot,4,34
+61,Sirop d'érable,2,28.5
+62,Tarte au sucre,3,49.3
+63,Vegie-spread,2,43.9
+64,Wimmers gute Semmelknödel,5,33.25
+65,Louisiana Fiery Hot Pepper Sauce,2,21.05
+66,Louisiana Hot Spiced Okra,2,17
+67,Laughing Lumberjack Lager,1,14
+68,Scottish Longbreads,3,12.5
+69,Gudbrandsdalsost,4,36
+70,Outback Lager,1,15
+71,Flotemysost,4,21.5
+72,Mozzarella di Giovanni,4,34.8
+73,Röd Kaviar,8,15
+74,Longlife Tofu,7,10
+75,Rhönbräu Klosterbier,1,7.75
+76,Lakkalikööri,1,18
+77,Original Frankfurter grüne Soße,2,13

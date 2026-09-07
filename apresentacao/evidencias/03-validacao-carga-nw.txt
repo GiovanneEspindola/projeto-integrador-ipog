@@ -1,7 +1,3 @@
-# Validação da carga public -> nw
-# Gerado por: docker compose exec -T postgres psql -U pi -d northwind -f /sql/21_validacao_carga.sql
-# Fonte: postgresql://pi:***@localhost:5432/northwind
-
 
 === 1. Contagem de linhas: origem vs destino ===
 (o total e 3311, nao os 3362 do docs/01: a diferenca sao as 51 linhas de
@@ -46,7 +42,7 @@
                        verificacao                       | origem | destino 
 ---------------------------------------------------------+--------+---------
  discontinued: 1 na origem = true no destino             |     10 |      10
- shipped_date nulo (pedidos nao enviados)                |     21 |      21
+ shipped_date nulo (sem data de envio registrada)        |     21 |      21
  reports_to nulo (topo da hierarquia)                    |      1 |       1
  faixa de datas identica (dias entre 1o e ultimo pedido) |    671 |     671
 (4 rows)

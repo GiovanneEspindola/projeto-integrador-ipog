@@ -1,0 +1,62 @@
+{
+  "contagens": {
+    "itens": 2155,
+    "pedidos": 830,
+    "produtos": 77,
+    "categorias": 8,
+    "clientes": 91
+  },
+  "primeiro_pedido": "1996-07-04",
+  "ultimo_pedido": "1998-05-06",
+  "clientes_com_pedido": 89,
+  "clientes_sem_pedido": [
+    "FISSA",
+    "PARIS"
+  ],
+  "total_sem_arredondar": "1265793.0395",
+  "total": "1265793.04",
+  "media": "1525.05",
+  "mediana": "943.25",
+  "minimo": "12.50",
+  "maximo": "16387.50",
+  "total_arredondando_itens": "1265793.29",
+  "itens_com_preco_diferente": 662,
+  "unidades": 51317,
+  "min_itens": 1,
+  "max_itens": 25,
+  "media_itens": "2.60",
+  "sem_data_envio": 21,
+  "dias_ate_envio": "8.49",
+  "anos": {
+    "1996": {
+      "pedidos": 152,
+      "valor": "208083.97"
+    },
+    "1997": {
+      "pedidos": 408,
+      "valor": "617085.20"
+    },
+    "1998": {
+      "pedidos": 270,
+      "valor": "440623.87"
+    }
+  },
+  "categorias": {
+    "Beverages": "267868.18",
+    "Dairy Products": "234507.29",
+    "Confections": "167357.23",
+    "Meat/Poultry": "163022.36",
+    "Seafood": "131261.74",
+    "Condiments": "106047.09",
+    "Produce": "99984.58",
+    "Grains/Cereals": "95744.59"
+  },
+  "sha256_csv": {
+    "itens.csv": "1186165949e2a78f4f2101651f251756b603ed5cf97ae53dd201b8c54b1f63bb",
+    "pedidos.csv": "8bfdf715bf7bb83c0036a08efeeed6ec1533c315d77e5686a50b4ab14f8b2735",
+    "produtos.csv": "e4a82fd2957b53f6d875d98b8e662080a6f9e474858940563913f4469a18a87f",
+    "categorias.csv": "fc3be7a46bbbda9a66908f0f13e6c3adf7673868520ea7cdcdc60286f53e700b",
+    "clientes.csv": "b55f151725458b949acfdf8d227cd0f4c8520e425f4dc5fb7aada5ce9fd17727"
+  },
+  "diferencas_relatorio": {}
+}

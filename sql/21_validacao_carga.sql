@@ -83,7 +83,7 @@ SELECT 'discontinued: 1 na origem = true no destino' AS verificacao,
        (SELECT count(*) FROM public.products WHERE discontinued = 1) AS origem,
        (SELECT count(*) FROM nw.products     WHERE discontinued)     AS destino
 UNION ALL
-SELECT 'shipped_date nulo (pedidos nao enviados)',
+SELECT 'shipped_date nulo (sem data de envio registrada)',
        (SELECT count(*) FROM public.orders WHERE shipped_date IS NULL),
        (SELECT count(*) FROM nw.orders     WHERE shipped_date IS NULL)
 UNION ALL

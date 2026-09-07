@@ -1,7 +1,7 @@
 # 06 — Modelo Relacional: o schema `nw`
 
 > **Entrega 02** · Fases 3 e 4 do CRISP-DM
-> Autor: Giovanne Espíndola · Data: 31/08/2026
+> Autor: Giovanne Espindola · Data: 31/08/2026
 >
 > Scripts: `sql/10_ddl.sql` · `sql/20_load.sql` · `sql/30_indexes.sql` · `sql/40_views.sql`
 > Diagrama: `docs/diagramas/er-logico.png` · fonte: `docs/diagramas/nw-schema.dbml`
