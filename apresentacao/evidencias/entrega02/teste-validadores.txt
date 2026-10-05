@@ -1,0 +1,6 @@
+PASSOU: rejeitado preço como texto (código 121).
+PASSOU: rejeitado quantidade zero (código 121).
+PASSOU: rejeitado desconto de 100% (código 121).
+PASSOU: rejeitado data como texto (código 121).
+PASSOU: rejeitado endereço ausente (código 121).
+PASSOU: documento original preservado após todas as rejeições.

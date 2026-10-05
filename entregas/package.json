@@ -3,7 +3,9 @@
   "private": true,
   "description": "Montagem do documento Word das entregas, a partir dos Markdown de docs/",
   "scripts": {
-    "docx": "node gerar_docx.js"
+    "docx": "node gerar_docx.js",
+    "docx:entrega02": "node gerar_docx.js --entrega=2",
+    "docx:entrega03": "node gerar_docx.js --entrega=3"
   },
   "dependencies": {
     "docx": "^9.5.1"

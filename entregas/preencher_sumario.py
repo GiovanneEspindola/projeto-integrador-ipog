@@ -29,6 +29,11 @@ import sys
 import unicodedata
 import zipfile
 
+if '--entrega=3' in sys.argv:
+    from finalizar_entrega03 import main
+    main()
+    raise SystemExit(0)
+
 import pypdfium2 as pdfium
 
 RAIZ = pathlib.Path(__file__).resolve().parent.parent

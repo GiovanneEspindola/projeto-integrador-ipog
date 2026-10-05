@@ -1,0 +1,85 @@
+PASSOU: estruturas BSON, referências, cópias dos cadastros e coerência temporal.
+{"totais":[{"_id":null,"itens":2155,"valor_exato":{"$numberDecimal":"1265793.03950"}}]}
+{"indice":{"stage":"FETCH","inputStage":{"stage":"IXSCAN","keyPattern":{"customer_id":1,"order_date":1},"indexName":"cliente_data","isMultiKey":false,"multiKeyPaths":{"customer_id":[],"order_date":[]},"isUnique":false,"isSparse":false,"isPartial":false,"indexVersion":2,"direction":"forward","indexBounds":{"customer_id":["[\"VINET\", \"VINET\"]"],"order_date":["[new Date(820454400000), new Date(852076800000))"]}}},"retornados":3,"documentos_examinados":3,"chaves_examinadas":3}
+{"colecao":"orders","indices":[{"v":2,"key":{"_id":1},"name":"_id_"},{"v":2,"key":{"customer_id":1,"order_date":1},"name":"cliente_data"},{"v":2,"key":{"items.product._id":1},"name":"produto_no_pedido"}]}
+{"colecao":"products","indices":[{"v":2,"key":{"_id":1},"name":"_id_"},{"v":2,"key":{"category._id":1},"name":"categoria_produto"}]}
+Pedido de estudo:
+{
+  "_id": 10248,
+  "items": [
+    {
+      "product": {
+        "_id": 11,
+        "name": "Queso Cabrales",
+        "category": {
+          "_id": 4,
+          "name": "Dairy Products"
+        }
+      },
+      "discount": {
+        "$numberDecimal": "0.000"
+      },
+      "quantity": 12,
+      "unit_price": {
+        "$numberDecimal": "14.00"
+      }
+    },
+    {
+      "product": {
+        "_id": 42,
+        "name": "Singaporean Hokkien Fried Mee",
+        "category": {
+          "_id": 5,
+          "name": "Grains/Cereals"
+        }
+      },
+      "discount": {
+        "$numberDecimal": "0.000"
+      },
+      "quantity": 10,
+      "unit_price": {
+        "$numberDecimal": "9.80"
+      }
+    },
+    {
+      "product": {
+        "_id": 72,
+        "name": "Mozzarella di Giovanni",
+        "category": {
+          "_id": 4,
+          "name": "Dairy Products"
+        }
+      },
+      "discount": {
+        "$numberDecimal": "0.000"
+      },
+      "quantity": 5,
+      "unit_price": {
+        "$numberDecimal": "34.80"
+      }
+    }
+  ],
+  "freight": {
+    "$numberDecimal": "32.38"
+  },
+  "shipping": {
+    "city": "Reims",
+    "name": "Vins et alcools Chevalier",
+    "region": null,
+    "street": "59 rue de l'Abbaye",
+    "country": "France",
+    "postal_code": "51100"
+  },
+  "order_date": {
+    "$date": "1996-07-04T00:00:00Z"
+  },
+  "shipper_id": 3,
+  "customer_id": "VINET",
+  "employee_id": 5,
+  "shipped_date": {
+    "$date": "1996-07-16T00:00:00Z"
+  },
+  "required_date": {
+    "$date": "1996-08-01T00:00:00Z"
+  }
+}

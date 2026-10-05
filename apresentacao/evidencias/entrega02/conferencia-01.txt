@@ -1,0 +1,31 @@
+BEGIN
+CREATE TABLE
+COPY 1
+CREATE TABLE
+DO
+        tabela        | origem | destino | divergencias 
+----------------------+--------+---------+--------------
+ regions              |      4 |       4 |            0
+ territories          |     53 |      53 |            0
+ categories           |      8 |       8 |            0
+ shippers             |      6 |       6 |            0
+ suppliers            |     29 |      29 |            0
+ customers            |     91 |      91 |            0
+ employees            |      9 |       9 |            0
+ employee_territories |     49 |      49 |            0
+ products             |     77 |      77 |            0
+ orders               |    830 |     830 |            0
+ order_items          |   2155 |    2155 |            0
+(11 rows)
+
+ linhas_origem | linhas_reconstruidas | divergencias 
+---------------+----------------------+--------------
+          3311 |                 3311 |            0
+(1 row)
+
+  valor_exato  | arredondado_no_total 
+---------------+----------------------
+ 1265793.03950 |           1265793.04
+(1 row)
+
+COMMIT

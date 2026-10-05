@@ -1,0 +1,4 @@
+PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+MongoDB 7.0.40
+northwind.orders=830
+2026-09-10T20:42:42-03:00

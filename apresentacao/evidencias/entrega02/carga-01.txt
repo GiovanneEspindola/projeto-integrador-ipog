@@ -1,0 +1,10 @@
+{"colecao":"orders","documentos":830,"inseridos":830,"modificados":0}
+{"colecao":"regions","documentos":4,"inseridos":4,"modificados":0}
+{"colecao":"products","documentos":77,"inseridos":77,"modificados":0}
+{"colecao":"shippers","documentos":6,"inseridos":6,"modificados":0}
+{"colecao":"customers","documentos":91,"inseridos":91,"modificados":0}
+{"colecao":"employees","documentos":9,"inseridos":9,"modificados":0}
+{"colecao":"suppliers","documentos":29,"inseridos":29,"modificados":0}
+{"colecao":"categories","documentos":8,"inseridos":8,"modificados":0}
+{"colecao":"territories","documentos":53,"inseridos":53,"modificados":0}
+Carga finalizada. Execute a conferência; esta mensagem sozinha não comprova equivalência.

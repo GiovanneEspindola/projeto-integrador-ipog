@@ -1,3 +1,4 @@
+if (process.argv.includes('--entrega=3')) { require('./gerar_entrega03.js'); return; }
 /* Relatório acumulativo: texto em docs/, evidências executadas e figura vetorial.
  * npm run docx. Acrescente capítulos a CAPITULOS nas próximas entregas.
  * A saída com sufixo Revisado é o documento oficial da Entrega 1.
@@ -8,8 +9,16 @@ const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
   HeadingLevel, AlignmentType, WidthType, TableLayoutType, Footer, Header,
   PageNumber, ImageRun, BorderStyle, ExternalHyperlink } = require('docx');
 const ROOT = path.resolve(__dirname, '..');
-const OUTPUT = path.join(__dirname, 'entrega-01/Projeto-Integrador-Banco-de-Dados-Revisado.docx');
-const CAPITULOS = [
+const ENTREGA2 = process.argv.includes('--entrega=2');
+const OUTPUT = path.join(__dirname, ENTREGA2 ? 'entrega-02/Projeto-Integrador-Banco-de-Dados-Entrega-02.docx' : 'entrega-01/Projeto-Integrador-Banco-de-Dados-Revisado.docx');
+const CAPITULOS = ENTREGA2 ? [
+  'entrega02/01-introducao-e-objetivo.md', '02-compreensao-do-negocio.md',
+  '03-modelo-conceitual.md', 'entrega02/04-analise-exploratoria.md',
+  'entrega02/05-plano-hibrido.md', 'entrega02/07-fechamento-entrega01.md',
+  'entrega02/09-modelo-documental.md', 'entrega02/10-transformacao.md',
+  'entrega02/11-indices.md', 'entrega02/12-validacao.md',
+  'entrega02/13-reproducao.md', 'entrega02/08-referencias.md',
+] : [
   '01-introducao-e-objetivo.md', '02-compreensao-do-negocio.md',
   '03-modelo-conceitual.md', '04-analise-exploratoria.md',
   '05-plano-hibrido.md', '07-fechamento-entrega01.md', '08-referencias.md',
@@ -46,7 +55,8 @@ function heading(text,level=1) {
 }
 function table(headers,rows,custom) {
  const n=headers.length;
- const proportions=custom || (n===2?[.42,.58]:n===3?[.58,.21,.21]:n===4?[.49,.17,.17,.17]:Array(n).fill(1/n));
+ const entrega2Widths = ENTREGA2 && n===3 ? ({Coleção:[.18,.13,.69],Índice:[.23,.32,.45],Passo:[.24,.44,.32],Execução:[.44,.28,.28]})[headers[0]] : null;
+ const proportions=custom || entrega2Widths || (n===2?[.42,.58]:n===3?[.58,.21,.21]:n===4?[.49,.17,.17,.17]:Array(n).fill(1/n));
  const widths=proportions.map(p=>Math.floor(p*WIDTH));
  widths[n-1]+=WIDTH-widths.reduce((a,b)=>a+b,0);
  const border={style:BorderStyle.SINGLE,size:3,color:'CFD9DF'};
@@ -111,8 +121,8 @@ const cover=[
  para('Projeto Integrador • Área 03 — Banco de Dados',{alignment:AlignmentType.CENTER,spacing:{after:1600}}),
  new Paragraph({alignment:AlignmentType.CENTER,children:[run('Modelagem e análise de dados de vendas',{bold:true,size:42,color:BLUE})],spacing:{after:250}}),
  para('Northwind Traders • PostgreSQL e MongoDB',{alignment:AlignmentType.CENTER,spacing:{after:650}}),
- para('Entrega 1',{alignment:AlignmentType.CENTER,children:[run('Entrega 1',{bold:true,size:27,color:BLUE})],spacing:{after:220}}),
- para('Compreensão do negócio, modelo conceitual e análise exploratória',{alignment:AlignmentType.CENTER,spacing:{after:1700}}),
+ para(ENTREGA2 ? 'Entrega 2' : 'Entrega 1',{alignment:AlignmentType.CENTER,children:[run(ENTREGA2 ? 'Entrega 2' : 'Entrega 1',{bold:true,size:27,color:BLUE})],spacing:{after:220}}),
+ para(ENTREGA2 ? 'Compreensão dos dados e modelagem documental' : 'Compreensão do negócio, modelo conceitual e análise exploratória',{alignment:AlignmentType.CENTER,spacing:{after:1700}}),
  para('Giovanne Espindola',{alignment:AlignmentType.CENTER,children:[run('Giovanne Espindola',{bold:true,size:25})],spacing:{after:160}}),
  para('Trabalho individual',{alignment:AlignmentType.CENTER,spacing:{after:1000}}),
  para('Setembro de 2026',{alignment:AlignmentType.CENTER}),
@@ -123,8 +133,8 @@ for(const page of pages) {
  const children=parse(page);
  body.push(new Paragraph({children:[],pageBreakBefore:true,spacing:{after:0,before:0,line:1}}),...children);
 }
-const doc=new Document({creator:'Giovanne Espindola',title:'Modelagem e análise de dados de vendas — Entrega 1',
- description:'Compreensão do negócio, modelo conceitual e análise exploratória do Northwind.',
+const doc=new Document({creator:'Giovanne Espindola',title:'Modelagem e análise de dados de vendas — Entrega ' + (ENTREGA2 ? '2' : '1'),
+ description:ENTREGA2 ? 'Modelagem documental do Northwind: transformação, carga, validação e indexação.' : 'Compreensão do negócio, modelo conceitual e análise exploratória do Northwind.',
  styles:{default:{document:{run:{font:FONT,size:21,color:'20252A'},paragraph:{spacing:{after:110,line:252},widowControl:true}}}},
  sections:[{properties:{titlePage:true,page:{size:{width:11906,height:16838},margin:{top:1000,bottom:1000,left:1134,right:1134,header:400,footer:450}}},
  headers:{default:new Header({children:[new Paragraph({children:[run('NORTHWIND  /  PROJETO INTEGRADOR',{size:16,color:'637782'})],spacing:{after:0}})]})},

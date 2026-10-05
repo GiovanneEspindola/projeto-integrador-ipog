@@ -1,0 +1,6 @@
+BEGIN
+CREATE TABLE
+COPY 1
+CREATE TABLE
+psql:/sql/entrega02/02_conferir_retorno.sql:31: ERROR:  Conferência falhou: 2 diferenças. Não usar a carga.
+CONTEXT:  PL/pgSQL function inline_code_block line 23 at RAISE
