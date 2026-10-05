@@ -22,7 +22,7 @@ E={e['employee_id']:e for e in q('select * from nw.employees')}
 S={s['shipper_id']:s for s in q('select * from nw.shippers')}
 CAT={c['category_id']:c for c in q('select * from nw.categories')}
 from pathlib import Path
-ROOT=Path(__file__).resolve().parents[1];EV=ROOT/'apresentacao/evidencias/entrega03'
+ROOT=Path(__file__).resolve().parents[1];EV=ROOT/os.getenv('EVIDENCIAS','apresentacao/evidencias/entrega03')
 R=json.load(open(EV/'resultados.json'))
 A,B=date(1996,7,1),date(1998,6,1); REF=date(1998,5,6); CUT=date(1997,11,6)
 inp=lambda d:A<=d<B

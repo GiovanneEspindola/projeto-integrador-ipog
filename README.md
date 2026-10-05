@@ -12,6 +12,21 @@ Autor: Giovanne Espindola · Trabalho individual · Semestre final.
 
 ---
 
+## Entrega 4 — semana 7 (relatório final)
+
+- [Word final cumulativo](entregas/entrega-04/Projeto-Integrador-Banco-de-Dados-Entrega-04.docx): 20 capítulos na ordem das semanas, com guia de decisão, escalabilidade e manutenção, conclusões e reprodução; códigos completos nos apêndices.
+- [Slides da apresentação](entregas/entrega-04/Apresentacao-Projeto-Integrador.pptx), com o roteiro de fala nas notas de cada slide.
+- [Teste de índices no MongoDB](bench/entrega04.py) e [resultados](bench/results/entrega04/).
+
+```bash
+uv run python bench/entrega04.py                      # índices employee_id/shipper_id em cópias isoladas
+EVIDENCIAS=apresentacao/evidencias/entrega04 uv run python etl/validar_analytics.py
+EVIDENCIAS=apresentacao/evidencias/entrega04 uv run python etl/conferir_python.py
+(cd entregas && uv run python preparar_entrega04.py)  # capítulos 13 e 16 e figuras
+uv run --with pypdf python entregas/finalizar_entrega04.py
+npm --prefix entregas run slides
+```
+
 ## Entrega 3 — semanas 5 e 6
 
 - [Word cumulativo para entrega](entregas/entrega-03/Projeto-Integrador-Banco-de-Dados-Entrega-03.docx).

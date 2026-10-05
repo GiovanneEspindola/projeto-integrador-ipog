@@ -18,7 +18,8 @@ from pymongo import MongoClient
 from bson import json_util, Decimal128
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'apresentacao/evidencias/entrega03'
+# EVIDENCIAS permite gravar uma reexecução em outra pasta sem sobrescrever a da Entrega 3.
+OUT = ROOT / os.getenv('EVIDENCIAS', 'apresentacao/evidencias/entrega03')
 RATIOS = {'participacao', 'ticket', 'percentual', 'suporte',
           'media_dias', 'percentual_desconto'}
 

@@ -1,3 +1,4 @@
+if (process.argv.includes('--entrega=4')) { require('./gerar_entrega04.js'); return; }
 if (process.argv.includes('--entrega=3')) { require('./gerar_entrega03.js'); return; }
 /* Relatório acumulativo: texto em docs/, evidências executadas e figura vetorial.
  * npm run docx. Acrescente capítulos a CAPITULOS nas próximas entregas.

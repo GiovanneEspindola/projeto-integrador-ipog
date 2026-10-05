@@ -5,9 +5,18 @@
   "scripts": {
     "docx": "node gerar_docx.js",
     "docx:entrega02": "node gerar_docx.js --entrega=2",
-    "docx:entrega03": "node gerar_docx.js --entrega=3"
+    "docx:entrega03": "node gerar_docx.js --entrega=3",
+    "docx:entrega04": "node gerar_docx.js --entrega=4",
+    "slides": "node gerar_slides.js"
   },
   "dependencies": {
     "docx": "^9.5.1"
+  },
+  "devDependencies": {
+    "pptxgenjs": "^4.0.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-icons": "^5.7.0",
+    "sharp": "^0.35.5"
   }
 }

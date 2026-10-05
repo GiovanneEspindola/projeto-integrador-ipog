@@ -1,0 +1,120 @@
+{
+  "vendas_por_categoria": [
+    {
+      "category_id": 1,
+      "categoria": "Beverages",
+      "pedidos": 354,
+      "valor": "267868.18000",
+      "ticket_categoria": "756.6897740112994350"
+    },
+    {
+      "category_id": 2,
+      "categoria": "Condiments",
+      "pedidos": 193,
+      "valor": "106047.08500",
+      "ticket_categoria": "549.4667616580310881"
+    },
+    {
+      "category_id": 3,
+      "categoria": "Confections",
+      "pedidos": 295,
+      "valor": "167357.22500",
+      "ticket_categoria": "567.3126271186440678"
+    },
+    {
+      "category_id": 4,
+      "categoria": "Dairy Products",
+      "pedidos": 303,
+      "valor": "234507.28500",
+      "ticket_categoria": "773.9514356435643564"
+    },
+    {
+      "category_id": 5,
+      "categoria": "Grains/Cereals",
+      "pedidos": 182,
+      "valor": "95744.58750",
+      "ticket_categoria": "526.0691620879120879"
+    },
+    {
+      "category_id": 6,
+      "categoria": "Meat/Poultry",
+      "pedidos": 161,
+      "valor": "163022.35950",
+      "ticket_categoria": "1012.5612391304347826"
+    },
+    {
+      "category_id": 7,
+      "categoria": "Produce",
+      "pedidos": 129,
+      "valor": "99984.58000",
+      "ticket_categoria": "775.0742635658914729"
+    },
+    {
+      "category_id": 8,
+      "categoria": "Seafood",
+      "pedidos": 291,
+      "valor": "131261.73750",
+      "ticket_categoria": "451.0712628865979381"
+    }
+  ],
+  "inativos": [
+    {
+      "customer_id": "CENTC",
+      "cliente": "Centro comercial Moctezuma",
+      "ultima": "1996-07-18",
+      "recencia": 657,
+      "situacao": "inativo"
+    },
+    {
+      "customer_id": "FAMIA",
+      "cliente": "Familia Arquibaldo",
+      "ultima": "1997-10-31",
+      "recencia": 187,
+      "situacao": "inativo"
+    },
+    {
+      "customer_id": "FISSA",
+      "cliente": "FISSA Fabrica Inter. Salchichas S.A.",
+      "ultima": null,
+      "recencia": null,
+      "situacao": "sem compras"
+    },
+    {
+      "customer_id": "HUNGC",
+      "cliente": "Hungry Coyote Import Store",
+      "ultima": "1997-09-08",
+      "recencia": 240,
+      "situacao": "inativo"
+    },
+    {
+      "customer_id": "LAZYK",
+      "cliente": "Lazy K Kountry Store",
+      "ultima": "1997-05-22",
+      "recencia": 349,
+      "situacao": "inativo"
+    },
+    {
+      "customer_id": "MEREP",
+      "cliente": "Mère Paillarde",
+      "ultima": "1997-10-30",
+      "recencia": 188,
+      "situacao": "inativo"
+    },
+    {
+      "customer_id": "PARIS",
+      "cliente": "Paris spécialités",
+      "ultima": null,
+      "recencia": null,
+      "situacao": "sem compras"
+    }
+  ],
+  "equipe": [
+    {
+      "gestor_id": 2,
+      "membros": 9,
+      "valor_proprio": "166537.75500",
+      "pedidos_equipe": "830",
+      "valor_equipe": "1265793.03950"
+    }
+  ]
+}

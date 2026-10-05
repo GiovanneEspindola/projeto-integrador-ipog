@@ -1,0 +1,187 @@
+[
+  {
+    "teste": "Q01 dados de fronteira",
+    "resultado": "PASSOU",
+    "linhas": 1,
+    "esperado": "categoria 1: 5 unidades, valor 40,005, participação 100%"
+  },
+  {
+    "teste": "Q02 dados de fronteira",
+    "resultado": "PASSOU",
+    "linhas": 23,
+    "esperado": "23 meses; fev/98 vazio com ticket nulo; mar/98 com 0,005"
+  },
+  {
+    "teste": "Q03 dados de fronteira",
+    "resultado": "PASSOU",
+    "linhas": 75,
+    "esperado": "75 produtos sem venda: todos menos 1 e 2"
+  },
+  {
+    "teste": "Q04 dados de fronteira",
+    "resultado": "PASSOU",
+    "linhas": 9,
+    "esperado": "funcionário 1 com 4 pedidos e 100%; demais com ticket nulo"
+  },
+  {
+    "teste": "Q05 dados de fronteira",
+    "resultado": "PASSOU",
+    "linhas": 7
+  },
+  {
+    "teste": "Q06 dados de fronteira",
+    "resultado": "PASSOU",
+    "linhas": 89,
+    "esperado": "ANATR no corte fica fora; ANTON inativo com 182 dias; 88 sem compras"
+  },
+  {
+    "teste": "Q07 dados de fronteira",
+    "resultado": "PASSOU",
+    "linhas": 2,
+    "esperado": "categoria 1: produto 1 (30,005) antes do 2 (10)"
+  },
+  {
+    "teste": "Q08 dados de fronteira",
+    "resultado": "PASSOU",
+    "linhas": 23,
+    "esperado": "acumulado final 40,005"
+  },
+  {
+    "teste": "Q09 dados de fronteira",
+    "resultado": "PASSOU",
+    "linhas": 23,
+    "esperado": "fev/98 −100%; mar/98 com anterior zero e percentual nulo"
+  },
+  {
+    "teste": "Q10 dados de fronteira",
+    "resultado": "PASSOU",
+    "linhas": 91,
+    "esperado": "três clientes A e 88 sem compras"
+  },
+  {
+    "teste": "Q11 dados de fronteira",
+    "resultado": "PASSOU",
+    "linhas": 91,
+    "esperado": "ALFKI R=2 F=1 M=1; ANATR R=1; sem compras com escores zero"
+  },
+  {
+    "teste": "Q12 dados de fronteira",
+    "resultado": "PASSOU",
+    "linhas": 1,
+    "esperado": "um par 1–2, denominador 4, suporte 25%"
+  },
+  {
+    "teste": "Q13 dados de fronteira",
+    "resultado": "PASSOU",
+    "linhas": 6,
+    "esperado": "transportadora 1: 4 pedidos, 3 envios, 1 sem data, média 10 dias"
+  },
+  {
+    "teste": "Q14 dados de fronteira",
+    "resultado": "PASSOU",
+    "linhas": 1,
+    "esperado": "categoria 1: bruto 40,05, desconto 0,045, valor 40,005"
+  },
+  {
+    "teste": "Q15 dados de fronteira",
+    "resultado": "PASSOU",
+    "linhas": 9,
+    "esperado": "gestor 2 contém os 4 pedidos do funcionário 1; gestor 5 nenhum"
+  },
+  {
+    "teste": "Q16 dados de fronteira",
+    "resultado": "PASSOU",
+    "linhas": 4,
+    "esperado": "4T/1997 = 20 e 1T/1998 = 20,005, sem trimestre parcial"
+  },
+  {
+    "teste": "empate com desempate por ID",
+    "resultado": "PASSOU"
+  },
+  {
+    "teste": "Q01 sem pedidos",
+    "resultado": "PASSOU"
+  },
+  {
+    "teste": "Q02 sem pedidos",
+    "resultado": "PASSOU"
+  },
+  {
+    "teste": "Q03 sem pedidos",
+    "resultado": "PASSOU"
+  },
+  {
+    "teste": "Q04 sem pedidos",
+    "resultado": "PASSOU"
+  },
+  {
+    "teste": "Q05 sem pedidos",
+    "resultado": "PASSOU"
+  },
+  {
+    "teste": "Q06 sem pedidos",
+    "resultado": "PASSOU"
+  },
+  {
+    "teste": "Q07 sem pedidos",
+    "resultado": "PASSOU"
+  },
+  {
+    "teste": "Q08 sem pedidos",
+    "resultado": "PASSOU"
+  },
+  {
+    "teste": "Q09 sem pedidos",
+    "resultado": "PASSOU"
+  },
+  {
+    "teste": "Q10 sem pedidos",
+    "resultado": "PASSOU"
+  },
+  {
+    "teste": "Q11 sem pedidos",
+    "resultado": "PASSOU"
+  },
+  {
+    "teste": "Q12 sem pedidos",
+    "resultado": "PASSOU"
+  },
+  {
+    "teste": "Q13 sem pedidos",
+    "resultado": "PASSOU"
+  },
+  {
+    "teste": "Q14 sem pedidos",
+    "resultado": "PASSOU"
+  },
+  {
+    "teste": "Q15 sem pedidos",
+    "resultado": "PASSOU"
+  },
+  {
+    "teste": "Q16 sem pedidos",
+    "resultado": "PASSOU"
+  },
+  {
+    "teste": "empate de meio centavo demonstra regras diferentes",
+    "postgres": "0.01",
+    "mongo": "0.00",
+    "resultado": "PASSOU"
+  },
+  {
+    "teste": "CALL nw_analytics.sp_resumo_vendas_periodo('1998-01-02','1998-01-01','x')",
+    "resultado": "rejeitado corretamente"
+  },
+  {
+    "teste": "CALL nw_analytics.sp_clientes_inativos('1998-05-06',0,'x')",
+    "resultado": "rejeitado corretamente"
+  },
+  {
+    "teste": "CALL nw_analytics.sp_desempenho_equipe(9999,'1997-01-01','1998-01-01','x')",
+    "resultado": "rejeitado corretamente"
+  },
+  {
+    "teste": "três procedures versus consultas independentes",
+    "resultado": "PASSOU"
+  }
+]

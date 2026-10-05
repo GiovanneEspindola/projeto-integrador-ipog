@@ -1,0 +1,31 @@
+{
+  "paginas": 66,
+  "iteracoes_nesta_execucao": 1,
+  "sumario": {
+    "1. Introdução e objetivo": 3,
+    "2. Compreensão do negócio": 4,
+    "3. Modelo conceitual": 5,
+    "4. Análise exploratória e qualidade dos dados": 7,
+    "5. Arquitetura híbrida": 12,
+    "6. Modelo relacional": 13,
+    "7. Modelo documental": 15,
+    "8. Transformação, carga e validação dos documentos": 17,
+    "9. Índices no MongoDB": 19,
+    "10. Conferência da migração": 20,
+    "11. Regras comuns às análises": 21,
+    "12. Views e procedures": 22,
+    "13. Consultas analíticas e resultados": 23,
+    "14. Recursos próprios do MongoDB e MapReduce": 32,
+    "15. Comparação de sintaxe e complexidade": 33,
+    "16. Performance e otimização": 35,
+    "17. Guia de decisão: quando usar cada tecnologia": 38,
+    "18. Escalabilidade e manutenção": 39,
+    "19. Conclusões": 40,
+    "20. Como reproduzir": 41,
+    "Referências": 42,
+    "Apêndice A — Consultas SQL e pipelines completos": 43,
+    "Apêndice B — Views, procedures e recursos documentais": 64
+  },
+  "pdf": "entregas/entrega-04/Projeto-Integrador-Banco-de-Dados-Entrega-04.pdf",
+  "criterio": "Números calculados em renderizações consecutivas e estáveis."
+}

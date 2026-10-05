@@ -1,0 +1,430 @@
+{
+  "explainVersion": "1",
+  "stages": [
+    {
+      "$cursor": {
+        "queryPlanner": {
+          "namespace": "bench_e04_d7aca5de_novo.shippers",
+          "indexFilterSet": false,
+          "parsedQuery": {},
+          "queryHash": "156B2A8C",
+          "planCacheKey": "156B2A8C",
+          "optimizationTimeMillis": 0,
+          "maxIndexedOrSolutionsReached": false,
+          "maxIndexedAndSolutionsReached": false,
+          "maxScansToExplodeReached": false,
+          "winningPlan": {
+            "stage": "PROJECTION_SIMPLE",
+            "transformBy": {
+              "_id": 1,
+              "company_name": 1
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "direction": "forward"
+            }
+          },
+          "rejectedPlans": []
+        },
+        "executionStats": {
+          "executionSuccess": true,
+          "nReturned": 6,
+          "executionTimeMillis": 1,
+          "totalKeysExamined": 0,
+          "totalDocsExamined": 6,
+          "executionStages": {
+            "stage": "PROJECTION_SIMPLE",
+            "nReturned": 6,
+            "executionTimeMillisEstimate": 0,
+            "works": 7,
+            "advanced": 6,
+            "needTime": 0,
+            "needYield": 0,
+            "saveState": 1,
+            "restoreState": 1,
+            "isEOF": 1,
+            "transformBy": {
+              "_id": 1,
+              "company_name": 1
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "nReturned": 6,
+              "executionTimeMillisEstimate": 0,
+              "works": 7,
+              "advanced": 6,
+              "needTime": 0,
+              "needYield": 0,
+              "saveState": 1,
+              "restoreState": 1,
+              "isEOF": 1,
+              "direction": "forward",
+              "docsExamined": 6
+            }
+          }
+        }
+      },
+      "nReturned": 6,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$lookup": {
+        "from": "orders",
+        "as": "res",
+        "localField": "_id",
+        "foreignField": "shipper_id",
+        "let": {},
+        "pipeline": [
+          {
+            "$match": {
+              "order_date": {
+                "$gte": {
+                  "$date": "1996-07-01T00:00:00Z"
+                },
+                "$lt": {
+                  "$date": "1998-06-01T00:00:00Z"
+                }
+              }
+            }
+          },
+          {
+            "$group": {
+              "_id": null,
+              "pedidos": {
+                "$sum": 1
+              },
+              "com_envio": {
+                "$sum": {
+                  "$cond": [
+                    {
+                      "$ne": [
+                        "$shipped_date",
+                        null
+                      ]
+                    },
+                    1,
+                    0
+                  ]
+                }
+              },
+              "soma_dias": {
+                "$sum": {
+                  "$dateDiff": {
+                    "startDate": "$order_date",
+                    "endDate": "$shipped_date",
+                    "unit": "day"
+                  }
+                }
+              },
+              "apos_requerida": {
+                "$sum": {
+                  "$cond": [
+                    {
+                      "$gt": [
+                        "$shipped_date",
+                        "$required_date"
+                      ]
+                    },
+                    1,
+                    0
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      },
+      "totalDocsExamined": 830,
+      "totalKeysExamined": 830,
+      "collectionScans": 0,
+      "indexesUsed": [
+        "pedido_transportadora"
+      ],
+      "nReturned": 6,
+      "executionTimeMillisEstimate": 1
+    },
+    {
+      "$set": {
+        "pedidos": {
+          "$ifNull": [
+            {
+              "$first": [
+                "$res.pedidos"
+              ]
+            },
+            {
+              "$const": 0
+            }
+          ]
+        },
+        "com_envio": {
+          "$ifNull": [
+            {
+              "$first": [
+                "$res.com_envio"
+              ]
+            },
+            {
+              "$const": 0
+            }
+          ]
+        },
+        "soma_dias": {
+          "$ifNull": [
+            {
+              "$first": [
+                "$res.soma_dias"
+              ]
+            },
+            {
+              "$const": 0
+            }
+          ]
+        },
+        "apos_requerida": {
+          "$ifNull": [
+            {
+              "$first": [
+                "$res.apos_requerida"
+              ]
+            },
+            {
+              "$const": 0
+            }
+          ]
+        }
+      },
+      "nReturned": 6,
+      "executionTimeMillisEstimate": 1
+    },
+    {
+      "$project": {
+        "pedidos": true,
+        "com_envio": true,
+        "soma_dias": true,
+        "apos_requerida": true,
+        "shipper_id": "$_id",
+        "transportadora": "$company_name",
+        "sem_data": {
+          "$subtract": [
+            "$pedidos",
+            "$com_envio"
+          ]
+        },
+        "media_dias": {
+          "$cond": [
+            {
+              "$eq": [
+                "$com_envio",
+                {
+                  "$const": 0
+                }
+              ]
+            },
+            {
+              "$const": null
+            },
+            {
+              "$divide": [
+                {
+                  "$convert": {
+                    "input": "$soma_dias",
+                    "to": {
+                      "$const": "decimal"
+                    }
+                  }
+                },
+                "$com_envio"
+              ]
+            }
+          ]
+        },
+        "_id": false
+      },
+      "nReturned": 6,
+      "executionTimeMillisEstimate": 1
+    },
+    {
+      "$sort": {
+        "sortKey": {
+          "shipper_id": 1
+        }
+      },
+      "totalDataSizeSortedBytesEstimate": 4043,
+      "usedDisk": false,
+      "spills": 0,
+      "spilledDataStorageSize": 0,
+      "nReturned": 6,
+      "executionTimeMillisEstimate": 1
+    }
+  ],
+  "serverInfo": {
+    "host": "f2526db2bd5a",
+    "port": 27017,
+    "version": "7.0.40",
+    "gitVersion": "37741b538c02da076d1e34d66113ac0230d4523a"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600,
+    "internalQueryFrameworkControl": "forceClassicEngine"
+  },
+  "command": {
+    "aggregate": "shippers",
+    "pipeline": [
+      {
+        "$lookup": {
+          "from": "orders",
+          "localField": "_id",
+          "foreignField": "shipper_id",
+          "pipeline": [
+            {
+              "$match": {
+                "order_date": {
+                  "$gte": {
+                    "$date": "1996-07-01T00:00:00Z"
+                  },
+                  "$lt": {
+                    "$date": "1998-06-01T00:00:00Z"
+                  }
+                }
+              }
+            },
+            {
+              "$group": {
+                "_id": null,
+                "pedidos": {
+                  "$sum": 1
+                },
+                "com_envio": {
+                  "$sum": {
+                    "$cond": [
+                      {
+                        "$ne": [
+                          "$shipped_date",
+                          null
+                        ]
+                      },
+                      1,
+                      0
+                    ]
+                  }
+                },
+                "soma_dias": {
+                  "$sum": {
+                    "$dateDiff": {
+                      "startDate": "$order_date",
+                      "endDate": "$shipped_date",
+                      "unit": "day"
+                    }
+                  }
+                },
+                "apos_requerida": {
+                  "$sum": {
+                    "$cond": [
+                      {
+                        "$gt": [
+                          "$shipped_date",
+                          "$required_date"
+                        ]
+                      },
+                      1,
+                      0
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+          "as": "res"
+        }
+      },
+      {
+        "$set": {
+          "pedidos": {
+            "$ifNull": [
+              {
+                "$first": "$res.pedidos"
+              },
+              0
+            ]
+          },
+          "com_envio": {
+            "$ifNull": [
+              {
+                "$first": "$res.com_envio"
+              },
+              0
+            ]
+          },
+          "soma_dias": {
+            "$ifNull": [
+              {
+                "$first": "$res.soma_dias"
+              },
+              0
+            ]
+          },
+          "apos_requerida": {
+            "$ifNull": [
+              {
+                "$first": "$res.apos_requerida"
+              },
+              0
+            ]
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "shipper_id": "$_id",
+          "transportadora": "$company_name",
+          "pedidos": 1,
+          "com_envio": 1,
+          "sem_data": {
+            "$subtract": [
+              "$pedidos",
+              "$com_envio"
+            ]
+          },
+          "soma_dias": 1,
+          "apos_requerida": 1,
+          "media_dias": {
+            "$cond": [
+              {
+                "$eq": [
+                  "$com_envio",
+                  0
+                ]
+              },
+              null,
+              {
+                "$divide": [
+                  {
+                    "$toDecimal": "$soma_dias"
+                  },
+                  "$com_envio"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "$sort": {
+          "shipper_id": 1
+        }
+      }
+    ],
+    "cursor": {},
+    "$db": "bench_e04_d7aca5de_novo"
+  },
+  "ok": 1.0
+}
