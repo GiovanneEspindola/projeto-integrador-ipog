@@ -1,0 +1,57 @@
+[
+  {
+    "tabela": "regions",
+    "linhas": 4,
+    "divergencias": 0
+  },
+  {
+    "tabela": "territories",
+    "linhas": 53,
+    "divergencias": 0
+  },
+  {
+    "tabela": "categories",
+    "linhas": 8,
+    "divergencias": 0
+  },
+  {
+    "tabela": "shippers",
+    "linhas": 6,
+    "divergencias": 0
+  },
+  {
+    "tabela": "customers",
+    "linhas": 91,
+    "divergencias": 0
+  },
+  {
+    "tabela": "suppliers",
+    "linhas": 29,
+    "divergencias": 0
+  },
+  {
+    "tabela": "products",
+    "linhas": 77,
+    "divergencias": 0
+  },
+  {
+    "tabela": "employee_territories",
+    "linhas": 49,
+    "divergencias": 0
+  },
+  {
+    "tabela": "employees",
+    "linhas": 9,
+    "divergencias": 0
+  },
+  {
+    "tabela": "order_items",
+    "linhas": 2155,
+    "divergencias": 0
+  },
+  {
+    "tabela": "orders",
+    "linhas": 830,
+    "divergencias": 0
+  }
+]

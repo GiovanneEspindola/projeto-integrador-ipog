@@ -1,0 +1,612 @@
+{
+  "explainVersion": "1",
+  "stages": [
+    {
+      "$cursor": {
+        "queryPlanner": {
+          "namespace": "northwind.orders",
+          "indexFilterSet": false,
+          "parsedQuery": {
+            "$and": [
+              {
+                "order_date": {
+                  "$lt": {
+                    "$date": "1998-06-01T00:00:00Z"
+                  }
+                }
+              },
+              {
+                "order_date": {
+                  "$gte": {
+                    "$date": "1996-07-01T00:00:00Z"
+                  }
+                }
+              }
+            ]
+          },
+          "queryHash": "015DFBA2",
+          "planCacheKey": "A004F989",
+          "optimizationTimeMillis": 0,
+          "maxIndexedOrSolutionsReached": false,
+          "maxIndexedAndSolutionsReached": false,
+          "maxScansToExplodeReached": false,
+          "winningPlan": {
+            "stage": "PROJECTION_SIMPLE",
+            "transformBy": {
+              "items": 1,
+              "order_date": 1,
+              "_id": 0
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "filter": {
+                "$and": [
+                  {
+                    "order_date": {
+                      "$lt": {
+                        "$date": "1998-06-01T00:00:00Z"
+                      }
+                    }
+                  },
+                  {
+                    "order_date": {
+                      "$gte": {
+                        "$date": "1996-07-01T00:00:00Z"
+                      }
+                    }
+                  }
+                ]
+              },
+              "direction": "forward"
+            }
+          },
+          "rejectedPlans": []
+        },
+        "executionStats": {
+          "executionSuccess": true,
+          "nReturned": 830,
+          "executionTimeMillis": 4,
+          "totalKeysExamined": 0,
+          "totalDocsExamined": 830,
+          "executionStages": {
+            "stage": "PROJECTION_SIMPLE",
+            "nReturned": 830,
+            "executionTimeMillisEstimate": 0,
+            "works": 831,
+            "advanced": 830,
+            "needTime": 0,
+            "needYield": 0,
+            "saveState": 1,
+            "restoreState": 1,
+            "isEOF": 1,
+            "transformBy": {
+              "items": 1,
+              "order_date": 1,
+              "_id": 0
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "filter": {
+                "$and": [
+                  {
+                    "order_date": {
+                      "$lt": {
+                        "$date": "1998-06-01T00:00:00Z"
+                      }
+                    }
+                  },
+                  {
+                    "order_date": {
+                      "$gte": {
+                        "$date": "1996-07-01T00:00:00Z"
+                      }
+                    }
+                  }
+                ]
+              },
+              "nReturned": 830,
+              "executionTimeMillisEstimate": 0,
+              "works": 831,
+              "advanced": 830,
+              "needTime": 0,
+              "needYield": 0,
+              "saveState": 1,
+              "restoreState": 1,
+              "isEOF": 1,
+              "direction": "forward",
+              "docsExamined": 830
+            }
+          }
+        }
+      },
+      "nReturned": 830,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$unwind": {
+        "path": "$items"
+      },
+      "nReturned": 2155,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$set": {
+        "ano": {
+          "$year": {
+            "date": "$order_date"
+          }
+        },
+        "trimestre": {
+          "$convert": {
+            "input": {
+              "$ceil": [
+                {
+                  "$divide": [
+                    {
+                      "$month": {
+                        "date": "$order_date"
+                      }
+                    },
+                    {
+                      "$const": 3
+                    }
+                  ]
+                }
+              ]
+            },
+            "to": {
+              "$const": "int"
+            }
+          }
+        },
+        "valor": {
+          "$multiply": [
+            "$items.unit_price",
+            "$items.quantity",
+            {
+              "$subtract": [
+                {
+                  "$const": {
+                    "$numberDecimal": "1"
+                  }
+                },
+                "$items.discount"
+              ]
+            }
+          ]
+        }
+      },
+      "nReturned": 2155,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$facet": {
+        "total": [
+          {
+            "$internalFacetTeeConsumer": {},
+            "nReturned": 2155,
+            "executionTimeMillisEstimate": 0
+          },
+          {
+            "$group": {
+              "_id": {
+                "ano": "$ano",
+                "trimestre": "$trimestre"
+              },
+              "valor": {
+                "$sum": "$valor"
+              }
+            },
+            "maxAccumulatorMemoryUsageBytes": {
+              "valor": 768
+            },
+            "totalOutputDataSizeBytes": 4176,
+            "usedDisk": false,
+            "spills": 0,
+            "spilledDataStorageSize": 0,
+            "numBytesSpilledEstimate": 0,
+            "spilledRecords": 0,
+            "nReturned": 8,
+            "executionTimeMillisEstimate": 0
+          },
+          {
+            "$project": {
+              "valor": true,
+              "ano": "$_id.ano",
+              "trimestre": "$_id.trimestre",
+              "category_id": {
+                "$const": null
+              },
+              "nivel": {
+                "$const": "total"
+              },
+              "_id": false
+            },
+            "nReturned": 8,
+            "executionTimeMillisEstimate": 0
+          }
+        ],
+        "categoria": [
+          {
+            "$internalFacetTeeConsumer": {},
+            "nReturned": 2155,
+            "executionTimeMillisEstimate": 4
+          },
+          {
+            "$group": {
+              "_id": {
+                "ano": "$ano",
+                "trimestre": "$trimestre",
+                "category_id": "$items.product.category._id"
+              },
+              "valor": {
+                "$sum": "$valor"
+              }
+            },
+            "maxAccumulatorMemoryUsageBytes": {
+              "valor": 6144
+            },
+            "totalOutputDataSizeBytes": 35456,
+            "usedDisk": false,
+            "spills": 0,
+            "spilledDataStorageSize": 0,
+            "numBytesSpilledEstimate": 0,
+            "spilledRecords": 0,
+            "nReturned": 64,
+            "executionTimeMillisEstimate": 4
+          },
+          {
+            "$project": {
+              "valor": true,
+              "ano": "$_id.ano",
+              "trimestre": "$_id.trimestre",
+              "category_id": "$_id.category_id",
+              "nivel": {
+                "$const": "categoria"
+              },
+              "_id": false
+            },
+            "nReturned": 64,
+            "executionTimeMillisEstimate": 4
+          }
+        ]
+      },
+      "nReturned": 1,
+      "executionTimeMillisEstimate": 4
+    },
+    {
+      "$project": {
+        "_id": true,
+        "linhas": {
+          "$concatArrays": [
+            "$total",
+            "$categoria"
+          ]
+        }
+      },
+      "nReturned": 1,
+      "executionTimeMillisEstimate": 4
+    },
+    {
+      "$unwind": {
+        "path": "$linhas"
+      },
+      "nReturned": 72,
+      "executionTimeMillisEstimate": 4
+    },
+    {
+      "$replaceRoot": {
+        "newRoot": "$linhas"
+      },
+      "nReturned": 72,
+      "executionTimeMillisEstimate": 4
+    },
+    {
+      "$set": {
+        "inicio_trimestre": {
+          "$dateFromParts": {
+            "year": "$ano",
+            "month": {
+              "$add": [
+                {
+                  "$multiply": [
+                    {
+                      "$subtract": [
+                        "$trimestre",
+                        {
+                          "$const": 1
+                        }
+                      ]
+                    },
+                    {
+                      "$const": 3
+                    }
+                  ]
+                },
+                {
+                  "$const": 1
+                }
+              ]
+            }
+          }
+        }
+      },
+      "nReturned": 72,
+      "executionTimeMillisEstimate": 4
+    },
+    {
+      "$set": {
+        "parcial": {
+          "$or": [
+            {
+              "$lt": [
+                "$inicio_trimestre",
+                {
+                  "$const": {
+                    "$date": "1996-07-04T00:00:00Z"
+                  }
+                }
+              ]
+            },
+            {
+              "$gt": [
+                {
+                  "$dateAdd": {
+                    "startDate": "$inicio_trimestre",
+                    "unit": {
+                      "$const": "month"
+                    },
+                    "amount": {
+                      "$const": 3
+                    }
+                  }
+                },
+                {
+                  "$const": {
+                    "$date": "1998-05-07T00:00:00Z"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "nReturned": 72,
+      "executionTimeMillisEstimate": 4
+    },
+    {
+      "$project": {
+        "inicio_trimestre": false,
+        "_id": true
+      },
+      "nReturned": 72,
+      "executionTimeMillisEstimate": 4
+    },
+    {
+      "$sort": {
+        "sortKey": {
+          "ano": 1,
+          "trimestre": 1,
+          "category_id": 1
+        }
+      },
+      "totalDataSizeSortedBytesEstimate": 54504,
+      "usedDisk": false,
+      "spills": 0,
+      "spilledDataStorageSize": 0,
+      "nReturned": 72,
+      "executionTimeMillisEstimate": 4
+    }
+  ],
+  "serverInfo": {
+    "host": "f2526db2bd5a",
+    "port": 27017,
+    "version": "7.0.40",
+    "gitVersion": "37741b538c02da076d1e34d66113ac0230d4523a"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600,
+    "internalQueryFrameworkControl": "forceClassicEngine"
+  },
+  "command": {
+    "aggregate": "orders",
+    "pipeline": [
+      {
+        "$match": {
+          "order_date": {
+            "$gte": {
+              "$date": "1996-07-01T00:00:00Z"
+            },
+            "$lt": {
+              "$date": "1998-06-01T00:00:00Z"
+            }
+          }
+        }
+      },
+      {
+        "$unwind": "$items"
+      },
+      {
+        "$set": {
+          "ano": {
+            "$year": "$order_date"
+          },
+          "trimestre": {
+            "$toInt": {
+              "$ceil": {
+                "$divide": [
+                  {
+                    "$month": "$order_date"
+                  },
+                  3
+                ]
+              }
+            }
+          },
+          "valor": {
+            "$multiply": [
+              "$items.unit_price",
+              "$items.quantity",
+              {
+                "$subtract": [
+                  {
+                    "$numberDecimal": "1"
+                  },
+                  "$items.discount"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "$facet": {
+          "total": [
+            {
+              "$group": {
+                "_id": {
+                  "ano": "$ano",
+                  "trimestre": "$trimestre"
+                },
+                "valor": {
+                  "$sum": "$valor"
+                }
+              }
+            },
+            {
+              "$project": {
+                "_id": 0,
+                "ano": "$_id.ano",
+                "trimestre": "$_id.trimestre",
+                "category_id": {
+                  "$literal": null
+                },
+                "valor": 1,
+                "nivel": {
+                  "$literal": "total"
+                }
+              }
+            }
+          ],
+          "categoria": [
+            {
+              "$group": {
+                "_id": {
+                  "ano": "$ano",
+                  "trimestre": "$trimestre",
+                  "category_id": "$items.product.category._id"
+                },
+                "valor": {
+                  "$sum": "$valor"
+                }
+              }
+            },
+            {
+              "$project": {
+                "_id": 0,
+                "ano": "$_id.ano",
+                "trimestre": "$_id.trimestre",
+                "category_id": "$_id.category_id",
+                "valor": 1,
+                "nivel": {
+                  "$literal": "categoria"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$project": {
+          "linhas": {
+            "$concatArrays": [
+              "$total",
+              "$categoria"
+            ]
+          }
+        }
+      },
+      {
+        "$unwind": "$linhas"
+      },
+      {
+        "$replaceWith": "$linhas"
+      },
+      {
+        "$set": {
+          "inicio_trimestre": {
+            "$dateFromParts": {
+              "year": "$ano",
+              "month": {
+                "$add": [
+                  {
+                    "$multiply": [
+                      {
+                        "$subtract": [
+                          "$trimestre",
+                          1
+                        ]
+                      },
+                      3
+                    ]
+                  },
+                  1
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "$set": {
+          "parcial": {
+            "$or": [
+              {
+                "$lt": [
+                  "$inicio_trimestre",
+                  {
+                    "$date": "1996-07-04T00:00:00Z"
+                  }
+                ]
+              },
+              {
+                "$gt": [
+                  {
+                    "$dateAdd": {
+                      "startDate": "$inicio_trimestre",
+                      "unit": "month",
+                      "amount": 3
+                    }
+                  },
+                  {
+                    "$date": "1998-05-07T00:00:00Z"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "$unset": "inicio_trimestre"
+      },
+      {
+        "$sort": {
+          "ano": 1,
+          "trimestre": 1,
+          "category_id": 1
+        }
+      }
+    ],
+    "cursor": {},
+    "$db": "northwind"
+  },
+  "ok": 1.0
+}

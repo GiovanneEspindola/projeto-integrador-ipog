@@ -1,0 +1,448 @@
+{
+  "explainVersion": "1",
+  "stages": [
+    {
+      "$cursor": {
+        "queryPlanner": {
+          "namespace": "northwind.employees",
+          "indexFilterSet": false,
+          "parsedQuery": {},
+          "queryHash": "F4DF88F3",
+          "planCacheKey": "F4DF88F3",
+          "optimizationTimeMillis": 0,
+          "maxIndexedOrSolutionsReached": false,
+          "maxIndexedAndSolutionsReached": false,
+          "maxScansToExplodeReached": false,
+          "winningPlan": {
+            "stage": "PROJECTION_SIMPLE",
+            "transformBy": {
+              "_id": 1,
+              "first_name": 1,
+              "last_name": 1
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "direction": "forward"
+            }
+          },
+          "rejectedPlans": []
+        },
+        "executionStats": {
+          "executionSuccess": true,
+          "nReturned": 9,
+          "executionTimeMillis": 3,
+          "totalKeysExamined": 0,
+          "totalDocsExamined": 9,
+          "executionStages": {
+            "stage": "PROJECTION_SIMPLE",
+            "nReturned": 9,
+            "executionTimeMillisEstimate": 0,
+            "works": 10,
+            "advanced": 9,
+            "needTime": 0,
+            "needYield": 0,
+            "saveState": 1,
+            "restoreState": 1,
+            "isEOF": 1,
+            "transformBy": {
+              "_id": 1,
+              "first_name": 1,
+              "last_name": 1
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "nReturned": 9,
+              "executionTimeMillisEstimate": 0,
+              "works": 10,
+              "advanced": 9,
+              "needTime": 0,
+              "needYield": 0,
+              "saveState": 1,
+              "restoreState": 1,
+              "isEOF": 1,
+              "direction": "forward",
+              "docsExamined": 9
+            }
+          }
+        }
+      },
+      "nReturned": 9,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$lookup": {
+        "from": "orders",
+        "as": "vendas",
+        "localField": "_id",
+        "foreignField": "employee_id",
+        "let": {},
+        "pipeline": [
+          {
+            "$match": {
+              "order_date": {
+                "$gte": {
+                  "$date": "1996-07-01T00:00:00Z"
+                },
+                "$lt": {
+                  "$date": "1998-06-01T00:00:00Z"
+                }
+              }
+            }
+          },
+          {
+            "$group": {
+              "_id": null,
+              "pedidos": {
+                "$sum": 1
+              },
+              "valor": {
+                "$sum": {
+                  "$sum": {
+                    "$map": {
+                      "input": "$items",
+                      "as": "i",
+                      "in": {
+                        "$multiply": [
+                          "$$i.unit_price",
+                          "$$i.quantity",
+                          {
+                            "$subtract": [
+                              {
+                                "$numberDecimal": "1"
+                              },
+                              "$$i.discount"
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "totalDocsExamined": 7470,
+      "totalKeysExamined": 0,
+      "collectionScans": 9,
+      "indexesUsed": [],
+      "nReturned": 9,
+      "executionTimeMillisEstimate": 4
+    },
+    {
+      "$set": {
+        "pedidos": {
+          "$ifNull": [
+            {
+              "$first": [
+                "$vendas.pedidos"
+              ]
+            },
+            {
+              "$const": 0
+            }
+          ]
+        },
+        "valor": {
+          "$ifNull": [
+            {
+              "$first": [
+                "$vendas.valor"
+              ]
+            },
+            {
+              "$const": {
+                "$numberDecimal": "0"
+              }
+            }
+          ]
+        }
+      },
+      "nReturned": 9,
+      "executionTimeMillisEstimate": 4
+    },
+    {
+      "$_internalSetWindowFields": {
+        "output": {
+          "total": {
+            "$sum": "$valor",
+            "window": {
+              "documents": [
+                "unbounded",
+                "unbounded"
+              ]
+            }
+          }
+        }
+      },
+      "maxFunctionMemoryUsageBytes": {
+        "total": 96
+      },
+      "maxTotalMemoryUsageBytes": 7520,
+      "usedDisk": false,
+      "nReturned": 9,
+      "executionTimeMillisEstimate": 4
+    },
+    {
+      "$project": {
+        "pedidos": true,
+        "valor": true,
+        "employee_id": "$_id",
+        "funcionario": {
+          "$concat": [
+            "$first_name",
+            {
+              "$const": " "
+            },
+            "$last_name"
+          ]
+        },
+        "ticket": {
+          "$cond": [
+            {
+              "$eq": [
+                "$pedidos",
+                {
+                  "$const": 0
+                }
+              ]
+            },
+            {
+              "$const": null
+            },
+            {
+              "$divide": [
+                "$valor",
+                "$pedidos"
+              ]
+            }
+          ]
+        },
+        "participacao": {
+          "$cond": [
+            {
+              "$eq": [
+                "$total",
+                {
+                  "$const": 0
+                }
+              ]
+            },
+            {
+              "$const": null
+            },
+            {
+              "$divide": [
+                {
+                  "$multiply": [
+                    "$valor",
+                    {
+                      "$const": {
+                        "$numberDecimal": "100"
+                      }
+                    }
+                  ]
+                },
+                "$total"
+              ]
+            }
+          ]
+        },
+        "_id": false
+      },
+      "nReturned": 9,
+      "executionTimeMillisEstimate": 4
+    },
+    {
+      "$sort": {
+        "sortKey": {
+          "employee_id": 1
+        }
+      },
+      "totalDataSizeSortedBytesEstimate": 4535,
+      "usedDisk": false,
+      "spills": 0,
+      "spilledDataStorageSize": 0,
+      "nReturned": 9,
+      "executionTimeMillisEstimate": 4
+    }
+  ],
+  "serverInfo": {
+    "host": "f2526db2bd5a",
+    "port": 27017,
+    "version": "7.0.40",
+    "gitVersion": "37741b538c02da076d1e34d66113ac0230d4523a"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600,
+    "internalQueryFrameworkControl": "forceClassicEngine"
+  },
+  "command": {
+    "aggregate": "employees",
+    "pipeline": [
+      {
+        "$lookup": {
+          "from": "orders",
+          "localField": "_id",
+          "foreignField": "employee_id",
+          "pipeline": [
+            {
+              "$match": {
+                "order_date": {
+                  "$gte": {
+                    "$date": "1996-07-01T00:00:00Z"
+                  },
+                  "$lt": {
+                    "$date": "1998-06-01T00:00:00Z"
+                  }
+                }
+              }
+            },
+            {
+              "$group": {
+                "_id": null,
+                "pedidos": {
+                  "$sum": 1
+                },
+                "valor": {
+                  "$sum": {
+                    "$sum": {
+                      "$map": {
+                        "input": "$items",
+                        "as": "i",
+                        "in": {
+                          "$multiply": [
+                            "$$i.unit_price",
+                            "$$i.quantity",
+                            {
+                              "$subtract": [
+                                {
+                                  "$numberDecimal": "1"
+                                },
+                                "$$i.discount"
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "as": "vendas"
+        }
+      },
+      {
+        "$set": {
+          "pedidos": {
+            "$ifNull": [
+              {
+                "$first": "$vendas.pedidos"
+              },
+              0
+            ]
+          },
+          "valor": {
+            "$ifNull": [
+              {
+                "$first": "$vendas.valor"
+              },
+              {
+                "$numberDecimal": "0"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "$setWindowFields": {
+          "output": {
+            "total": {
+              "$sum": "$valor",
+              "window": {
+                "documents": [
+                  "unbounded",
+                  "unbounded"
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "employee_id": "$_id",
+          "funcionario": {
+            "$concat": [
+              "$first_name",
+              " ",
+              "$last_name"
+            ]
+          },
+          "pedidos": 1,
+          "valor": 1,
+          "ticket": {
+            "$cond": [
+              {
+                "$eq": [
+                  "$pedidos",
+                  0
+                ]
+              },
+              null,
+              {
+                "$divide": [
+                  "$valor",
+                  "$pedidos"
+                ]
+              }
+            ]
+          },
+          "participacao": {
+            "$cond": [
+              {
+                "$eq": [
+                  "$total",
+                  0
+                ]
+              },
+              null,
+              {
+                "$divide": [
+                  {
+                    "$multiply": [
+                      "$valor",
+                      {
+                        "$numberDecimal": "100"
+                      }
+                    ]
+                  },
+                  "$total"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "$sort": {
+          "employee_id": 1
+        }
+      }
+    ],
+    "cursor": {},
+    "$db": "northwind"
+  },
+  "ok": 1.0
+}

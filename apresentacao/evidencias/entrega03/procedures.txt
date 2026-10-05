@@ -1,0 +1,45 @@
+BEGIN
+ resultado 
+-----------
+ vendas
+(1 row)
+
+ category_id |   categoria    | pedidos |    valor     |   ticket_categoria    
+-------------+----------------+---------+--------------+-----------------------
+           1 | Beverages      |     354 | 267868.18000 |  756.6897740112994350
+           2 | Condiments     |     193 | 106047.08500 |  549.4667616580310881
+           3 | Confections    |     295 | 167357.22500 |  567.3126271186440678
+           4 | Dairy Products |     303 | 234507.28500 |  773.9514356435643564
+           5 | Grains/Cereals |     182 |  95744.58750 |  526.0691620879120879
+           6 | Meat/Poultry   |     161 | 163022.35950 | 1012.5612391304347826
+           7 | Produce        |     129 |  99984.58000 |  775.0742635658914729
+           8 | Seafood        |     291 | 131261.73750 |  451.0712628865979381
+(8 rows)
+
+ resultado 
+-----------
+ inativos
+(1 row)
+
+ customer_id |               cliente                |   ultima   | recencia |  situacao   
+-------------+--------------------------------------+------------+----------+-------------
+ CENTC       | Centro comercial Moctezuma           | 1996-07-18 |      657 | inativo
+ FAMIA       | Familia Arquibaldo                   | 1997-10-31 |      187 | inativo
+ FISSA       | FISSA Fabrica Inter. Salchichas S.A. |            |          | sem compras
+ HUNGC       | Hungry Coyote Import Store           | 1997-09-08 |      240 | inativo
+ LAZYK       | Lazy K Kountry Store                 | 1997-05-22 |      349 | inativo
+ MEREP       | Mère Paillarde                       | 1997-10-30 |      188 | inativo
+ PARIS       | Paris spécialités                    |            |          | sem compras
+(7 rows)
+
+ resultado 
+-----------
+ equipe
+(1 row)
+
+ gestor_id | membros | valor_proprio | pedidos_equipe | valor_equipe  
+-----------+---------+---------------+----------------+---------------
+         2 |       9 |  166537.75500 |            830 | 1265793.03950
+(1 row)
+
+COMMIT

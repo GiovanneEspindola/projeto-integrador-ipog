@@ -1,0 +1,350 @@
+{
+  "explainVersion": "1",
+  "stages": [
+    {
+      "$cursor": {
+        "queryPlanner": {
+          "namespace": "northwind.orders",
+          "indexFilterSet": false,
+          "parsedQuery": {
+            "$and": [
+              {
+                "order_date": {
+                  "$lt": {
+                    "$date": "1998-06-01T00:00:00Z"
+                  }
+                }
+              },
+              {
+                "order_date": {
+                  "$gte": {
+                    "$date": "1996-07-01T00:00:00Z"
+                  }
+                }
+              }
+            ]
+          },
+          "queryHash": "0723A745",
+          "planCacheKey": "3005339C",
+          "optimizationTimeMillis": 0,
+          "maxIndexedOrSolutionsReached": false,
+          "maxIndexedAndSolutionsReached": false,
+          "maxScansToExplodeReached": false,
+          "winningPlan": {
+            "stage": "PROJECTION_SIMPLE",
+            "transformBy": {
+              "items": 1,
+              "_id": 0
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "filter": {
+                "$and": [
+                  {
+                    "order_date": {
+                      "$lt": {
+                        "$date": "1998-06-01T00:00:00Z"
+                      }
+                    }
+                  },
+                  {
+                    "order_date": {
+                      "$gte": {
+                        "$date": "1996-07-01T00:00:00Z"
+                      }
+                    }
+                  }
+                ]
+              },
+              "direction": "forward"
+            }
+          },
+          "rejectedPlans": []
+        },
+        "executionStats": {
+          "executionSuccess": true,
+          "nReturned": 830,
+          "executionTimeMillis": 2,
+          "totalKeysExamined": 0,
+          "totalDocsExamined": 830,
+          "executionStages": {
+            "stage": "PROJECTION_SIMPLE",
+            "nReturned": 830,
+            "executionTimeMillisEstimate": 0,
+            "works": 831,
+            "advanced": 830,
+            "needTime": 0,
+            "needYield": 0,
+            "saveState": 1,
+            "restoreState": 1,
+            "isEOF": 1,
+            "transformBy": {
+              "items": 1,
+              "_id": 0
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "filter": {
+                "$and": [
+                  {
+                    "order_date": {
+                      "$lt": {
+                        "$date": "1998-06-01T00:00:00Z"
+                      }
+                    }
+                  },
+                  {
+                    "order_date": {
+                      "$gte": {
+                        "$date": "1996-07-01T00:00:00Z"
+                      }
+                    }
+                  }
+                ]
+              },
+              "nReturned": 830,
+              "executionTimeMillisEstimate": 0,
+              "works": 831,
+              "advanced": 830,
+              "needTime": 0,
+              "needYield": 0,
+              "saveState": 1,
+              "restoreState": 1,
+              "isEOF": 1,
+              "direction": "forward",
+              "docsExamined": 830
+            }
+          }
+        }
+      },
+      "nReturned": 830,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$unwind": {
+        "path": "$items"
+      },
+      "nReturned": 2155,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$group": {
+        "_id": {
+          "c": "$items.product.category._id",
+          "p": "$items.product._id"
+        },
+        "valor": {
+          "$sum": {
+            "$multiply": [
+              "$items.unit_price",
+              "$items.quantity",
+              {
+                "$subtract": [
+                  {
+                    "$const": {
+                      "$numberDecimal": "1"
+                    }
+                  },
+                  "$items.discount"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "maxAccumulatorMemoryUsageBytes": {
+        "valor": 7392
+      },
+      "totalOutputDataSizeBytes": 40194,
+      "usedDisk": false,
+      "spills": 0,
+      "spilledDataStorageSize": 0,
+      "numBytesSpilledEstimate": 0,
+      "spilledRecords": 0,
+      "nReturned": 77,
+      "executionTimeMillisEstimate": 1
+    },
+    {
+      "$project": {
+        "valor": true,
+        "category_id": "$_id.c",
+        "product_id": "$_id.p",
+        "_id": false
+      },
+      "nReturned": 77,
+      "executionTimeMillisEstimate": 1
+    },
+    {
+      "$sort": {
+        "sortKey": {
+          "category_id": 1,
+          "valor": -1,
+          "product_id": 1
+        }
+      },
+      "totalDataSizeSortedBytesEstimate": 33649,
+      "usedDisk": false,
+      "spills": 0,
+      "spilledDataStorageSize": 0,
+      "nReturned": 77,
+      "executionTimeMillisEstimate": 1
+    },
+    {
+      "$_internalSetWindowFields": {
+        "partitionBy": "$category_id",
+        "sortBy": {
+          "valor": -1,
+          "product_id": 1
+        },
+        "output": {
+          "posicao": {
+            "$sum": {
+              "$const": 1
+            },
+            "window": {
+              "documents": [
+                "unbounded",
+                "current"
+              ]
+            }
+          }
+        }
+      },
+      "maxFunctionMemoryUsageBytes": {
+        "posicao": 96
+      },
+      "maxTotalMemoryUsageBytes": 746,
+      "usedDisk": false,
+      "nReturned": 77,
+      "executionTimeMillisEstimate": 1
+    },
+    {
+      "$match": {
+        "posicao": {
+          "$lte": 5
+        }
+      },
+      "nReturned": 40,
+      "executionTimeMillisEstimate": 1
+    },
+    {
+      "$sort": {
+        "sortKey": {
+          "category_id": 1,
+          "posicao": 1
+        }
+      },
+      "totalDataSizeSortedBytesEstimate": 19400,
+      "usedDisk": false,
+      "spills": 0,
+      "spilledDataStorageSize": 0,
+      "nReturned": 40,
+      "executionTimeMillisEstimate": 1
+    }
+  ],
+  "serverInfo": {
+    "host": "f2526db2bd5a",
+    "port": 27017,
+    "version": "7.0.40",
+    "gitVersion": "37741b538c02da076d1e34d66113ac0230d4523a"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600,
+    "internalQueryFrameworkControl": "forceClassicEngine"
+  },
+  "command": {
+    "aggregate": "orders",
+    "pipeline": [
+      {
+        "$match": {
+          "order_date": {
+            "$gte": {
+              "$date": "1996-07-01T00:00:00Z"
+            },
+            "$lt": {
+              "$date": "1998-06-01T00:00:00Z"
+            }
+          }
+        }
+      },
+      {
+        "$unwind": "$items"
+      },
+      {
+        "$group": {
+          "_id": {
+            "c": "$items.product.category._id",
+            "p": "$items.product._id"
+          },
+          "valor": {
+            "$sum": {
+              "$multiply": [
+                "$items.unit_price",
+                "$items.quantity",
+                {
+                  "$subtract": [
+                    {
+                      "$numberDecimal": "1"
+                    },
+                    "$items.discount"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "category_id": "$_id.c",
+          "product_id": "$_id.p",
+          "valor": 1
+        }
+      },
+      {
+        "$setWindowFields": {
+          "partitionBy": "$category_id",
+          "sortBy": {
+            "valor": -1,
+            "product_id": 1
+          },
+          "output": {
+            "posicao": {
+              "$sum": 1,
+              "window": {
+                "documents": [
+                  "unbounded",
+                  "current"
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "$match": {
+          "posicao": {
+            "$lte": 5
+          }
+        }
+      },
+      {
+        "$sort": {
+          "category_id": 1,
+          "posicao": 1
+        }
+      }
+    ],
+    "cursor": {},
+    "$db": "northwind"
+  },
+  "ok": 1.0
+}

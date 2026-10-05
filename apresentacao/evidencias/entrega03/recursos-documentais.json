@@ -1,0 +1,301 @@
+{
+  "mesmo_item": [
+    {
+      "_id": 10327,
+      "items": [
+        {
+          "product": {
+            "_id": 11,
+            "name": "Queso Cabrales",
+            "category": {
+              "_id": 4,
+              "name": "Dairy Products"
+            }
+          },
+          "discount": {
+            "$numberDecimal": "0.200"
+          },
+          "quantity": 50,
+          "unit_price": {
+            "$numberDecimal": "16.80"
+          }
+        }
+      ]
+    },
+    {
+      "_id": 10353,
+      "items": [
+        {
+          "product": {
+            "_id": 11,
+            "name": "Queso Cabrales",
+            "category": {
+              "_id": 4,
+              "name": "Dairy Products"
+            }
+          },
+          "discount": {
+            "$numberDecimal": "0.200"
+          },
+          "quantity": 12,
+          "unit_price": {
+            "$numberDecimal": "16.80"
+          }
+        }
+      ]
+    },
+    {
+      "_id": 10489,
+      "items": [
+        {
+          "product": {
+            "_id": 11,
+            "name": "Queso Cabrales",
+            "category": {
+              "_id": 4,
+              "name": "Dairy Products"
+            }
+          },
+          "discount": {
+            "$numberDecimal": "0.250"
+          },
+          "quantity": 15,
+          "unit_price": {
+            "$numberDecimal": "16.80"
+          }
+        }
+      ]
+    },
+    {
+      "_id": 10535,
+      "items": [
+        {
+          "product": {
+            "_id": 11,
+            "name": "Queso Cabrales",
+            "category": {
+              "_id": 4,
+              "name": "Dairy Products"
+            }
+          },
+          "discount": {
+            "$numberDecimal": "0.100"
+          },
+          "quantity": 50,
+          "unit_price": {
+            "$numberDecimal": "21.00"
+          }
+        }
+      ]
+    },
+    {
+      "_id": 10542,
+      "items": [
+        {
+          "product": {
+            "_id": 11,
+            "name": "Queso Cabrales",
+            "category": {
+              "_id": 4,
+              "name": "Dairy Products"
+            }
+          },
+          "discount": {
+            "$numberDecimal": "0.050"
+          },
+          "quantity": 15,
+          "unit_price": {
+            "$numberDecimal": "21.00"
+          }
+        }
+      ]
+    },
+    {
+      "_id": 10566,
+      "items": [
+        {
+          "product": {
+            "_id": 11,
+            "name": "Queso Cabrales",
+            "category": {
+              "_id": 4,
+              "name": "Dairy Products"
+            }
+          },
+          "discount": {
+            "$numberDecimal": "0.150"
+          },
+          "quantity": 35,
+          "unit_price": {
+            "$numberDecimal": "21.00"
+          }
+        }
+      ]
+    },
+    {
+      "_id": 10570,
+      "items": [
+        {
+          "product": {
+            "_id": 11,
+            "name": "Queso Cabrales",
+            "category": {
+              "_id": 4,
+              "name": "Dairy Products"
+            }
+          },
+          "discount": {
+            "$numberDecimal": "0.050"
+          },
+          "quantity": 15,
+          "unit_price": {
+            "$numberDecimal": "21.00"
+          }
+        }
+      ]
+    },
+    {
+      "_id": 10770,
+      "items": [
+        {
+          "product": {
+            "_id": 11,
+            "name": "Queso Cabrales",
+            "category": {
+              "_id": 4,
+              "name": "Dairy Products"
+            }
+          },
+          "discount": {
+            "$numberDecimal": "0.250"
+          },
+          "quantity": 15,
+          "unit_price": {
+            "$numberDecimal": "21.00"
+          }
+        }
+      ]
+    },
+    {
+      "_id": 10800,
+      "items": [
+        {
+          "product": {
+            "_id": 11,
+            "name": "Queso Cabrales",
+            "category": {
+              "_id": 4,
+              "name": "Dairy Products"
+            }
+          },
+          "discount": {
+            "$numberDecimal": "0.100"
+          },
+          "quantity": 50,
+          "unit_price": {
+            "$numberDecimal": "21.00"
+          }
+        }
+      ]
+    },
+    {
+      "_id": 10823,
+      "items": [
+        {
+          "product": {
+            "_id": 11,
+            "name": "Queso Cabrales",
+            "category": {
+              "_id": 4,
+              "name": "Dairy Products"
+            }
+          },
+          "discount": {
+            "$numberDecimal": "0.100"
+          },
+          "quantity": 20,
+          "unit_price": {
+            "$numberDecimal": "21.00"
+          }
+        }
+      ]
+    },
+    {
+      "_id": 10912,
+      "items": [
+        {
+          "product": {
+            "_id": 11,
+            "name": "Queso Cabrales",
+            "category": {
+              "_id": 4,
+              "name": "Dairy Products"
+            }
+          },
+          "discount": {
+            "$numberDecimal": "0.250"
+          },
+          "quantity": 40,
+          "unit_price": {
+            "$numberDecimal": "21.00"
+          }
+        }
+      ]
+    }
+  ],
+  "condicoes_independentes": 16,
+  "pedido": [
+    {
+      "_id": 10248,
+      "produtos": [
+        "Queso Cabrales",
+        "Singaporean Hokkien Fried Mee",
+        "Mozzarella di Giovanni"
+      ],
+      "valor": {
+        "$numberDecimal": "440.00000"
+      }
+    }
+  ],
+  "painel": [
+    {
+      "volume": [
+        {
+          "pedidos": 408
+        }
+      ],
+      "envio": [
+        {
+          "_id": "com data",
+          "pedidos": 408
+        }
+      ],
+      "tamanho": [
+        {
+          "_id": 1,
+          "pedidos": 62
+        },
+        {
+          "_id": 2,
+          "pedidos": 139
+        },
+        {
+          "_id": 3,
+          "pedidos": 127
+        },
+        {
+          "_id": 4,
+          "pedidos": 63
+        },
+        {
+          "_id": 5,
+          "pedidos": 16
+        },
+        {
+          "_id": 6,
+          "pedidos": 1
+        }
+      ]
+    }
+  ]
+}

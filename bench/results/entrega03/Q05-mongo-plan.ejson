@@ -1,0 +1,314 @@
+{
+  "explainVersion": "1",
+  "stages": [
+    {
+      "$cursor": {
+        "queryPlanner": {
+          "namespace": "northwind.products",
+          "indexFilterSet": false,
+          "parsedQuery": {
+            "$expr": {
+              "$lt": [
+                "$units_in_stock",
+                "$reorder_level"
+              ]
+            }
+          },
+          "queryHash": "8CD45214",
+          "planCacheKey": "8CD45214",
+          "optimizationTimeMillis": 0,
+          "maxIndexedOrSolutionsReached": false,
+          "maxIndexedAndSolutionsReached": false,
+          "maxScansToExplodeReached": false,
+          "winningPlan": {
+            "stage": "PROJECTION_DEFAULT",
+            "transformBy": {
+              "_id": 1,
+              "category._id": 1,
+              "category.name": 1,
+              "reorder_level": 1,
+              "units_in_stock": 1,
+              "units_on_order": 1
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "filter": {
+                "$expr": {
+                  "$lt": [
+                    "$units_in_stock",
+                    "$reorder_level"
+                  ]
+                }
+              },
+              "direction": "forward"
+            }
+          },
+          "rejectedPlans": []
+        },
+        "executionStats": {
+          "executionSuccess": true,
+          "nReturned": 18,
+          "executionTimeMillis": 0,
+          "totalKeysExamined": 0,
+          "totalDocsExamined": 77,
+          "executionStages": {
+            "stage": "PROJECTION_DEFAULT",
+            "nReturned": 18,
+            "executionTimeMillisEstimate": 0,
+            "works": 78,
+            "advanced": 18,
+            "needTime": 59,
+            "needYield": 0,
+            "saveState": 1,
+            "restoreState": 1,
+            "isEOF": 1,
+            "transformBy": {
+              "_id": 1,
+              "category._id": 1,
+              "category.name": 1,
+              "reorder_level": 1,
+              "units_in_stock": 1,
+              "units_on_order": 1
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "filter": {
+                "$expr": {
+                  "$lt": [
+                    "$units_in_stock",
+                    "$reorder_level"
+                  ]
+                }
+              },
+              "nReturned": 18,
+              "executionTimeMillisEstimate": 0,
+              "works": 78,
+              "advanced": 18,
+              "needTime": 59,
+              "needYield": 0,
+              "saveState": 1,
+              "restoreState": 1,
+              "isEOF": 1,
+              "direction": "forward",
+              "docsExamined": 77
+            }
+          }
+        }
+      },
+      "nReturned": 18,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$set": {
+        "deficit": {
+          "$subtract": [
+            "$reorder_level",
+            "$units_in_stock"
+          ]
+        },
+        "insuficiente": {
+          "$cond": [
+            {
+              "$lt": [
+                {
+                  "$add": [
+                    "$units_in_stock",
+                    "$units_on_order"
+                  ]
+                },
+                "$reorder_level"
+              ]
+            },
+            {
+              "$const": 1
+            },
+            {
+              "$const": 0
+            }
+          ]
+        }
+      },
+      "nReturned": 18,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$sort": {
+        "sortKey": {
+          "_id": 1
+        }
+      },
+      "totalDataSizeSortedBytesEstimate": 8199,
+      "usedDisk": false,
+      "spills": 0,
+      "spilledDataStorageSize": 0,
+      "nReturned": 18,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$group": {
+        "_id": "$category._id",
+        "categoria": {
+          "$first": "$category.name"
+        },
+        "produtos": {
+          "$sum": {
+            "$const": 1
+          }
+        },
+        "deficit": {
+          "$sum": "$deficit"
+        },
+        "reposicao_insuficiente": {
+          "$sum": "$insuficiente"
+        },
+        "produtos_ids": {
+          "$push": "$_id"
+        }
+      },
+      "maxAccumulatorMemoryUsageBytes": {
+        "categoria": 564,
+        "produtos": 672,
+        "deficit": 672,
+        "reposicao_insuficiente": 672,
+        "produtos_ids": 792
+      },
+      "totalOutputDataSizeBytes": 5031,
+      "usedDisk": false,
+      "spills": 0,
+      "spilledDataStorageSize": 0,
+      "numBytesSpilledEstimate": 0,
+      "spilledRecords": 0,
+      "nReturned": 7,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$project": {
+        "categoria": true,
+        "produtos": true,
+        "deficit": true,
+        "reposicao_insuficiente": true,
+        "produtos_ids": true,
+        "category_id": "$_id",
+        "_id": false
+      },
+      "nReturned": 7,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$sort": {
+        "sortKey": {
+          "category_id": 1
+        }
+      },
+      "totalDataSizeSortedBytesEstimate": 5087,
+      "usedDisk": false,
+      "spills": 0,
+      "spilledDataStorageSize": 0,
+      "nReturned": 7,
+      "executionTimeMillisEstimate": 0
+    }
+  ],
+  "serverInfo": {
+    "host": "f2526db2bd5a",
+    "port": 27017,
+    "version": "7.0.40",
+    "gitVersion": "37741b538c02da076d1e34d66113ac0230d4523a"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600,
+    "internalQueryFrameworkControl": "forceClassicEngine"
+  },
+  "command": {
+    "aggregate": "products",
+    "pipeline": [
+      {
+        "$match": {
+          "$expr": {
+            "$lt": [
+              "$units_in_stock",
+              "$reorder_level"
+            ]
+          }
+        }
+      },
+      {
+        "$set": {
+          "deficit": {
+            "$subtract": [
+              "$reorder_level",
+              "$units_in_stock"
+            ]
+          },
+          "insuficiente": {
+            "$cond": [
+              {
+                "$lt": [
+                  {
+                    "$add": [
+                      "$units_in_stock",
+                      "$units_on_order"
+                    ]
+                  },
+                  "$reorder_level"
+                ]
+              },
+              1,
+              0
+            ]
+          }
+        }
+      },
+      {
+        "$sort": {
+          "_id": 1
+        }
+      },
+      {
+        "$group": {
+          "_id": "$category._id",
+          "categoria": {
+            "$first": "$category.name"
+          },
+          "produtos": {
+            "$sum": 1
+          },
+          "deficit": {
+            "$sum": "$deficit"
+          },
+          "reposicao_insuficiente": {
+            "$sum": "$insuficiente"
+          },
+          "produtos_ids": {
+            "$push": "$_id"
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "category_id": "$_id",
+          "categoria": 1,
+          "produtos": 1,
+          "deficit": 1,
+          "reposicao_insuficiente": 1,
+          "produtos_ids": 1
+        }
+      },
+      {
+        "$sort": {
+          "category_id": 1
+        }
+      }
+    ],
+    "cursor": {},
+    "$db": "northwind"
+  },
+  "ok": 1.0
+}

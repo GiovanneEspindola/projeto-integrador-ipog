@@ -1,0 +1,81 @@
+{
+  "QUERY PLAN": [
+    {
+      "Plan": {
+        "Node Type": "Sort",
+        "Parallel Aware": false,
+        "Async Capable": false,
+        "Startup Cost": 29.54,
+        "Total Cost": 29.54,
+        "Plan Rows": 1,
+        "Plan Width": 8,
+        "Actual Startup Time": 0.04,
+        "Actual Total Time": 0.04,
+        "Actual Rows": 3,
+        "Actual Loops": 1,
+        "Sort Key": [
+          "order_date",
+          "order_id"
+        ],
+        "Sort Method": "quicksort",
+        "Sort Space Used": 25,
+        "Sort Space Type": "Memory",
+        "Shared Hit Blocks": 15,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0,
+        "Plans": [
+          {
+            "Node Type": "Seq Scan",
+            "Parent Relationship": "Outer",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Relation Name": "orders",
+            "Alias": "orders",
+            "Startup Cost": 0.0,
+            "Total Cost": 29.53,
+            "Plan Rows": 1,
+            "Plan Width": 8,
+            "Actual Startup Time": 0.003,
+            "Actual Total Time": 0.038,
+            "Actual Rows": 3,
+            "Actual Loops": 1,
+            "Filter": "((order_date >= '1996-01-01'::date) AND (order_date < '1997-01-01'::date) AND ((customer_id)::text = 'VINET'::text))",
+            "Rows Removed by Filter": 827,
+            "Shared Hit Blocks": 15,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          }
+        ]
+      },
+      "Planning": {
+        "Shared Hit Blocks": 0,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0
+      },
+      "Planning Time": 0.044,
+      "Triggers": [],
+      "Execution Time": 0.045
+    }
+  ]
+}

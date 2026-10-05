@@ -1,0 +1,609 @@
+{
+  "explainVersion": "1",
+  "stages": [
+    {
+      "$cursor": {
+        "queryPlanner": {
+          "namespace": "northwind.customers",
+          "indexFilterSet": false,
+          "parsedQuery": {},
+          "queryHash": "24761FAA",
+          "planCacheKey": "24761FAA",
+          "optimizationTimeMillis": 0,
+          "maxIndexedOrSolutionsReached": false,
+          "maxIndexedAndSolutionsReached": false,
+          "maxScansToExplodeReached": false,
+          "winningPlan": {
+            "stage": "PROJECTION_SIMPLE",
+            "transformBy": {
+              "_id": 1
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "direction": "forward"
+            }
+          },
+          "rejectedPlans": []
+        },
+        "executionStats": {
+          "executionSuccess": true,
+          "nReturned": 91,
+          "executionTimeMillis": 6,
+          "totalKeysExamined": 0,
+          "totalDocsExamined": 91,
+          "executionStages": {
+            "stage": "PROJECTION_SIMPLE",
+            "nReturned": 91,
+            "executionTimeMillisEstimate": 0,
+            "works": 92,
+            "advanced": 91,
+            "needTime": 0,
+            "needYield": 0,
+            "saveState": 1,
+            "restoreState": 1,
+            "isEOF": 1,
+            "transformBy": {
+              "_id": 1
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "nReturned": 91,
+              "executionTimeMillisEstimate": 0,
+              "works": 92,
+              "advanced": 91,
+              "needTime": 0,
+              "needYield": 0,
+              "saveState": 1,
+              "restoreState": 1,
+              "isEOF": 1,
+              "direction": "forward",
+              "docsExamined": 91
+            }
+          }
+        }
+      },
+      "nReturned": 91,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$lookup": {
+        "from": "orders",
+        "as": "compras",
+        "localField": "_id",
+        "foreignField": "customer_id",
+        "let": {},
+        "pipeline": [
+          {
+            "$match": {
+              "order_date": {
+                "$lte": {
+                  "$date": "1998-05-06T00:00:00Z"
+                }
+              }
+            }
+          },
+          {
+            "$group": {
+              "_id": null,
+              "ultima": {
+                "$max": "$order_date"
+              },
+              "frequencia": {
+                "$sum": 1
+              },
+              "valor": {
+                "$sum": {
+                  "$sum": {
+                    "$map": {
+                      "input": "$items",
+                      "as": "i",
+                      "in": {
+                        "$multiply": [
+                          "$$i.unit_price",
+                          "$$i.quantity",
+                          {
+                            "$subtract": [
+                              {
+                                "$numberDecimal": "1"
+                              },
+                              "$$i.discount"
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "totalDocsExamined": 830,
+      "totalKeysExamined": 830,
+      "collectionScans": 0,
+      "indexesUsed": [
+        "cliente_data"
+      ],
+      "nReturned": 91,
+      "executionTimeMillisEstimate": 7
+    },
+    {
+      "$set": {
+        "ultima": {
+          "$ifNull": [
+            {
+              "$first": [
+                "$compras.ultima"
+              ]
+            },
+            {
+              "$const": null
+            }
+          ]
+        },
+        "frequencia": {
+          "$ifNull": [
+            {
+              "$first": [
+                "$compras.frequencia"
+              ]
+            },
+            {
+              "$const": 0
+            }
+          ]
+        },
+        "valor": {
+          "$ifNull": [
+            {
+              "$first": [
+                "$compras.valor"
+              ]
+            },
+            {
+              "$const": {
+                "$numberDecimal": "0"
+              }
+            }
+          ]
+        }
+      },
+      "nReturned": 91,
+      "executionTimeMillisEstimate": 7
+    },
+    {
+      "$set": {
+        "recencia": {
+          "$dateDiff": {
+            "startDate": "$ultima",
+            "endDate": {
+              "$const": {
+                "$date": "1998-05-06T00:00:00Z"
+              }
+            },
+            "unit": {
+              "$const": "day"
+            }
+          }
+        }
+      },
+      "nReturned": 91,
+      "executionTimeMillisEstimate": 7
+    },
+    {
+      "$project": {
+        "recencia": true,
+        "frequencia": true,
+        "valor": true,
+        "customer_id": "$_id",
+        "r": {
+          "$cond": [
+            {
+              "$eq": [
+                "$frequencia",
+                {
+                  "$const": 0
+                }
+              ]
+            },
+            {
+              "$const": 0
+            },
+            {
+              "$cond": [
+                {
+                  "$lte": [
+                    "$recencia",
+                    {
+                      "$const": 30
+                    }
+                  ]
+                },
+                {
+                  "$const": 3
+                },
+                {
+                  "$cond": [
+                    {
+                      "$lte": [
+                        "$recencia",
+                        {
+                          "$const": 90
+                        }
+                      ]
+                    },
+                    {
+                      "$const": 2
+                    },
+                    {
+                      "$const": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "f": {
+          "$cond": [
+            {
+              "$eq": [
+                "$frequencia",
+                {
+                  "$const": 0
+                }
+              ]
+            },
+            {
+              "$const": 0
+            },
+            {
+              "$cond": [
+                {
+                  "$gte": [
+                    "$frequencia",
+                    {
+                      "$const": 10
+                    }
+                  ]
+                },
+                {
+                  "$const": 3
+                },
+                {
+                  "$cond": [
+                    {
+                      "$gte": [
+                        "$frequencia",
+                        {
+                          "$const": 5
+                        }
+                      ]
+                    },
+                    {
+                      "$const": 2
+                    },
+                    {
+                      "$const": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "m": {
+          "$cond": [
+            {
+              "$eq": [
+                "$frequencia",
+                {
+                  "$const": 0
+                }
+              ]
+            },
+            {
+              "$const": 0
+            },
+            {
+              "$cond": [
+                {
+                  "$gte": [
+                    "$valor",
+                    {
+                      "$const": {
+                        "$numberDecimal": "10000"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "$const": 3
+                },
+                {
+                  "$cond": [
+                    {
+                      "$gte": [
+                        "$valor",
+                        {
+                          "$const": {
+                            "$numberDecimal": "5000"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "$const": 2
+                    },
+                    {
+                      "$const": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "_id": false
+      },
+      "nReturned": 91,
+      "executionTimeMillisEstimate": 7
+    },
+    {
+      "$sort": {
+        "sortKey": {
+          "customer_id": 1
+        }
+      },
+      "totalDataSizeSortedBytesEstimate": 40495,
+      "usedDisk": false,
+      "spills": 0,
+      "spilledDataStorageSize": 0,
+      "nReturned": 91,
+      "executionTimeMillisEstimate": 7
+    }
+  ],
+  "serverInfo": {
+    "host": "f2526db2bd5a",
+    "port": 27017,
+    "version": "7.0.40",
+    "gitVersion": "37741b538c02da076d1e34d66113ac0230d4523a"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600,
+    "internalQueryFrameworkControl": "forceClassicEngine"
+  },
+  "command": {
+    "aggregate": "customers",
+    "pipeline": [
+      {
+        "$lookup": {
+          "from": "orders",
+          "localField": "_id",
+          "foreignField": "customer_id",
+          "pipeline": [
+            {
+              "$match": {
+                "order_date": {
+                  "$lte": {
+                    "$date": "1998-05-06T00:00:00Z"
+                  }
+                }
+              }
+            },
+            {
+              "$group": {
+                "_id": null,
+                "ultima": {
+                  "$max": "$order_date"
+                },
+                "frequencia": {
+                  "$sum": 1
+                },
+                "valor": {
+                  "$sum": {
+                    "$sum": {
+                      "$map": {
+                        "input": "$items",
+                        "as": "i",
+                        "in": {
+                          "$multiply": [
+                            "$$i.unit_price",
+                            "$$i.quantity",
+                            {
+                              "$subtract": [
+                                {
+                                  "$numberDecimal": "1"
+                                },
+                                "$$i.discount"
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "as": "compras"
+        }
+      },
+      {
+        "$set": {
+          "ultima": {
+            "$ifNull": [
+              {
+                "$first": "$compras.ultima"
+              },
+              null
+            ]
+          },
+          "frequencia": {
+            "$ifNull": [
+              {
+                "$first": "$compras.frequencia"
+              },
+              0
+            ]
+          },
+          "valor": {
+            "$ifNull": [
+              {
+                "$first": "$compras.valor"
+              },
+              {
+                "$numberDecimal": "0"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "$set": {
+          "recencia": {
+            "$dateDiff": {
+              "startDate": "$ultima",
+              "endDate": {
+                "$date": "1998-05-06T00:00:00Z"
+              },
+              "unit": "day"
+            }
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "customer_id": "$_id",
+          "recencia": 1,
+          "frequencia": 1,
+          "valor": 1,
+          "r": {
+            "$cond": [
+              {
+                "$eq": [
+                  "$frequencia",
+                  0
+                ]
+              },
+              0,
+              {
+                "$cond": [
+                  {
+                    "$lte": [
+                      "$recencia",
+                      30
+                    ]
+                  },
+                  3,
+                  {
+                    "$cond": [
+                      {
+                        "$lte": [
+                          "$recencia",
+                          90
+                        ]
+                      },
+                      2,
+                      1
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "f": {
+            "$cond": [
+              {
+                "$eq": [
+                  "$frequencia",
+                  0
+                ]
+              },
+              0,
+              {
+                "$cond": [
+                  {
+                    "$gte": [
+                      "$frequencia",
+                      10
+                    ]
+                  },
+                  3,
+                  {
+                    "$cond": [
+                      {
+                        "$gte": [
+                          "$frequencia",
+                          5
+                        ]
+                      },
+                      2,
+                      1
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "m": {
+            "$cond": [
+              {
+                "$eq": [
+                  "$frequencia",
+                  0
+                ]
+              },
+              0,
+              {
+                "$cond": [
+                  {
+                    "$gte": [
+                      "$valor",
+                      {
+                        "$numberDecimal": "10000"
+                      }
+                    ]
+                  },
+                  3,
+                  {
+                    "$cond": [
+                      {
+                        "$gte": [
+                          "$valor",
+                          {
+                            "$numberDecimal": "5000"
+                          }
+                        ]
+                      },
+                      2,
+                      1
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "$sort": {
+          "customer_id": 1
+        }
+      }
+    ],
+    "cursor": {},
+    "$db": "northwind"
+  },
+  "ok": 1.0
+}

@@ -1,0 +1,260 @@
+{
+  "explainVersion": "1",
+  "stages": [
+    {
+      "$cursor": {
+        "queryPlanner": {
+          "namespace": "bench_e03_d2f35921_cliente.orders",
+          "indexFilterSet": false,
+          "parsedQuery": {
+            "$and": [
+              {
+                "customer_id": {
+                  "$eq": "VINET"
+                }
+              },
+              {
+                "order_date": {
+                  "$lt": {
+                    "$date": "1997-01-01T00:00:00Z"
+                  }
+                }
+              },
+              {
+                "order_date": {
+                  "$gte": {
+                    "$date": "1996-01-01T00:00:00Z"
+                  }
+                }
+              }
+            ]
+          },
+          "queryHash": "137A9B44",
+          "planCacheKey": "EF5DB927",
+          "optimizationTimeMillis": 0,
+          "maxIndexedOrSolutionsReached": false,
+          "maxIndexedAndSolutionsReached": false,
+          "maxScansToExplodeReached": false,
+          "winningPlan": {
+            "stage": "SORT",
+            "sortPattern": {
+              "order_date": 1,
+              "_id": 1
+            },
+            "memLimit": 104857600,
+            "type": "simple",
+            "inputStage": {
+              "stage": "PROJECTION_SIMPLE",
+              "transformBy": {
+                "_id": 1,
+                "order_date": 1
+              },
+              "inputStage": {
+                "stage": "FETCH",
+                "inputStage": {
+                  "stage": "IXSCAN",
+                  "keyPattern": {
+                    "customer_id": 1,
+                    "order_date": 1
+                  },
+                  "indexName": "orders_cliente_data",
+                  "isMultiKey": false,
+                  "multiKeyPaths": {
+                    "customer_id": [],
+                    "order_date": []
+                  },
+                  "isUnique": false,
+                  "isSparse": false,
+                  "isPartial": false,
+                  "indexVersion": 2,
+                  "direction": "forward",
+                  "indexBounds": {
+                    "customer_id": [
+                      "[\"VINET\", \"VINET\"]"
+                    ],
+                    "order_date": [
+                      "[new Date(820454400000), new Date(852076800000))"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "rejectedPlans": []
+        },
+        "executionStats": {
+          "executionSuccess": true,
+          "nReturned": 3,
+          "executionTimeMillis": 0,
+          "totalKeysExamined": 3,
+          "totalDocsExamined": 3,
+          "executionStages": {
+            "stage": "SORT",
+            "nReturned": 3,
+            "executionTimeMillisEstimate": 0,
+            "works": 8,
+            "advanced": 3,
+            "needTime": 4,
+            "needYield": 0,
+            "saveState": 1,
+            "restoreState": 1,
+            "isEOF": 1,
+            "sortPattern": {
+              "order_date": 1,
+              "_id": 1
+            },
+            "memLimit": 104857600,
+            "type": "simple",
+            "totalDataSizeSorted": 414,
+            "usedDisk": false,
+            "spills": 0,
+            "spilledDataStorageSize": 0,
+            "inputStage": {
+              "stage": "PROJECTION_SIMPLE",
+              "nReturned": 3,
+              "executionTimeMillisEstimate": 0,
+              "works": 4,
+              "advanced": 3,
+              "needTime": 0,
+              "needYield": 0,
+              "saveState": 1,
+              "restoreState": 1,
+              "isEOF": 1,
+              "transformBy": {
+                "_id": 1,
+                "order_date": 1
+              },
+              "inputStage": {
+                "stage": "FETCH",
+                "nReturned": 3,
+                "executionTimeMillisEstimate": 0,
+                "works": 4,
+                "advanced": 3,
+                "needTime": 0,
+                "needYield": 0,
+                "saveState": 1,
+                "restoreState": 1,
+                "isEOF": 1,
+                "docsExamined": 3,
+                "alreadyHasObj": 0,
+                "inputStage": {
+                  "stage": "IXSCAN",
+                  "nReturned": 3,
+                  "executionTimeMillisEstimate": 0,
+                  "works": 4,
+                  "advanced": 3,
+                  "needTime": 0,
+                  "needYield": 0,
+                  "saveState": 1,
+                  "restoreState": 1,
+                  "isEOF": 1,
+                  "keyPattern": {
+                    "customer_id": 1,
+                    "order_date": 1
+                  },
+                  "indexName": "orders_cliente_data",
+                  "isMultiKey": false,
+                  "multiKeyPaths": {
+                    "customer_id": [],
+                    "order_date": []
+                  },
+                  "isUnique": false,
+                  "isSparse": false,
+                  "isPartial": false,
+                  "indexVersion": 2,
+                  "direction": "forward",
+                  "indexBounds": {
+                    "customer_id": [
+                      "[\"VINET\", \"VINET\"]"
+                    ],
+                    "order_date": [
+                      "[new Date(820454400000), new Date(852076800000))"
+                    ]
+                  },
+                  "keysExamined": 3,
+                  "seeks": 1,
+                  "dupsTested": 0,
+                  "dupsDropped": 0
+                }
+              }
+            }
+          }
+        }
+      },
+      "nReturned": 3,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$project": {
+        "order_id": "$_id",
+        "order_date": {
+          "$dateToString": {
+            "date": "$order_date",
+            "format": {
+              "$const": "%Y-%m-%d"
+            }
+          }
+        },
+        "_id": false
+      },
+      "nReturned": 3,
+      "executionTimeMillisEstimate": 0
+    }
+  ],
+  "serverInfo": {
+    "host": "f2526db2bd5a",
+    "port": 27017,
+    "version": "7.0.40",
+    "gitVersion": "37741b538c02da076d1e34d66113ac0230d4523a"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600,
+    "internalQueryFrameworkControl": "forceClassicEngine"
+  },
+  "command": {
+    "aggregate": "orders",
+    "pipeline": [
+      {
+        "$match": {
+          "customer_id": "VINET",
+          "order_date": {
+            "$gte": {
+              "$date": "1996-01-01T00:00:00Z"
+            },
+            "$lt": {
+              "$date": "1997-01-01T00:00:00Z"
+            }
+          }
+        }
+      },
+      {
+        "$sort": {
+          "order_date": 1,
+          "_id": 1
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "order_id": "$_id",
+          "order_date": {
+            "$dateToString": {
+              "date": "$order_date",
+              "format": "%Y-%m-%d"
+            }
+          }
+        }
+      }
+    ],
+    "cursor": {},
+    "$db": "bench_e03_d2f35921_cliente"
+  },
+  "ok": 1.0
+}

@@ -1,0 +1,29 @@
+{
+  "paginas": 69,
+  "iteracoes_nesta_execucao": 1,
+  "sumario": {
+    "1. Introdução e objetivo": 3,
+    "2. Compreensão do negócio": 4,
+    "3. Modelo conceitual": 5,
+    "4. Análise exploratória e qualidade dos dados": 7,
+    "5. Abordagem híbrida": 12,
+    "6. Implementação relacional e decisões de modelagem": 13,
+    "7. Modelagem documental": 16,
+    "8. Transformação e carga dos dados": 18,
+    "9. Estratégia de indexação": 21,
+    "10. Conferência da migração": 22,
+    "11. Síntese da modelagem e transição para analytics": 23,
+    "12. Contrato analítico e método": 24,
+    "13. Views e procedimentos armazenados": 26,
+    "14. Consultas analíticas e resultados": 27,
+    "15. Recursos documentais e MapReduce": 36,
+    "16. Comparação de sintaxe e complexidade": 37,
+    "17. Análise de performance e otimização": 39,
+    "18. Conclusões e reprodução": 44,
+    "Referências": 45,
+    "Apêndice A — Consultas SQL e pipelines completos": 46,
+    "Apêndice B — Views, procedures e recursos documentais": 67
+  },
+  "pdf": "entregas/entrega-03/Projeto-Integrador-Banco-de-Dados-Entrega-03.pdf",
+  "criterio": "Números calculados em renderizações consecutivas e estáveis."
+}

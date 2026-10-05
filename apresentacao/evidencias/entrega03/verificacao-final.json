@@ -1,0 +1,21 @@
+{
+  "status": "PASSOU",
+  "paginas_docx_renderizado": 69,
+  "codigos_completos_no_word": 37,
+  "pares_equivalentes": 16,
+  "testes_adicionais": 38,
+  "analises_performance": 16,
+  "estudos_otimizacao": 4,
+  "guia_blocos_codigo": 32,
+  "guia_exercicios_e_blocos": 76,
+  "anteriores_preservados": [
+    "entregas/entrega-01/Projeto-Integrador-Banco-de-Dados-Revisado.docx",
+    "entregas/entrega-02/Projeto-Integrador-Banco-de-Dados-Entrega-02.docx"
+  ],
+  "arquivos": {
+    "entregas/entrega-03/Projeto-Integrador-Banco-de-Dados-Entrega-03.docx": "d1b07772865b16525611dbc4cd9d695ecda32cd3d2b2a8b898df053df7c3473f",
+    "entregas/entrega-03/Projeto-Integrador-Banco-de-Dados-Entrega-03.pdf": "2ea9513177490be360a671d0e0ce0075a3e34a2586ff7d7b37b9a8a8fd3734c6",
+    "docs/estudo/guia-completo.html": "ef9908159b803bc6b2c651901a8f66ef23efc6fe84b182f8b9adaa8834440047",
+    "docs/estudo/guia-completo.md": "c2c3ebc23770938662a68409a4ce8a449bd9620aa60bb88365b1c23644e1b8ce"
+  }
+}

@@ -1,0 +1,600 @@
+{
+  "explainVersion": "1",
+  "stages": [
+    {
+      "$cursor": {
+        "queryPlanner": {
+          "namespace": "northwind.orders",
+          "indexFilterSet": false,
+          "parsedQuery": {
+            "$and": [
+              {
+                "order_date": {
+                  "$lt": {
+                    "$date": "1998-06-01T00:00:00Z"
+                  }
+                }
+              },
+              {
+                "order_date": {
+                  "$gte": {
+                    "$date": "1996-07-01T00:00:00Z"
+                  }
+                }
+              }
+            ]
+          },
+          "queryHash": "015DFBA2",
+          "planCacheKey": "A004F989",
+          "optimizationTimeMillis": 0,
+          "maxIndexedOrSolutionsReached": false,
+          "maxIndexedAndSolutionsReached": false,
+          "maxScansToExplodeReached": false,
+          "winningPlan": {
+            "stage": "PROJECTION_SIMPLE",
+            "transformBy": {
+              "items": 1,
+              "order_date": 1,
+              "_id": 0
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "filter": {
+                "$and": [
+                  {
+                    "order_date": {
+                      "$lt": {
+                        "$date": "1998-06-01T00:00:00Z"
+                      }
+                    }
+                  },
+                  {
+                    "order_date": {
+                      "$gte": {
+                        "$date": "1996-07-01T00:00:00Z"
+                      }
+                    }
+                  }
+                ]
+              },
+              "direction": "forward"
+            }
+          },
+          "rejectedPlans": []
+        },
+        "executionStats": {
+          "executionSuccess": true,
+          "nReturned": 830,
+          "executionTimeMillis": 2,
+          "totalKeysExamined": 0,
+          "totalDocsExamined": 830,
+          "executionStages": {
+            "stage": "PROJECTION_SIMPLE",
+            "nReturned": 830,
+            "executionTimeMillisEstimate": 0,
+            "works": 831,
+            "advanced": 830,
+            "needTime": 0,
+            "needYield": 0,
+            "saveState": 1,
+            "restoreState": 1,
+            "isEOF": 1,
+            "transformBy": {
+              "items": 1,
+              "order_date": 1,
+              "_id": 0
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "filter": {
+                "$and": [
+                  {
+                    "order_date": {
+                      "$lt": {
+                        "$date": "1998-06-01T00:00:00Z"
+                      }
+                    }
+                  },
+                  {
+                    "order_date": {
+                      "$gte": {
+                        "$date": "1996-07-01T00:00:00Z"
+                      }
+                    }
+                  }
+                ]
+              },
+              "nReturned": 830,
+              "executionTimeMillisEstimate": 0,
+              "works": 831,
+              "advanced": 830,
+              "needTime": 0,
+              "needYield": 0,
+              "saveState": 1,
+              "restoreState": 1,
+              "isEOF": 1,
+              "direction": "forward",
+              "docsExamined": 830
+            }
+          }
+        }
+      },
+      "nReturned": 830,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$set": {
+        "valor": {
+          "$sum": [
+            {
+              "$map": {
+                "input": "$items",
+                "as": "i",
+                "in": {
+                  "$multiply": [
+                    "$$i.unit_price",
+                    "$$i.quantity",
+                    {
+                      "$subtract": [
+                        {
+                          "$const": {
+                            "$numberDecimal": "1"
+                          }
+                        },
+                        "$$i.discount"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "nReturned": 830,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$facet": {
+        "dados": [
+          {
+            "$internalFacetTeeConsumer": {},
+            "nReturned": 830,
+            "executionTimeMillisEstimate": 0
+          },
+          {
+            "$group": {
+              "_id": {
+                "$dateTrunc": {
+                  "date": "$order_date",
+                  "unit": {
+                    "$const": "month"
+                  },
+                  "timezone": {
+                    "$const": "UTC"
+                  }
+                }
+              },
+              "pedidos": {
+                "$sum": {
+                  "$const": 1
+                }
+              },
+              "valor": {
+                "$sum": "$valor"
+              }
+            },
+            "maxAccumulatorMemoryUsageBytes": {
+              "pedidos": 2208,
+              "valor": 2208
+            },
+            "totalOutputDataSizeBytes": 7107,
+            "usedDisk": false,
+            "spills": 0,
+            "spilledDataStorageSize": 0,
+            "numBytesSpilledEstimate": 0,
+            "spilledRecords": 0,
+            "nReturned": 23,
+            "executionTimeMillisEstimate": 0
+          }
+        ]
+      },
+      "nReturned": 1,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$project": {
+        "_id": true,
+        "linhas": {
+          "$map": {
+            "input": {
+              "$const": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22
+              ]
+            },
+            "as": "k",
+            "in": {
+              "$let": {
+                "vars": {
+                  "m": {
+                    "$dateAdd": {
+                      "startDate": {
+                        "$const": {
+                          "$date": "1996-07-01T00:00:00Z"
+                        }
+                      },
+                      "unit": {
+                        "$const": "month"
+                      },
+                      "amount": "$$k"
+                    }
+                  }
+                },
+                "in": {
+                  "$let": {
+                    "vars": {
+                      "r": {
+                        "$arrayElemAt": [
+                          {
+                            "$filter": {
+                              "input": "$dados",
+                              "as": "d",
+                              "cond": {
+                                "$eq": [
+                                  "$$d._id",
+                                  "$$m"
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "$const": 0
+                          }
+                        ]
+                      }
+                    },
+                    "in": {
+                      "mes": "$$m",
+                      "pedidos": {
+                        "$ifNull": [
+                          "$$r.pedidos",
+                          {
+                            "$const": 0
+                          }
+                        ]
+                      },
+                      "valor": {
+                        "$ifNull": [
+                          "$$r.valor",
+                          {
+                            "$const": {
+                              "$numberDecimal": "0"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "nReturned": 1,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$unwind": {
+        "path": "$linhas"
+      },
+      "nReturned": 23,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$replaceRoot": {
+        "newRoot": "$linhas"
+      },
+      "nReturned": 23,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$sort": {
+        "sortKey": {
+          "mes": 1
+        }
+      },
+      "totalDataSizeSortedBytesEstimate": 9499,
+      "usedDisk": false,
+      "spills": 0,
+      "spilledDataStorageSize": 0,
+      "nReturned": 23,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$_internalSetWindowFields": {
+        "sortBy": {
+          "mes": 1
+        },
+        "output": {
+          "acumulado": {
+            "$sum": "$valor",
+            "window": {
+              "documents": [
+                "unbounded",
+                "current"
+              ]
+            }
+          }
+        }
+      },
+      "maxFunctionMemoryUsageBytes": {
+        "acumulado": 96
+      },
+      "maxTotalMemoryUsageBytes": 906,
+      "usedDisk": false,
+      "nReturned": 23,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$project": {
+        "valor": true,
+        "acumulado": true,
+        "mes": {
+          "$dateToString": {
+            "date": "$mes",
+            "format": {
+              "$const": "%Y-%m-%d"
+            }
+          }
+        },
+        "_id": false
+      },
+      "nReturned": 23,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$sort": {
+        "sortKey": {
+          "mes": 1
+        }
+      },
+      "totalDataSizeSortedBytesEstimate": 8027,
+      "usedDisk": false,
+      "spills": 0,
+      "spilledDataStorageSize": 0,
+      "nReturned": 23,
+      "executionTimeMillisEstimate": 0
+    }
+  ],
+  "serverInfo": {
+    "host": "f2526db2bd5a",
+    "port": 27017,
+    "version": "7.0.40",
+    "gitVersion": "37741b538c02da076d1e34d66113ac0230d4523a"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600,
+    "internalQueryFrameworkControl": "forceClassicEngine"
+  },
+  "command": {
+    "aggregate": "orders",
+    "pipeline": [
+      {
+        "$match": {
+          "order_date": {
+            "$gte": {
+              "$date": "1996-07-01T00:00:00Z"
+            },
+            "$lt": {
+              "$date": "1998-06-01T00:00:00Z"
+            }
+          }
+        }
+      },
+      {
+        "$set": {
+          "valor": {
+            "$sum": {
+              "$map": {
+                "input": "$items",
+                "as": "i",
+                "in": {
+                  "$multiply": [
+                    "$$i.unit_price",
+                    "$$i.quantity",
+                    {
+                      "$subtract": [
+                        {
+                          "$numberDecimal": "1"
+                        },
+                        "$$i.discount"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "$facet": {
+          "dados": [
+            {
+              "$group": {
+                "_id": {
+                  "$dateTrunc": {
+                    "date": "$order_date",
+                    "unit": "month",
+                    "timezone": "UTC"
+                  }
+                },
+                "pedidos": {
+                  "$sum": 1
+                },
+                "valor": {
+                  "$sum": "$valor"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$project": {
+          "linhas": {
+            "$map": {
+              "input": {
+                "$range": [
+                  0,
+                  {
+                    "$dateDiff": {
+                      "startDate": {
+                        "$date": "1996-07-01T00:00:00Z"
+                      },
+                      "endDate": {
+                        "$date": "1998-06-01T00:00:00Z"
+                      },
+                      "unit": "month"
+                    }
+                  }
+                ]
+              },
+              "as": "k",
+              "in": {
+                "$let": {
+                  "vars": {
+                    "m": {
+                      "$dateAdd": {
+                        "startDate": {
+                          "$date": "1996-07-01T00:00:00Z"
+                        },
+                        "unit": "month",
+                        "amount": "$$k"
+                      }
+                    }
+                  },
+                  "in": {
+                    "$let": {
+                      "vars": {
+                        "r": {
+                          "$arrayElemAt": [
+                            {
+                              "$filter": {
+                                "input": "$dados",
+                                "as": "d",
+                                "cond": {
+                                  "$eq": [
+                                    "$$d._id",
+                                    "$$m"
+                                  ]
+                                }
+                              }
+                            },
+                            0
+                          ]
+                        }
+                      },
+                      "in": {
+                        "mes": "$$m",
+                        "pedidos": {
+                          "$ifNull": [
+                            "$$r.pedidos",
+                            0
+                          ]
+                        },
+                        "valor": {
+                          "$ifNull": [
+                            "$$r.valor",
+                            {
+                              "$numberDecimal": "0"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "$unwind": "$linhas"
+      },
+      {
+        "$replaceWith": "$linhas"
+      },
+      {
+        "$setWindowFields": {
+          "sortBy": {
+            "mes": 1
+          },
+          "output": {
+            "acumulado": {
+              "$sum": "$valor",
+              "window": {
+                "documents": [
+                  "unbounded",
+                  "current"
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "mes": {
+            "$dateToString": {
+              "date": "$mes",
+              "format": "%Y-%m-%d"
+            }
+          },
+          "valor": 1,
+          "acumulado": 1
+        }
+      },
+      {
+        "$sort": {
+          "mes": 1
+        }
+      }
+    ],
+    "cursor": {},
+    "$db": "northwind"
+  },
+  "ok": 1.0
+}

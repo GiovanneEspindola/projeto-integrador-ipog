@@ -1,0 +1,369 @@
+{
+  "explainVersion": "1",
+  "stages": [
+    {
+      "$cursor": {
+        "queryPlanner": {
+          "namespace": "bench_e03_d2f35921_base.employees",
+          "indexFilterSet": false,
+          "parsedQuery": {},
+          "queryHash": "24761FAA",
+          "planCacheKey": "24761FAA",
+          "optimizationTimeMillis": 0,
+          "maxIndexedOrSolutionsReached": false,
+          "maxIndexedAndSolutionsReached": false,
+          "maxScansToExplodeReached": false,
+          "winningPlan": {
+            "stage": "PROJECTION_SIMPLE",
+            "transformBy": {
+              "_id": 1
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "direction": "forward"
+            }
+          },
+          "rejectedPlans": []
+        },
+        "executionStats": {
+          "executionSuccess": true,
+          "nReturned": 9,
+          "executionTimeMillis": 6,
+          "totalKeysExamined": 0,
+          "totalDocsExamined": 9,
+          "executionStages": {
+            "stage": "PROJECTION_SIMPLE",
+            "nReturned": 9,
+            "executionTimeMillisEstimate": 0,
+            "works": 10,
+            "advanced": 9,
+            "needTime": 0,
+            "needYield": 0,
+            "saveState": 1,
+            "restoreState": 1,
+            "isEOF": 1,
+            "transformBy": {
+              "_id": 1
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "nReturned": 9,
+              "executionTimeMillisEstimate": 0,
+              "works": 10,
+              "advanced": 9,
+              "needTime": 0,
+              "needYield": 0,
+              "saveState": 1,
+              "restoreState": 1,
+              "isEOF": 1,
+              "direction": "forward",
+              "docsExamined": 9
+            }
+          }
+        }
+      },
+      "nReturned": 9,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$graphLookup": {
+        "from": "employees",
+        "as": "subordinados",
+        "connectToField": "reports_to",
+        "connectFromField": "_id",
+        "startWith": "$_id"
+      },
+      "nReturned": 9,
+      "executionTimeMillisEstimate": 2
+    },
+    {
+      "$set": {
+        "membro_ids": {
+          "$setUnion": [
+            [
+              "$_id"
+            ],
+            "$subordinados._id"
+          ]
+        }
+      },
+      "nReturned": 9,
+      "executionTimeMillisEstimate": 2
+    },
+    {
+      "$lookup": {
+        "from": "orders",
+        "as": "vendas",
+        "localField": "membro_ids",
+        "foreignField": "employee_id",
+        "let": {},
+        "pipeline": [
+          {
+            "$match": {
+              "order_date": {
+                "$gte": {
+                  "$date": "1996-07-01T00:00:00Z"
+                },
+                "$lt": {
+                  "$date": "1998-06-01T00:00:00Z"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "totalDocsExamined": 7470,
+      "totalKeysExamined": 0,
+      "collectionScans": 9,
+      "indexesUsed": [],
+      "nReturned": 9,
+      "executionTimeMillisEstimate": 5
+    },
+    {
+      "$set": {
+        "vendas": {
+          "$map": {
+            "input": "$vendas",
+            "as": "o",
+            "in": {
+              "_id": "$$o.employee_id",
+              "pedidos": {
+                "$const": 1
+              },
+              "valor": {
+                "$sum": [
+                  {
+                    "$map": {
+                      "input": "$$o.items",
+                      "as": "i",
+                      "in": {
+                        "$multiply": [
+                          "$$i.unit_price",
+                          "$$i.quantity",
+                          {
+                            "$subtract": [
+                              {
+                                "$const": {
+                                  "$numberDecimal": "1"
+                                }
+                              },
+                              "$$i.discount"
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "nReturned": 9,
+      "executionTimeMillisEstimate": 5
+    },
+    {
+      "$project": {
+        "gestor_id": "$_id",
+        "membros": {
+          "$size": [
+            "$membro_ids"
+          ]
+        },
+        "valor_proprio": {
+          "$sum": [
+            {
+              "$map": {
+                "input": {
+                  "$filter": {
+                    "input": "$vendas",
+                    "as": "v",
+                    "cond": {
+                      "$eq": [
+                        "$$v._id",
+                        "$_id"
+                      ]
+                    }
+                  }
+                },
+                "as": "v",
+                "in": "$$v.valor"
+              }
+            }
+          ]
+        },
+        "pedidos_equipe": {
+          "$sum": [
+            "$vendas.pedidos"
+          ]
+        },
+        "valor_equipe": {
+          "$sum": [
+            "$vendas.valor"
+          ]
+        },
+        "_id": false
+      },
+      "nReturned": 9,
+      "executionTimeMillisEstimate": 5
+    },
+    {
+      "$sort": {
+        "sortKey": {
+          "gestor_id": 1
+        }
+      },
+      "totalDataSizeSortedBytesEstimate": 4005,
+      "usedDisk": false,
+      "spills": 0,
+      "spilledDataStorageSize": 0,
+      "nReturned": 9,
+      "executionTimeMillisEstimate": 5
+    }
+  ],
+  "serverInfo": {
+    "host": "f2526db2bd5a",
+    "port": 27017,
+    "version": "7.0.40",
+    "gitVersion": "37741b538c02da076d1e34d66113ac0230d4523a"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600,
+    "internalQueryFrameworkControl": "forceClassicEngine"
+  },
+  "command": {
+    "aggregate": "employees",
+    "pipeline": [
+      {
+        "$graphLookup": {
+          "from": "employees",
+          "startWith": "$_id",
+          "connectFromField": "_id",
+          "connectToField": "reports_to",
+          "as": "subordinados"
+        }
+      },
+      {
+        "$set": {
+          "membro_ids": {
+            "$setUnion": [
+              [
+                "$_id"
+              ],
+              "$subordinados._id"
+            ]
+          }
+        }
+      },
+      {
+        "$lookup": {
+          "from": "orders",
+          "localField": "membro_ids",
+          "foreignField": "employee_id",
+          "pipeline": [
+            {
+              "$match": {
+                "order_date": {
+                  "$gte": {
+                    "$date": "1996-07-01T00:00:00Z"
+                  },
+                  "$lt": {
+                    "$date": "1998-06-01T00:00:00Z"
+                  }
+                }
+              }
+            }
+          ],
+          "as": "vendas"
+        }
+      },
+      {
+        "$set": {
+          "vendas": {
+            "$map": {
+              "input": "$vendas",
+              "as": "o",
+              "in": {
+                "_id": "$$o.employee_id",
+                "pedidos": 1,
+                "valor": {
+                  "$sum": {
+                    "$map": {
+                      "input": "$$o.items",
+                      "as": "i",
+                      "in": {
+                        "$multiply": [
+                          "$$i.unit_price",
+                          "$$i.quantity",
+                          {
+                            "$subtract": [
+                              {
+                                "$toDecimal": 1
+                              },
+                              "$$i.discount"
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "gestor_id": "$_id",
+          "membros": {
+            "$size": "$membro_ids"
+          },
+          "valor_proprio": {
+            "$sum": {
+              "$map": {
+                "input": {
+                  "$filter": {
+                    "input": "$vendas",
+                    "as": "v",
+                    "cond": {
+                      "$eq": [
+                        "$$v._id",
+                        "$_id"
+                      ]
+                    }
+                  }
+                },
+                "as": "v",
+                "in": "$$v.valor"
+              }
+            }
+          },
+          "pedidos_equipe": {
+            "$sum": "$vendas.pedidos"
+          },
+          "valor_equipe": {
+            "$sum": "$vendas.valor"
+          }
+        }
+      },
+      {
+        "$sort": {
+          "gestor_id": 1
+        }
+      }
+    ],
+    "cursor": {},
+    "$db": "bench_e03_d2f35921_base"
+  },
+  "ok": 1.0
+}

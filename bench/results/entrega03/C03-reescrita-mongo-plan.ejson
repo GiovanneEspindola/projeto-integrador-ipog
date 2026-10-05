@@ -1,0 +1,462 @@
+{
+  "explainVersion": "1",
+  "stages": [
+    {
+      "$cursor": {
+        "queryPlanner": {
+          "namespace": "bench_e03_d2f35921_base.orders",
+          "indexFilterSet": false,
+          "parsedQuery": {
+            "$and": [
+              {
+                "order_date": {
+                  "$lt": {
+                    "$date": "1998-06-01T00:00:00Z"
+                  }
+                }
+              },
+              {
+                "order_date": {
+                  "$gte": {
+                    "$date": "1996-07-01T00:00:00Z"
+                  }
+                }
+              }
+            ]
+          },
+          "queryHash": "5DE44310",
+          "planCacheKey": "5DE44310",
+          "optimizationTimeMillis": 0,
+          "maxIndexedOrSolutionsReached": false,
+          "maxIndexedAndSolutionsReached": false,
+          "maxScansToExplodeReached": false,
+          "winningPlan": {
+            "stage": "PROJECTION_DEFAULT",
+            "transformBy": {
+              "items.product._id": 1,
+              "_id": 0
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "filter": {
+                "$and": [
+                  {
+                    "order_date": {
+                      "$lt": {
+                        "$date": "1998-06-01T00:00:00Z"
+                      }
+                    }
+                  },
+                  {
+                    "order_date": {
+                      "$gte": {
+                        "$date": "1996-07-01T00:00:00Z"
+                      }
+                    }
+                  }
+                ]
+              },
+              "direction": "forward"
+            }
+          },
+          "rejectedPlans": []
+        },
+        "executionStats": {
+          "executionSuccess": true,
+          "nReturned": 830,
+          "executionTimeMillis": 5,
+          "totalKeysExamined": 0,
+          "totalDocsExamined": 830,
+          "executionStages": {
+            "stage": "PROJECTION_DEFAULT",
+            "nReturned": 830,
+            "executionTimeMillisEstimate": 0,
+            "works": 831,
+            "advanced": 830,
+            "needTime": 0,
+            "needYield": 0,
+            "saveState": 1,
+            "restoreState": 1,
+            "isEOF": 1,
+            "transformBy": {
+              "items.product._id": 1,
+              "_id": 0
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "filter": {
+                "$and": [
+                  {
+                    "order_date": {
+                      "$lt": {
+                        "$date": "1998-06-01T00:00:00Z"
+                      }
+                    }
+                  },
+                  {
+                    "order_date": {
+                      "$gte": {
+                        "$date": "1996-07-01T00:00:00Z"
+                      }
+                    }
+                  }
+                ]
+              },
+              "nReturned": 830,
+              "executionTimeMillisEstimate": 0,
+              "works": 831,
+              "advanced": 830,
+              "needTime": 0,
+              "needYield": 0,
+              "saveState": 1,
+              "restoreState": 1,
+              "isEOF": 1,
+              "direction": "forward",
+              "docsExamined": 830
+            }
+          }
+        }
+      },
+      "nReturned": 830,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$facet": {
+        "total": [
+          {
+            "$internalFacetTeeConsumer": {},
+            "nReturned": 830,
+            "executionTimeMillisEstimate": 0
+          },
+          {
+            "$group": {
+              "_id": {
+                "$const": null
+              },
+              "n": {
+                "$sum": {
+                  "$const": 1
+                }
+              }
+            },
+            "maxAccumulatorMemoryUsageBytes": {
+              "n": 96
+            },
+            "totalOutputDataSizeBytes": 245,
+            "usedDisk": false,
+            "spills": 0,
+            "spilledDataStorageSize": 0,
+            "numBytesSpilledEstimate": 0,
+            "spilledRecords": 0,
+            "nReturned": 1,
+            "executionTimeMillisEstimate": 0
+          },
+          {
+            "$project": {
+              "n": true,
+              "_id": false
+            },
+            "nReturned": 1,
+            "executionTimeMillisEstimate": 0
+          }
+        ],
+        "pares": [
+          {
+            "$internalFacetTeeConsumer": {},
+            "nReturned": 830,
+            "executionTimeMillisEstimate": 0
+          },
+          {
+            "$project": {
+              "ids": "$items.product._id",
+              "_id": false
+            },
+            "nReturned": 830,
+            "executionTimeMillisEstimate": 0
+          },
+          {
+            "$set": {
+              "outros": "$ids"
+            },
+            "nReturned": 830,
+            "executionTimeMillisEstimate": 0
+          },
+          {
+            "$unwind": {
+              "path": "$ids"
+            },
+            "nReturned": 2155,
+            "executionTimeMillisEstimate": 0
+          },
+          {
+            "$unwind": {
+              "path": "$outros"
+            },
+            "nReturned": 7059,
+            "executionTimeMillisEstimate": 0
+          },
+          {
+            "$match": {
+              "$expr": {
+                "$lt": [
+                  "$ids",
+                  "$outros"
+                ]
+              }
+            },
+            "nReturned": 2452,
+            "executionTimeMillisEstimate": 0
+          },
+          {
+            "$group": {
+              "_id": {
+                "a": "$ids",
+                "b": "$outros"
+              },
+              "pedidos": {
+                "$sum": {
+                  "$const": 1
+                }
+              }
+            },
+            "maxAccumulatorMemoryUsageBytes": {
+              "pedidos": 147360
+            },
+            "totalOutputDataSizeBytes": 752150,
+            "usedDisk": false,
+            "spills": 0,
+            "spilledDataStorageSize": 0,
+            "numBytesSpilledEstimate": 0,
+            "spilledRecords": 0,
+            "nReturned": 1535,
+            "executionTimeMillisEstimate": 4
+          }
+        ]
+      },
+      "nReturned": 1,
+      "executionTimeMillisEstimate": 4
+    },
+    {
+      "$set": {
+        "denominador": {
+          "$ifNull": [
+            {
+              "$first": [
+                "$total.n"
+              ]
+            },
+            {
+              "$const": 0
+            }
+          ]
+        }
+      },
+      "nReturned": 1,
+      "executionTimeMillisEstimate": 4
+    },
+    {
+      "$unwind": {
+        "path": "$pares"
+      },
+      "nReturned": 1535,
+      "executionTimeMillisEstimate": 4
+    },
+    {
+      "$project": {
+        "denominador": true,
+        "produto_a": "$pares._id.a",
+        "produto_b": "$pares._id.b",
+        "pedidos": "$pares.pedidos",
+        "suporte": {
+          "$cond": [
+            {
+              "$eq": [
+                "$denominador",
+                {
+                  "$const": 0
+                }
+              ]
+            },
+            {
+              "$const": null
+            },
+            {
+              "$divide": [
+                {
+                  "$multiply": [
+                    "$pares.pedidos",
+                    {
+                      "$const": {
+                        "$numberDecimal": "100"
+                      }
+                    }
+                  ]
+                },
+                "$denominador"
+              ]
+            }
+          ]
+        },
+        "_id": false
+      },
+      "nReturned": 1535,
+      "executionTimeMillisEstimate": 4
+    },
+    {
+      "$sort": {
+        "sortKey": {
+          "pedidos": -1,
+          "produto_a": 1,
+          "produto_b": 1
+        }
+      },
+      "totalDataSizeSortedBytesEstimate": 769035,
+      "usedDisk": false,
+      "spills": 0,
+      "spilledDataStorageSize": 0,
+      "nReturned": 1535,
+      "executionTimeMillisEstimate": 4
+    }
+  ],
+  "serverInfo": {
+    "host": "f2526db2bd5a",
+    "port": 27017,
+    "version": "7.0.40",
+    "gitVersion": "37741b538c02da076d1e34d66113ac0230d4523a"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600,
+    "internalQueryFrameworkControl": "forceClassicEngine"
+  },
+  "command": {
+    "aggregate": "orders",
+    "pipeline": [
+      {
+        "$match": {
+          "order_date": {
+            "$gte": {
+              "$date": "1996-07-01T00:00:00Z"
+            },
+            "$lt": {
+              "$date": "1998-06-01T00:00:00Z"
+            }
+          }
+        }
+      },
+      {
+        "$facet": {
+          "total": [
+            {
+              "$count": "n"
+            }
+          ],
+          "pares": [
+            {
+              "$project": {
+                "_id": 0,
+                "ids": "$items.product._id"
+              }
+            },
+            {
+              "$set": {
+                "outros": "$ids"
+              }
+            },
+            {
+              "$unwind": "$ids"
+            },
+            {
+              "$unwind": "$outros"
+            },
+            {
+              "$match": {
+                "$expr": {
+                  "$lt": [
+                    "$ids",
+                    "$outros"
+                  ]
+                }
+              }
+            },
+            {
+              "$group": {
+                "_id": {
+                  "a": "$ids",
+                  "b": "$outros"
+                },
+                "pedidos": {
+                  "$sum": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$set": {
+          "denominador": {
+            "$ifNull": [
+              {
+                "$first": "$total.n"
+              },
+              0
+            ]
+          }
+        }
+      },
+      {
+        "$unwind": "$pares"
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "produto_a": "$pares._id.a",
+          "produto_b": "$pares._id.b",
+          "pedidos": "$pares.pedidos",
+          "denominador": 1,
+          "suporte": {
+            "$cond": [
+              {
+                "$eq": [
+                  "$denominador",
+                  0
+                ]
+              },
+              null,
+              {
+                "$divide": [
+                  {
+                    "$multiply": [
+                      "$pares.pedidos",
+                      {
+                        "$numberDecimal": "100"
+                      }
+                    ]
+                  },
+                  "$denominador"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "$sort": {
+          "pedidos": -1,
+          "produto_a": 1,
+          "produto_b": 1
+        }
+      }
+    ],
+    "cursor": {},
+    "$db": "bench_e03_d2f35921_base"
+  },
+  "ok": 1.0
+}

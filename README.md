@@ -12,6 +12,53 @@ Autor: Giovanne Espindola · Trabalho individual · Semestre final.
 
 ---
 
+## Entrega 3 — semanas 5 e 6
+
+- [Word cumulativo para entrega](entregas/entrega-03/Projeto-Integrador-Banco-de-Dados-Entrega-03.docx).
+- [Contrato analítico](docs/entrega03/contrato-analitico.md) e [plano implementado](docs/entrega03/PLANO-ENTREGA-03.md).
+- [Resultados e testes](apresentacao/evidencias/entrega03/LEIA-ME.md) e [amostras/planos de performance](bench/results/entrega03/).
+
+A etapa acrescenta 16 pares SQL/MongoDB, quatro views em `nw_analytics`, três procedures, três demonstrações documentais e MapReduce. Os 16 pares passaram na comparação completa e foram recalculados por um terceiro caminho em Python; a migração manteve 3.311 linhas equivalentes. Foram executadas 38 verificações adicionais, com valores esperados calculados à mão, e quatro estudos de otimização em cópias isoladas, com as versões medidas de forma intercalada. As views monetárias novas não arredondam por item.
+
+Com os bancos e a carga das etapas anteriores disponíveis:
+
+```bash
+docker compose exec -T postgres psql -U pi -d northwind -v ON_ERROR_STOP=1 -f /sql/entrega03/00_views.sql
+docker compose exec -T postgres psql -U pi -d northwind -v ON_ERROR_STOP=1 -f /sql/entrega03/10_procedures.sql
+uv run python etl/validar_analytics.py
+uv run python etl/conferir_python.py
+(cd etl && uv run python testar_analytics.py)
+uv run python bench/entrega03.py
+docker compose exec -T mongo mongosh -u pi -p pi --authenticationDatabase admin --quiet --file /mongo/entrega03/recursos_documentais.js > apresentacao/evidencias/entrega03/recursos-documentais.json
+docker compose exec -T mongo mongosh -u pi -p pi --authenticationDatabase admin --quiet --file /mongo/entrega03/mapreduce.js > apresentacao/evidencias/entrega03/mapreduce.json
+uv run python entregas/preparar_entrega03.py
+npm --prefix entregas ci
+npm --prefix entregas run docx:entrega03
+uv run --with pypdf python entregas/finalizar_entrega03.py
+```
+
+A finalização usa LibreOffice para preencher e conferir o sumário pelas páginas reais. O PDF é uma cópia de revisão; o arquivo para a professora é o DOCX. Os documentos das Entregas 1 e 2 são preservados.
+
+Os QNN.sql podem ser executados diretamente em psql/DBeaver e os PNN.js em mongosh. Os scripts incluem o período padrão; alterações exigem ajuste do par e nova validação. A execução de performance salva tempos individuais, mediana, quartis e planos, sem alterar os índices dos bancos originais.
+
+## Entrega 2 — somente semana 4
+
+A modelagem MongoDB está implementada com transformação SQL e scripts mongosh.
+
+- [Word cumulativo](entregas/entrega-02/Projeto-Integrador-Banco-de-Dados-Entrega-02.docx).
+- [Guia prático: reprodução e Compass](docs/entrega02/GUIA-PRATICO.md).
+- [Transformação SQL](sql/entrega02/01_exportar_documentos.sql) e [carga mongosh](mongo/entrega02/02_carregar.js).
+- [Evidências da carga e conferência](apresentacao/evidencias/entrega02/LEIA-ME.md).
+
+São nove coleções, 1.107 documentos, 2.155 itens incorporados e 3.311 linhas
+relacionais reconstruídas sem divergências. O pacote da etapa fica em
+[entregas/entrega-02/](entregas/entrega-02/). A comparação ampla de desempenho
+permanece para as próximas etapas. A conexão visual salva no Compass ainda
+precisa ser conferida; a autenticação e os dados foram verificados por mongosh.
+
+Para gerar o Word novamente: `npm --prefix entregas run docx:entrega02`.
+A opção gera um arquivo separado e não sobrescreve o Word da Entrega 1.
+
 ## Estudar e conferir a Entrega 1
 
 - [Arquivo SQL da prática](sql/estudo/entrega01-dbeaver.sql): 31 consultas de leitura e exportações.
@@ -209,7 +256,7 @@ executados e exige nova conferência se uma consulta selecionada mudar.
 
 A análise do relatório usa `public` e arredonda o valor apenas depois da soma.
 As views atuais de `nw` arredondam por item. A diferença de 0,25 está explicada
-no relatório; a comparação futura deve padronizar a regra nos dois bancos.
+no relatório; a Entrega 3 padroniza a regra nos dois bancos com as views de `nw_analytics`.
 
 ### Interfaces gráficas (opcionais)
 
@@ -224,10 +271,10 @@ docker compose --profile gui up -d
 | pgAdmin | http://localhost:5050 | `pi@local.dev` / `pi` |
 | mongo-express | http://localhost:8081 | sem senha |
 
-### Ambiente Python (análise exploratória, ETL, benchmark e gráficos)
+### Ambiente Python (materiais anteriores de análise e gráficos)
 
-Não é necessário para subir os bancos nem para rodar as consultas SQL — só
-para o notebook de `etl/` e os scripts de `bench/`.
+Não é necessário para a transformação ou carga da Entrega 2, que usa SQL e mongosh.
+Este ambiente atende aos notebooks e scripts Python já existentes.
 
 O projeto usa o [**uv**](https://docs.astral.sh/uv/). Se você não tiver:
 
@@ -295,7 +342,7 @@ pip install -r etl/requirements.txt
 
 A numeração segue as fases do **CRISP-DM**, não a ordem em que os arquivos
 foram escritos: `01` a `04` são as fases 1 e 2 (entender o negócio e os dados),
-`05` apresenta o plano híbrido, e `06` guarda o detalhamento relacional para a próxima entrega. Os arquivos `07` e `08` fecham a Entrega 1 com conclusões e referências.
+`05` apresenta o plano híbrido, e `06` guarda o detalhamento relacional como material de apoio. Os arquivos `07` e `08` fecham a Entrega 1 com conclusões e referências.
 
 ---
 
@@ -306,14 +353,17 @@ pyproject.toml     dependências Python declaradas (fonte de verdade)
 uv.lock            versões resolvidas e travadas com hash
 .python-version    versão do interpretador (3.12)
 docs/              documentação técnica, numerada pelas fases do CRISP-DM
+  entrega02/       capítulos da semana 4 e guia prático SQL/mongosh/Compass
   estudo/          material didático: o "por quê" de cada decisão
   diagramas/       ER conceitual e arquitetura (.drawio), ER lógico (.dbml/.png)
 sql/               dump original, DDL do schema nw, carga, validação, índices, views
+  entrega02/       transformação para Extended JSON e conferência do retorno
   queries/         consultas de negócio (QNN.sql)
-mongo/             validators e índices
+mongo/             scripts MongoDB
+  entrega02/       modelo, carga, índices, conferências e dados gerados
   pipelines/       aggregation pipelines espelhando as consultas (PNN.js)
 etl/               perfilamento (notebook), validadores dos diagramas,
-                   migração PostgreSQL -> MongoDB, requirements.txt (gerado)
+                   conferências anteriores e requirements.txt (gerado)
 bench/             benchmark comparativo + resultados
 apresentacao/      roteiro dos slides + gerar_prints.py
   evidencias/      saídas brutas de consulta e gráficos usados na apresentação

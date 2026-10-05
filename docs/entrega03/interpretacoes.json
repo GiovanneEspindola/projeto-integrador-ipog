@@ -1,0 +1,130 @@
+{
+ "1": {
+  "pergunta": "Quais categorias concentram o valor dos pedidos?",
+  "logica": "Relacionar itens ao pedido e à categoria, somar quantidade e valor e dividir cada valor pelo total geral.",
+  "leitura": "Beverages representa 21,16% do valor e soma 267.868,18. Participação comercial não é margem: o custo de aquisição não está disponível.",
+  "cuidado": "A participação mede peso no valor dos pedidos, não rentabilidade. Os grupos são definidos pelo ID da categoria e o percentual é calculado depois da agregação, sobre o mesmo recorte.",
+  "sql": "JOIN, GROUP BY e SUM OVER",
+  "mongo": "$unwind, $group e $setWindowFields"
+ },
+ "2": {
+  "pergunta": "Como variam o número de pedidos e o ticket médio mensal?",
+  "logica": "Somar itens por pedido, agrupar pedidos por mês e completar o calendário. Ticket = valor / pedidos.",
+  "leitura": "Julho de 1996 tem 22 pedidos, valor de 27.861,90 e ticket de 1.266,45. O maior valor mensal observado é abril de 1998, com 123.798,68; maio de 1998 está incompleto.",
+  "cuidado": "O ticket é calculado por pedido: a média dos valores dos itens mediria o item médio, não o pedido médio. Um mês sem pedidos teria valor zero e ticket indefinido (nulo).",
+  "sql": "CTEs, generate_series e agregação em dois níveis",
+  "mongo": "$map, $group, $facet e calendário por $dateAdd"
+ },
+ "3": {
+  "pergunta": "Quais produtos não foram vendidos no período?",
+  "logica": "Começar pelo cadastro completo e verificar se existe pelo menos um item em pedido dentro da janela.",
+  "leitura": "A consulta retorna zero linhas: todos os 77 produtos aparecem em alguma venda do recorte completo. Uma saída vazia responde validamente à pergunta.",
+  "cuidado": "O resultado vazio vale apenas para o recorte completo; em janelas menores podem surgir produtos sem venda. Os testes sintéticos confirmam que a consulta lista esses produtos quando existem.",
+  "sql": "NOT EXISTS e junções cadastrais",
+  "mongo": "$lookup com $limit e filtro de array vazio"
+ },
+ "4": {
+  "pergunta": "Como se distribuem os pedidos entre os funcionários?",
+  "logica": "Preservar o cadastro de funcionários, somar pedidos e valor de cada um e calcular ticket e participação.",
+  "leitura": "Margaret Peacock tem o maior valor registrado: 232.890,85, associado a 156 pedidos e 18,40% do total. A distribuição não controla território, carteira ou tempo de trabalho.",
+  "cuidado": "Os valores descrevem vendas registradas por funcionário. Sem informação de carteira, território ou tempo de atuação, a diferença entre eles não mede produtividade.",
+  "sql": "LEFT JOIN, agregação e janela global",
+  "mongo": "$lookup, $group e $setWindowFields"
+ },
+ "5": {
+  "pergunta": "Quais categorias têm produtos abaixo do ponto de reposição?",
+  "logica": "Comparar estoque com reorder_level, somar a diferença e verificar se estoque mais encomendado cobre o ponto.",
+  "leitura": "Há 18 produtos abaixo do ponto, em sete categorias. Em dois deles, nem o estoque somado ao encomendado alcança o ponto. Um dos 18, Chang (ID 2), está descontinuado, o que mostra por que o sinal precisa ser conferido antes de uma compra.",
+  "cuidado": "O estoque é o estado cadastrado, sem reconstrução histórica. O indicador precisa ser conferido com o status do produto antes de virar recomendação de compra.",
+  "sql": "Comparação entre colunas, FILTER e array_agg",
+  "mongo": "$expr, $set, $group e $push"
+ },
+ "6": {
+  "pergunta": "Quais clientes estão sem compra há mais de seis meses?",
+  "logica": "Para cada cliente, obter a última compra até 06/05/1998. Selecionar data anterior a 06/11/1997 ou ausência de compras.",
+  "leitura": "São cinco clientes com compra anterior ao corte e dois sem compras registradas (FISSA e PARIS), situações que pedem abordagens diferentes. MEREP, nono maior cliente em valor e classe A na curva ABC, está entre os inativos: sua última compra foi em 30/10/1997.",
+  "cuidado": "A referência 06/05/1998 é o último pedido da base; a data atual tornaria todos os clientes inativos. Seis meses de calendário não equivalem necessariamente a 180 dias.",
+  "sql": "LEFT JOIN, MAX e comparação de datas",
+  "mongo": "$lookup, $dateDiff e tratamento de null"
+ },
+ "7": {
+  "pergunta": "Quais são os cinco produtos de maior valor em cada categoria?",
+  "logica": "Agregar por produto e categoria, ordenar por valor decrescente e ID crescente, numerar dentro de cada categoria e manter posições de 1 a 5.",
+  "leitura": "O produto 38 (Côte de Blaye) lidera Beverages com 141.396,74, cerca de seis vezes o segundo colocado da categoria e 52,79% do valor de Beverages. Sozinho, ele responde por 11,17% do valor total do período, o que torna a categoria dependente de um único item.",
+  "cuidado": "O ranking é por valor, não por unidades vendidas. Com ROW_NUMBER, empates na quinta posição são resolvidos pelo menor ID; RANK poderia devolver mais de cinco linhas.",
+  "sql": "ROW_NUMBER com PARTITION BY",
+  "mongo": "$setWindowFields e soma cumulativa de 1"
+ },
+ "8": {
+  "pergunta": "Qual é o valor acumulado ao longo dos meses?",
+  "logica": "Construir a série mensal e somar os valores da primeira linha até a linha corrente.",
+  "leitura": "O acumulado termina em 1.265.793,04, reconciliando com o total independente dos itens. O acumulado aumenta mesmo quando o ritmo mensal desacelera.",
+  "cuidado": "Um acumulado crescente não indica crescimento mensal: ele sobe sempre que o mês tem valor positivo. O total é a última linha, não a soma dos acumulados.",
+  "sql": "SUM OVER com ROWS UNBOUNDED PRECEDING",
+  "mongo": "$setWindowFields com janela até current"
+ },
+ "9": {
+  "pergunta": "Quanto o valor mudou em relação ao mês anterior?",
+  "logica": "Obter o valor do mês anterior, subtrair do atual e dividir a diferença pelo anterior.",
+  "leitura": "Agosto de 1996 ficou 8,53% abaixo de julho. A maior alta ocorreu em dezembro de 1997 (+64,01%). A queda de 85,19% em maio de 1998 não indica retração: a base só registra pedidos até 06/05/1998.",
+  "cuidado": "Quando o mês anterior tem valor zero, o percentual fica indefinido. O calendário completo impede que um mês sem vendas seja pulado e que meses não consecutivos sejam comparados.",
+  "sql": "LAG e NULLIF",
+  "mongo": "$shift e $cond"
+ },
+ "10": {
+  "pergunta": "Como os clientes se distribuem pela curva ABC de valor?",
+  "logica": "Somar valor por cliente, ordenar, calcular acumulado e aplicar os limites de 80% e 95% ao acumulado anterior.",
+  "leitura": "A classificação produz 34 clientes A, 27 B, 28 C e dois sem compras. QUICK-Stop lidera com 110.277,31. Os grupos representam concentração de valor, não probabilidades futuras de compra.",
+  "cuidado": "A classificação depende da concentração do valor, não da quantidade de clientes; por isso NTILE não seria equivalente. O cliente que cruza um limite permanece na classe que estava sendo completada.",
+  "sql": "CTEs, janela cumulativa e CASE",
+  "mongo": "$lookup, duas janelas e $switch"
+ },
+ "11": {
+  "pergunta": "Qual é o perfil de recência, frequência e valor de cada cliente?",
+  "logica": "Recência são dias desde a última compra; frequência é quantidade de pedidos; valor é a soma após descontos. Aplicar faixas fixas documentadas.",
+  "leitura": "ALFKI tem recência de 27 dias, seis pedidos e valor de 4.273,00, resultando em R=3, F=2 e M=1. Os três números explicam aspectos diferentes do relacionamento.",
+  "cuidado": "As faixas são convenções didáticas, não um modelo estatístico. Clientes sem compras recebem escores zero e recência nula, sem data inventada.",
+  "sql": "CTE e CASE",
+  "mongo": "$lookup, $dateDiff e condições"
+ },
+ "12": {
+  "pergunta": "Quais produtos aparecem juntos no mesmo pedido?",
+  "logica": "Formar combinações de dois IDs diferentes no pedido, mantendo apenas A menor que B, contar pedidos por par e dividir pelo total de pedidos.",
+  "leitura": "Foram observados 1.535 pares distintos. O par 21–61 lidera com oito pedidos, suporte de aproximadamente 0,96%. A frequência é pequena e não comprova que uma promoção conjunta funcionaria.",
+  "cuidado": "Cada par é contado uma vez por pedido, com o menor ID primeiro. O denominador inclui pedidos de um único produto. Frequência conjunta não demonstra efeito causal.",
+  "sql": "Autojunção de itens e agregação",
+  "mongo": "Expansão de arrays, $match e $group"
+ },
+ "13": {
+  "pergunta": "Qual é o intervalo até o envio registrado por transportadora?",
+  "logica": "Subtrair a data do pedido da data de envio onde ela existe; contar ausências separadamente e preservar as transportadoras sem pedidos.",
+  "leitura": "Speedy Express apresenta média de 8,57 dias sobre 245 envios registrados, com quatro datas ausentes em 249 pedidos. No conjunto, há 21 datas ausentes e 37 envios registrados depois da data requerida. As três transportadoras adicionais do cadastro não têm pedidos.",
+  "cuidado": "O intervalo vai até o envio registrado e não mede a entrega ao cliente. Datas ausentes não entram na média como zero nem provam que o pedido não foi enviado.",
+  "sql": "Diferença de datas, AVG e FILTER",
+  "mongo": "$lookup, $dateDiff e contagens condicionais"
+ },
+ "14": {
+  "pergunta": "Quanto os descontos reduzem o valor bruto dos itens?",
+  "logica": "Somar preço vezes quantidade, somar desconto monetário e subtrair para obter valor após descontos; dividir desconto pelo bruto para a taxa ponderada.",
+  "leitura": "Em Beverages, o desconto soma 18.658,77 sobre bruto de 286.526,95, aproximadamente 6,51%. O cálculo mede redução registrada, sem estimar efeito do desconto sobre a demanda.",
+  "cuidado": "A taxa é ponderada pelo valor bruto, diferente da média simples das taxas dos itens. Sem custos, o desconto não pode ser convertido em perda de lucro.",
+  "sql": "Expressões numeric, SUM e razão de somas",
+  "mongo": "Expressões Decimal128, $group e $divide"
+ },
+ "15": {
+  "pergunta": "Quanto foi registrado por cada funcionário e sua equipe?",
+  "logica": "Percorrer os subordinados, incluir o próprio responsável e somar as vendas de cada membro uma vez dentro da equipe.",
+  "leitura": "Andrew Fuller, gestor 2, reúne nove membros e os 830 pedidos da base. Seu valor próprio é 166.537,76; o valor de sua equipe é o total geral.",
+  "cuidado": "As equipes se sobrepõem na hierarquia; somar as linhas de todos os gestores contaria pedidos mais de uma vez. A equipe hierárquica não corresponde à divisão por território.",
+  "sql": "WITH RECURSIVE e pré-agregação",
+  "mongo": "$graphLookup, $setUnion e $lookup"
+ },
+ "16": {
+  "pergunta": "Como o valor se distribui por ano, trimestre e categoria?",
+  "logica": "Produzir totais trimestrais e sua decomposição por categoria; marcar trimestres cuja cobertura ultrapassa as datas disponíveis.",
+  "leitura": "São 72 linhas, com oito totais trimestrais e 64 categorias por trimestre. O terceiro trimestre de 1996 e o segundo de 1998 são parciais na cobertura do conjunto.",
+  "cuidado": "Totais e categorias estão em níveis diferentes e não devem ser somados juntos. Com menos de dois anos completos, a série não permite afirmar sazonalidade recorrente.",
+  "sql": "GROUPING SETS e GROUPING",
+  "mongo": "$facet, $concatArrays e agregação temporal"
+ }
+}

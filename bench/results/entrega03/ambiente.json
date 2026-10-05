@@ -1,0 +1,249 @@
+{
+  "executado_em": "2026-09-24T16:01:29.997200",
+  "aquecimentos": 5,
+  "repeticoes": 20,
+  "cenario": "cache aquecido, execução e consumo integral no driver",
+  "sistema": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "cpu": "x86_64",
+  "cpus_logicas": 28,
+  "memoria_linux": [
+    "MemTotal:        8127188 kB",
+    "MemFree:         2152876 kB",
+    "MemAvailable:    3847188 kB"
+  ],
+  "postgres": {
+    "versao": "PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit"
+  },
+  "mongo": "7.0.40",
+  "config_pg": [
+    {
+      "name": "effective_cache_size",
+      "setting": "524288",
+      "unit": "8kB"
+    },
+    {
+      "name": "jit",
+      "setting": "on",
+      "unit": null
+    },
+    {
+      "name": "max_parallel_workers_per_gather",
+      "setting": "2",
+      "unit": null
+    },
+    {
+      "name": "shared_buffers",
+      "setting": "16384",
+      "unit": "8kB"
+    },
+    {
+      "name": "work_mem",
+      "setting": "4096",
+      "unit": "kB"
+    }
+  ],
+  "indices_pg": [
+    {
+      "tablename": "categories",
+      "indexname": "categories_name_unica",
+      "indexdef": "CREATE UNIQUE INDEX categories_name_unica ON nw.categories USING btree (category_name)"
+    },
+    {
+      "tablename": "categories",
+      "indexname": "categories_pkey",
+      "indexdef": "CREATE UNIQUE INDEX categories_pkey ON nw.categories USING btree (category_id)"
+    },
+    {
+      "tablename": "customers",
+      "indexname": "customers_pkey",
+      "indexdef": "CREATE UNIQUE INDEX customers_pkey ON nw.customers USING btree (customer_id)"
+    },
+    {
+      "tablename": "employee_territories",
+      "indexname": "employee_territories_pk",
+      "indexdef": "CREATE UNIQUE INDEX employee_territories_pk ON nw.employee_territories USING btree (employee_id, territory_id)"
+    },
+    {
+      "tablename": "employees",
+      "indexname": "employees_pkey",
+      "indexdef": "CREATE UNIQUE INDEX employees_pkey ON nw.employees USING btree (employee_id)"
+    },
+    {
+      "tablename": "order_items",
+      "indexname": "order_items_pk",
+      "indexdef": "CREATE UNIQUE INDEX order_items_pk ON nw.order_items USING btree (order_id, product_id)"
+    },
+    {
+      "tablename": "order_items",
+      "indexname": "order_items_product_idx",
+      "indexdef": "CREATE INDEX order_items_product_idx ON nw.order_items USING btree (product_id)"
+    },
+    {
+      "tablename": "orders",
+      "indexname": "orders_customer_idx",
+      "indexdef": "CREATE INDEX orders_customer_idx ON nw.orders USING btree (customer_id)"
+    },
+    {
+      "tablename": "orders",
+      "indexname": "orders_date_idx",
+      "indexdef": "CREATE INDEX orders_date_idx ON nw.orders USING btree (order_date)"
+    },
+    {
+      "tablename": "orders",
+      "indexname": "orders_employee_idx",
+      "indexdef": "CREATE INDEX orders_employee_idx ON nw.orders USING btree (employee_id)"
+    },
+    {
+      "tablename": "orders",
+      "indexname": "orders_pkey",
+      "indexdef": "CREATE UNIQUE INDEX orders_pkey ON nw.orders USING btree (order_id)"
+    },
+    {
+      "tablename": "products",
+      "indexname": "products_name_por_fornecedor_unica",
+      "indexdef": "CREATE UNIQUE INDEX products_name_por_fornecedor_unica ON nw.products USING btree (supplier_id, product_name)"
+    },
+    {
+      "tablename": "products",
+      "indexname": "products_pkey",
+      "indexdef": "CREATE UNIQUE INDEX products_pkey ON nw.products USING btree (product_id)"
+    },
+    {
+      "tablename": "regions",
+      "indexname": "regions_name_unica",
+      "indexdef": "CREATE UNIQUE INDEX regions_name_unica ON nw.regions USING btree (region_name)"
+    },
+    {
+      "tablename": "regions",
+      "indexname": "regions_pkey",
+      "indexdef": "CREATE UNIQUE INDEX regions_pkey ON nw.regions USING btree (region_id)"
+    },
+    {
+      "tablename": "shippers",
+      "indexname": "shippers_name_unica",
+      "indexdef": "CREATE UNIQUE INDEX shippers_name_unica ON nw.shippers USING btree (company_name)"
+    },
+    {
+      "tablename": "shippers",
+      "indexname": "shippers_pkey",
+      "indexdef": "CREATE UNIQUE INDEX shippers_pkey ON nw.shippers USING btree (shipper_id)"
+    },
+    {
+      "tablename": "suppliers",
+      "indexname": "suppliers_pkey",
+      "indexdef": "CREATE UNIQUE INDEX suppliers_pkey ON nw.suppliers USING btree (supplier_id)"
+    },
+    {
+      "tablename": "territories",
+      "indexname": "territories_pkey",
+      "indexdef": "CREATE UNIQUE INDEX territories_pkey ON nw.territories USING btree (territory_id)"
+    }
+  ],
+  "indices_mongo": {
+    "territories": [
+      {
+        "v": 2,
+        "key": {
+          "_id": 1
+        },
+        "name": "_id_"
+      }
+    ],
+    "orders": [
+      {
+        "v": 2,
+        "key": {
+          "_id": 1
+        },
+        "name": "_id_"
+      },
+      {
+        "v": 2,
+        "key": {
+          "customer_id": 1,
+          "order_date": 1
+        },
+        "name": "cliente_data"
+      },
+      {
+        "v": 2,
+        "key": {
+          "items.product._id": 1
+        },
+        "name": "produto_no_pedido"
+      }
+    ],
+    "suppliers": [
+      {
+        "v": 2,
+        "key": {
+          "_id": 1
+        },
+        "name": "_id_"
+      }
+    ],
+    "employees": [
+      {
+        "v": 2,
+        "key": {
+          "_id": 1
+        },
+        "name": "_id_"
+      }
+    ],
+    "customers": [
+      {
+        "v": 2,
+        "key": {
+          "_id": 1
+        },
+        "name": "_id_"
+      }
+    ],
+    "regions": [
+      {
+        "v": 2,
+        "key": {
+          "_id": 1
+        },
+        "name": "_id_"
+      }
+    ],
+    "products": [
+      {
+        "v": 2,
+        "key": {
+          "_id": 1
+        },
+        "name": "_id_"
+      },
+      {
+        "v": 2,
+        "key": {
+          "category._id": 1
+        },
+        "name": "categoria_produto"
+      }
+    ],
+    "shippers": [
+      {
+        "v": 2,
+        "key": {
+          "_id": 1
+        },
+        "name": "_id_"
+      }
+    ],
+    "categories": [
+      {
+        "v": 2,
+        "key": {
+          "_id": 1
+        },
+        "name": "_id_"
+      }
+    ]
+  },
+  "docker": "/pi-postgres Memory=0 NanoCpus=0\n/pi-mongo Memory=0 NanoCpus=0",
+  "cpu_modelo": "Intel(R) Core(TM) i7-14700HX"
+}

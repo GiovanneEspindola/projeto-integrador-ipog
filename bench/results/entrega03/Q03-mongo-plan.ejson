@@ -1,0 +1,229 @@
+{
+  "explainVersion": "1",
+  "stages": [
+    {
+      "$cursor": {
+        "queryPlanner": {
+          "namespace": "northwind.products",
+          "indexFilterSet": false,
+          "parsedQuery": {},
+          "queryHash": "14B9E61B",
+          "planCacheKey": "14B9E61B",
+          "optimizationTimeMillis": 0,
+          "maxIndexedOrSolutionsReached": false,
+          "maxIndexedAndSolutionsReached": false,
+          "maxScansToExplodeReached": false,
+          "winningPlan": {
+            "stage": "PROJECTION_DEFAULT",
+            "transformBy": {
+              "_id": 1,
+              "category.name": 1,
+              "product_name": 1,
+              "supplier.name": 1
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "direction": "forward"
+            }
+          },
+          "rejectedPlans": []
+        },
+        "executionStats": {
+          "executionSuccess": true,
+          "nReturned": 77,
+          "executionTimeMillis": 2,
+          "totalKeysExamined": 0,
+          "totalDocsExamined": 77,
+          "executionStages": {
+            "stage": "PROJECTION_DEFAULT",
+            "nReturned": 77,
+            "executionTimeMillisEstimate": 0,
+            "works": 78,
+            "advanced": 77,
+            "needTime": 0,
+            "needYield": 0,
+            "saveState": 1,
+            "restoreState": 1,
+            "isEOF": 1,
+            "transformBy": {
+              "_id": 1,
+              "category.name": 1,
+              "product_name": 1,
+              "supplier.name": 1
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "nReturned": 77,
+              "executionTimeMillisEstimate": 0,
+              "works": 78,
+              "advanced": 77,
+              "needTime": 0,
+              "needYield": 0,
+              "saveState": 1,
+              "restoreState": 1,
+              "isEOF": 1,
+              "direction": "forward",
+              "docsExamined": 77
+            }
+          }
+        }
+      },
+      "nReturned": 77,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$lookup": {
+        "from": "orders",
+        "as": "vendas",
+        "localField": "_id",
+        "foreignField": "items.product._id",
+        "let": {},
+        "pipeline": [
+          {
+            "$match": {
+              "order_date": {
+                "$gte": {
+                  "$date": "1996-07-01T00:00:00Z"
+                },
+                "$lt": {
+                  "$date": "1998-06-01T00:00:00Z"
+                }
+              }
+            }
+          },
+          {
+            "$limit": 1
+          },
+          {
+            "$project": {
+              "_id": 0,
+              "encontrado": {
+                "$literal": true
+              }
+            }
+          }
+        ]
+      },
+      "totalDocsExamined": 77,
+      "totalKeysExamined": 77,
+      "collectionScans": 0,
+      "indexesUsed": [
+        "produto_no_pedido"
+      ],
+      "nReturned": 77,
+      "executionTimeMillisEstimate": 2
+    },
+    {
+      "$match": {
+        "vendas": {
+          "$size": 0
+        }
+      },
+      "nReturned": 0,
+      "executionTimeMillisEstimate": 2
+    },
+    {
+      "$project": {
+        "product_id": "$_id",
+        "produto": "$product_name",
+        "categoria": "$category.name",
+        "fornecedor": "$supplier.name",
+        "_id": false
+      },
+      "nReturned": 0,
+      "executionTimeMillisEstimate": 2
+    },
+    {
+      "$sort": {
+        "sortKey": {
+          "product_id": 1
+        }
+      },
+      "totalDataSizeSortedBytesEstimate": 0,
+      "usedDisk": false,
+      "spills": 0,
+      "spilledDataStorageSize": 0,
+      "nReturned": 0,
+      "executionTimeMillisEstimate": 2
+    }
+  ],
+  "serverInfo": {
+    "host": "f2526db2bd5a",
+    "port": 27017,
+    "version": "7.0.40",
+    "gitVersion": "37741b538c02da076d1e34d66113ac0230d4523a"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600,
+    "internalQueryFrameworkControl": "forceClassicEngine"
+  },
+  "command": {
+    "aggregate": "products",
+    "pipeline": [
+      {
+        "$lookup": {
+          "from": "orders",
+          "localField": "_id",
+          "foreignField": "items.product._id",
+          "pipeline": [
+            {
+              "$match": {
+                "order_date": {
+                  "$gte": {
+                    "$date": "1996-07-01T00:00:00Z"
+                  },
+                  "$lt": {
+                    "$date": "1998-06-01T00:00:00Z"
+                  }
+                }
+              }
+            },
+            {
+              "$limit": 1
+            },
+            {
+              "$project": {
+                "_id": 0,
+                "encontrado": {
+                  "$literal": true
+                }
+              }
+            }
+          ],
+          "as": "vendas"
+        }
+      },
+      {
+        "$match": {
+          "vendas": {
+            "$size": 0
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "product_id": "$_id",
+          "produto": "$product_name",
+          "categoria": "$category.name",
+          "fornecedor": "$supplier.name"
+        }
+      },
+      {
+        "$sort": {
+          "product_id": 1
+        }
+      }
+    ],
+    "cursor": {},
+    "$db": "northwind"
+  },
+  "ok": 1.0
+}

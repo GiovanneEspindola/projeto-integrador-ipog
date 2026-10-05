@@ -1,0 +1,369 @@
+{
+  "explainVersion": "1",
+  "stages": [
+    {
+      "$cursor": {
+        "queryPlanner": {
+          "namespace": "northwind.orders",
+          "indexFilterSet": false,
+          "parsedQuery": {
+            "$and": [
+              {
+                "order_date": {
+                  "$lt": {
+                    "$date": "1998-06-01T00:00:00Z"
+                  }
+                }
+              },
+              {
+                "order_date": {
+                  "$gte": {
+                    "$date": "1996-07-01T00:00:00Z"
+                  }
+                }
+              }
+            ]
+          },
+          "queryHash": "0723A745",
+          "planCacheKey": "3005339C",
+          "optimizationTimeMillis": 0,
+          "maxIndexedOrSolutionsReached": false,
+          "maxIndexedAndSolutionsReached": false,
+          "maxScansToExplodeReached": false,
+          "winningPlan": {
+            "stage": "PROJECTION_SIMPLE",
+            "transformBy": {
+              "items": 1,
+              "_id": 0
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "filter": {
+                "$and": [
+                  {
+                    "order_date": {
+                      "$lt": {
+                        "$date": "1998-06-01T00:00:00Z"
+                      }
+                    }
+                  },
+                  {
+                    "order_date": {
+                      "$gte": {
+                        "$date": "1996-07-01T00:00:00Z"
+                      }
+                    }
+                  }
+                ]
+              },
+              "direction": "forward"
+            }
+          },
+          "rejectedPlans": []
+        },
+        "executionStats": {
+          "executionSuccess": true,
+          "nReturned": 830,
+          "executionTimeMillis": 2,
+          "totalKeysExamined": 0,
+          "totalDocsExamined": 830,
+          "executionStages": {
+            "stage": "PROJECTION_SIMPLE",
+            "nReturned": 830,
+            "executionTimeMillisEstimate": 0,
+            "works": 831,
+            "advanced": 830,
+            "needTime": 0,
+            "needYield": 0,
+            "saveState": 1,
+            "restoreState": 1,
+            "isEOF": 1,
+            "transformBy": {
+              "items": 1,
+              "_id": 0
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "filter": {
+                "$and": [
+                  {
+                    "order_date": {
+                      "$lt": {
+                        "$date": "1998-06-01T00:00:00Z"
+                      }
+                    }
+                  },
+                  {
+                    "order_date": {
+                      "$gte": {
+                        "$date": "1996-07-01T00:00:00Z"
+                      }
+                    }
+                  }
+                ]
+              },
+              "nReturned": 830,
+              "executionTimeMillisEstimate": 0,
+              "works": 831,
+              "advanced": 830,
+              "needTime": 0,
+              "needYield": 0,
+              "saveState": 1,
+              "restoreState": 1,
+              "isEOF": 1,
+              "direction": "forward",
+              "docsExamined": 830
+            }
+          }
+        }
+      },
+      "nReturned": 830,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$unwind": {
+        "path": "$items"
+      },
+      "nReturned": 2155,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$group": {
+        "_id": "$items.product.category._id",
+        "categoria": {
+          "$first": "$items.product.category.name"
+        },
+        "unidades": {
+          "$sum": "$items.quantity"
+        },
+        "valor": {
+          "$sum": {
+            "$multiply": [
+              "$items.unit_price",
+              "$items.quantity",
+              {
+                "$subtract": [
+                  {
+                    "$const": {
+                      "$numberDecimal": "1"
+                    }
+                  },
+                  "$items.discount"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "maxAccumulatorMemoryUsageBytes": {
+        "categoria": 636,
+        "unidades": 768,
+        "valor": 768
+      },
+      "totalOutputDataSizeBytes": 2788,
+      "usedDisk": false,
+      "spills": 0,
+      "spilledDataStorageSize": 0,
+      "numBytesSpilledEstimate": 0,
+      "spilledRecords": 0,
+      "nReturned": 8,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$_internalSetWindowFields": {
+        "output": {
+          "total": {
+            "$sum": "$valor",
+            "window": {
+              "documents": [
+                "unbounded",
+                "unbounded"
+              ]
+            }
+          }
+        }
+      },
+      "maxFunctionMemoryUsageBytes": {
+        "total": 96
+      },
+      "maxTotalMemoryUsageBytes": 2884,
+      "usedDisk": false,
+      "nReturned": 8,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$project": {
+        "categoria": true,
+        "unidades": true,
+        "valor": true,
+        "category_id": "$_id",
+        "participacao": {
+          "$cond": [
+            {
+              "$eq": [
+                "$total",
+                {
+                  "$const": 0
+                }
+              ]
+            },
+            {
+              "$const": null
+            },
+            {
+              "$divide": [
+                {
+                  "$multiply": [
+                    "$valor",
+                    {
+                      "$const": {
+                        "$numberDecimal": "100"
+                      }
+                    }
+                  ]
+                },
+                "$total"
+              ]
+            }
+          ]
+        },
+        "_id": false
+      },
+      "nReturned": 8,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$sort": {
+        "sortKey": {
+          "category_id": 1
+        }
+      },
+      "totalDataSizeSortedBytesEstimate": 3364,
+      "usedDisk": false,
+      "spills": 0,
+      "spilledDataStorageSize": 0,
+      "nReturned": 8,
+      "executionTimeMillisEstimate": 0
+    }
+  ],
+  "serverInfo": {
+    "host": "f2526db2bd5a",
+    "port": 27017,
+    "version": "7.0.40",
+    "gitVersion": "37741b538c02da076d1e34d66113ac0230d4523a"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600,
+    "internalQueryFrameworkControl": "forceClassicEngine"
+  },
+  "command": {
+    "aggregate": "orders",
+    "pipeline": [
+      {
+        "$match": {
+          "order_date": {
+            "$gte": {
+              "$date": "1996-07-01T00:00:00Z"
+            },
+            "$lt": {
+              "$date": "1998-06-01T00:00:00Z"
+            }
+          }
+        }
+      },
+      {
+        "$unwind": "$items"
+      },
+      {
+        "$group": {
+          "_id": "$items.product.category._id",
+          "categoria": {
+            "$first": "$items.product.category.name"
+          },
+          "unidades": {
+            "$sum": "$items.quantity"
+          },
+          "valor": {
+            "$sum": {
+              "$multiply": [
+                "$items.unit_price",
+                "$items.quantity",
+                {
+                  "$subtract": [
+                    {
+                      "$numberDecimal": "1"
+                    },
+                    "$items.discount"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "$setWindowFields": {
+          "output": {
+            "total": {
+              "$sum": "$valor",
+              "window": {
+                "documents": [
+                  "unbounded",
+                  "unbounded"
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "category_id": "$_id",
+          "categoria": 1,
+          "unidades": 1,
+          "valor": 1,
+          "participacao": {
+            "$cond": [
+              {
+                "$eq": [
+                  "$total",
+                  0
+                ]
+              },
+              null,
+              {
+                "$divide": [
+                  {
+                    "$multiply": [
+                      "$valor",
+                      {
+                        "$numberDecimal": "100"
+                      }
+                    ]
+                  },
+                  "$total"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "$sort": {
+          "category_id": 1
+        }
+      }
+    ],
+    "cursor": {},
+    "$db": "northwind"
+  },
+  "ok": 1.0
+}
